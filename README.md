@@ -1,5 +1,5 @@
 # Bachelor Thesis
-Fork of the linux kernel. Using it for my bachelor thsis. Currently working in lib/modules.
+Fork of the linux kernel. Using it for my bachelor thesis. Currently working in `lib/modules` and exploring dependency orderings in LLVM IR on arm64.
 
 ---
 
