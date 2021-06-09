@@ -1,3 +1,8 @@
+# Bachelor Thesis
+Fork of the linux kernel. Using it for my bachelor thsis. Currently working in lib/modules.
+
+---
+
 Linux kernel
 ============
 
