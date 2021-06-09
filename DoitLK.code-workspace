@@ -1,0 +1,18 @@
+{
+    "folders": [
+        {
+            "path": "."
+        },
+        {
+            "path": "../llvm-project"
+        }
+    ],
+    "settings": {
+        "makefile.configurations": [
+            {
+                "name": "Linux kernel clang-11",
+                "makeArgs": ["CC=clang-11"]
+            }
+        ]
+    }
+}
