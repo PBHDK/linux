@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/include",
+                "${workspaceFolder}/arch/arm64/include"
+            ],
+            "forcedInclude": [
+                "${workspaceFolder}/include/generated/autoconf.h"
+            ],
+            "defines": [
+                "__GNUC__",
+                "__KERNEL__",
+                "KBUILD_MODNAME=\"lkm\""
+            ],
+            "compilerPath": "/usr/bin/clang-11",
+            "cStandard": "c89",
+            "intelliSenseMode": "clang-x64"
+        }
+    ],
+    "version": 4
+}
