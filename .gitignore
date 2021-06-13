@@ -162,3 +162,8 @@ x509.genkey
 
 # Documentation toolchain
 sphinx_*/
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/c_cpp_properties.json
