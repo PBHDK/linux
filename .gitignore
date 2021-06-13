@@ -174,3 +174,8 @@ sphinx_*/
 
 # Rust analyzer configuration
 /rust-project.json
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/c_cpp_properties.json
