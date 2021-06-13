@@ -4,7 +4,7 @@
 
 MODULE_DESCRIPTION("Kernel module for understanding dependency orderings in unoptimised IR");
 MODULE_AUTHOR("Paul Heidekruger");
-MODULE_LICENSE("GPL");
+// MODULE_LICENSE("GPL");
 
 // Most basic data dependencies
 
@@ -124,21 +124,21 @@ static int data_load_acquire_store_mb(void)
 
 // static int data_rcu_dereference_write(void)
 // {
-// 	// Declaration
-// 	int x, y, z;
+//	// Declaration
+//	int x, y, z;
 
-// 	// Definition
-// 	WRITE_ONCE(x, 42);
+//	// Definition
+//	WRITE_ONCE(x, 42);
 
-// 	// Begin data dependencies
-// 	y = rcu_dereference(x);
+//	// Begin data dependencies
+//	y = rcu_dereference(x);
 
-// 	// Do stuff
+//	// Do stuff
 
-// 	// End data dependency
-// 	WRITE_ONCE(z, y);
+//	// End data dependency
+//	WRITE_ONCE(z, y);
 
-// 	return 0;
+//	return 0;
 // }
 
 // static int data_rcu_dereference_store_release(void)
