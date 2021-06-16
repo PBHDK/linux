@@ -214,12 +214,16 @@ static int data_load_acquire_store_mb(void)
 
 static int lkm_init(void)
 {
-	int x = 42;
+	int x, y;
+
+	WRITE_ONCE(x, 42);
+	y = READ_ONCE(x);
 
 	pr_debug("Hi\n");
+
 	data_read_write();
 	data_read_write_addition();
-	data_read_write_across_boundaries(x);
+	data_read_write_across_boundaries(y);
 	data_read_store_release();
 	data_read_store_mb();
 	data_load_acquire_write();
