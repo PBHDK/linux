@@ -27,6 +27,37 @@ static int data_read_write(void)
 	return 0;
 }
 
+static int data_read_write_addition(void)
+{
+	// Declaration
+	int x, y, z;
+
+	// Definition
+	WRITE_ONCE(x, 42);
+
+	// Begin data Dependency
+	y = READ_ONCE(x);
+
+	// Do stuff
+
+	// End data dependency
+	WRITE_ONCE(z, y + 3);
+
+	return 0;
+}
+
+// How does call by value look in IR?
+static int data_read_write_across_boundaries(int y)
+{
+	// Declaration
+	int z;
+
+	// End data dependency
+	WRITE_ONCE(z, y);
+
+	return 0;
+}
+
 static int data_read_store_release(void)
 {
 	// Declaration
@@ -181,30 +212,14 @@ static int data_load_acquire_store_mb(void)
 
 // Basic data dependencies with some extras
 
-static int data_read_write_addition(void)
-{
-	// Declaration
-	int x, y, z;
-
-	// Definition
-	WRITE_ONCE(x, 42);
-
-	// Begin data Dependency
-	y = READ_ONCE(x);
-
-	// Do stuff
-
-	// End data dependency
-	WRITE_ONCE(z, y + 3);
-
-	return 0;
-}
-
 static int lkm_init(void)
 {
+	int x = 42;
+
 	pr_debug("Hi\n");
 	data_read_write();
 	data_read_write_addition();
+	data_read_write_across_boundaries(x);
 	data_read_store_release();
 	data_read_store_mb();
 	data_load_acquire_write();
