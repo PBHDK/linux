@@ -6,7 +6,7 @@
         },
         {
             "name": "llvm-project",
-            "path": "../llvm-project"
+            "path": "../DoitLK-llvm"
         }
     ],
     "settings": {
