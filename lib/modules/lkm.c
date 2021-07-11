@@ -58,100 +58,100 @@ static int data_read_write_across_boundaries(int y)
 	return 0;
 }
 
-static int data_read_store_release(void)
-{
-	// Declaration
-	int x, y, z;
+// static int data_read_store_release(void)
+// {
+// 	// Declaration
+// 	int x, y, z;
 
-	// Definition
-	WRITE_ONCE(x, 42);
+// 	// Definition
+// 	WRITE_ONCE(x, 42);
 
-	// Begin data dependencies
-	y = READ_ONCE(x);
+// 	// Begin data dependencies
+// 	y = READ_ONCE(x);
 
-	// Do stuff
+// 	// Do stuff
 
-	// End data dependency
-	smp_store_release(&z, y);
+// 	// End data dependency
+// 	smp_store_release(&z, y);
 
-	return 0;
-}
+// 	return 0;
+// }
 
-static int data_read_store_mb(void)
-{
-	// Declaration
-	int x, y, z;
+// static int data_read_store_mb(void)
+// {
+// 	// Declaration
+// 	int x, y, z;
 
-	// Definition
-	WRITE_ONCE(x, 42);
+// 	// Definition
+// 	WRITE_ONCE(x, 42);
 
-	// Begin data dependencies
-	y = READ_ONCE(x);
+// 	// Begin data dependencies
+// 	y = READ_ONCE(x);
 
-	// Do stuff
+// 	// Do stuff
 
-	// End data dependency
-	smp_store_mb(z, y);
+// 	// End data dependency
+// 	smp_store_mb(z, y);
 
-	return 0;
-}
+// 	return 0;
+// }
 
-static int data_load_acquire_write(void)
-{
-	// Declaration
-	int x, y, z;
+// static int data_load_acquire_write(void)
+// {
+// 	// Declaration
+// 	int x, y, z;
 
-	// Definition
-	WRITE_ONCE(x, 42);
+// 	// Definition
+// 	WRITE_ONCE(x, 42);
 
-	// Begin data dependencies
-	y = smp_load_acquire(&x);
+// 	// Begin data dependencies
+// 	y = smp_load_acquire(&x);
 
-	// Do stuff
+// 	// Do stuff
 
-	// End data dependency
-	WRITE_ONCE(z, y);
+// 	// End data dependency
+// 	WRITE_ONCE(z, y);
 
-	return 0;
-}
+// 	return 0;
+// }
 
-static int data_load_acquire_store_release(void)
-{
-	// Declaration
-	int x, y, z;
+// static int data_load_acquire_store_release(void)
+// {
+// 	// Declaration
+// 	int x, y, z;
 
-	// Definition
-	WRITE_ONCE(x, 42);
+// 	// Definition
+// 	WRITE_ONCE(x, 42);
 
-	// Begin data dependencies
-	y = smp_load_acquire(&x);
+// 	// Begin data dependencies
+// 	y = smp_load_acquire(&x);
 
-	// Do stuff
+// 	// Do stuff
 
-	// End data dependency
-	smp_store_release(&z, y);
+// 	// End data dependency
+// 	smp_store_release(&z, y);
 
-	return 0;
-}
+// 	return 0;
+// }
 
-static int data_load_acquire_store_mb(void)
-{
-	// Declaration
-	int x, y, z;
+// static int data_load_acquire_store_mb(void)
+// {
+// 	// Declaration
+// 	int x, y, z;
 
-	// Definition
-	WRITE_ONCE(x, 42);
+// 	// Definition
+// 	WRITE_ONCE(x, 42);
 
-	// Begin data dependencies
-	y = smp_load_acquire(&x);
+// 	// Begin data dependencies
+// 	y = smp_load_acquire(&x);
 
-	// Do stuff
+// 	// Do stuff
 
-	// End data dependency
-	smp_store_mb(z, y);
+// 	// End data dependency
+// 	smp_store_mb(z, y);
 
-	return 0;
-}
+// 	return 0;
+// }
 
 // static int data_rcu_dereference_write(void)
 // {
@@ -224,15 +224,14 @@ static int lkm_init(void)
 	data_read_write();
 	data_read_write_addition();
 	data_read_write_across_boundaries(y);
-	data_read_store_release();
-	data_read_store_mb();
-	data_load_acquire_write();
-	data_load_acquire_store_release();
-	data_load_acquire_store_mb();
+	// data_read_store_release();
+	// data_read_store_mb();
+	// data_load_acquire_write();
+	// data_load_acquire_store_release();
+	// data_load_acquire_store_mb();
 	// data_rcu_dereference_write();
 	// data_rcu_dereference_store_release();
 	// data_rcu_dereference_store_mb();
-	data_read_write_addition();
 
 	return 0;
 }
