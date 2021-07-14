@@ -62,7 +62,7 @@ static int data_read_write_across_boundaries(int y)
 static int address_to_control(void) 
 {
 	// Declaration
-	static int foo[50];
+	int foo[50] = {0};
 	const volatile int* bar;
 	const volatile int* x;
 	int y;
