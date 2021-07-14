@@ -68,14 +68,14 @@ static int address_to_control(void)
 	int y;
 
 	// Begin address dependency
-	// x == arr && *x == arr[0] after assignment
+	// x == foo && *x == foo[0] after assignment
 	x = READ_ONCE(foo);
 
-	// bar == x + 42 && *bar == x[42] after assignment - random value, since arr is not initialised
+	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
 	bar = &x[42];
 
 	// End data dependency
-	// y == x[42]
+	// y == x[42] == 0
 	y = READ_ONCE(*bar);
 
 	return 0;
