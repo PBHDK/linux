@@ -58,6 +58,29 @@ static int data_read_write_across_boundaries(int y)
 	return 0;
 }
 
+// source: https://linuxplumbersconf.org/event/7/contributions/821/attachments/598/1075/LPC_2020_--_Dependency_ordering.pdf - slide 4
+static int address_to_control(void) 
+{
+	// Declaration
+	static int foo[50];
+	const volatile int* bar;
+	const volatile int* x;
+	int y;
+
+	// Begin address dependency
+	// x == arr && *x == arr[0] after assignment
+	x = READ_ONCE(foo);
+
+	// bar == x + 42 && *bar == x[42] after assignment - random value, since arr is not initialised
+	bar = &x[42];
+
+	// End data dependency
+	// y == x[42]
+	y = READ_ONCE(*bar);
+
+	return 0;
+}
+
 // static int data_read_store_release(void)
 // {
 // 	// Declaration
@@ -224,6 +247,7 @@ static int lkm_init(void)
 	data_read_write();
 	data_read_write_addition();
 	data_read_write_across_boundaries(y);
+	address_to_control();
 	// data_read_store_release();
 	// data_read_store_mb();
 	// data_load_acquire_write();
