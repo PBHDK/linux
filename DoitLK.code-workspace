@@ -93,6 +93,7 @@
             "uuid.h": "c",
             "*.inc": "cpp",
             "*.def": "cpp"
-        }
+        },
+        "checkpatch.run": "onSave"
     }
 }
