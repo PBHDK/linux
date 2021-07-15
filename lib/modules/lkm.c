@@ -6,13 +6,18 @@ MODULE_DESCRIPTION("Kernel module for understanding dependency orderings in unop
 MODULE_AUTHOR("Paul Heidekruger");
 // MODULE_LICENSE("GPL");
 
-// Most basic data dependencies
+// global declarations
+static int x, y, z;
+static int arr[50];
+// implicitly convert arr to int*
+const volatile int *foo = arr;
+const volatile int *xp, *bar;
+const volatile int *bar;
+	
 
+// Most basic data dependencies
 static int data_read_write(void)
 {
-	// Declaration
-	int x, y, z;
-
 	// Definition
 	WRITE_ONCE(x, 42);
 
@@ -29,9 +34,6 @@ static int data_read_write(void)
 
 static int data_read_write_addition(void)
 {
-	// Declaration
-	int x, y, z;
-
 	// Definition
 	WRITE_ONCE(x, 42);
 
@@ -47,13 +49,10 @@ static int data_read_write_addition(void)
 }
 
 // How does call by value look in IR?
-static int data_read_write_across_boundaries(int y)
+static int data_read_write_across_boundaries(int yLocal)
 {
-	// Declaration
-	int z;
-
 	// End data dependency
-	WRITE_ONCE(z, y);
+	WRITE_ONCE(z, yLocal);
 
 	return 0;
 }
@@ -61,19 +60,13 @@ static int data_read_write_across_boundaries(int y)
 // source: https://linuxplumbersconf.org/event/7/contributions/821/attachments/598/1075/LPC_2020_--_Dependency_ordering.pdf - slide 4
 static int address_to_control(void) 
 {
-	// Declaration
-	int foo[50] = {0};
-	const volatile int* bar;
-	const volatile int* x;
-	int y;
-
 	// Begin address dependency
-	// x == foo && *x == foo[0] after assignment
-	x = READ_ONCE(foo);
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
 
 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &x[42];
-
+	bar = &xp[42];
+	
 	// End data dependency
 	// y == x[42] == 0
 	y = READ_ONCE(*bar);
@@ -237,16 +230,16 @@ static int address_to_control(void)
 
 static int lkm_init(void)
 {
-	int x, y;
+	int xLocal, yLocal;
 
-	WRITE_ONCE(x, 42);
-	y = READ_ONCE(x);
+	WRITE_ONCE(xLocal, 42);
+	yLocal = READ_ONCE(xLocal);
 
 	pr_debug("Hi\n");
 
 	data_read_write();
 	data_read_write_addition();
-	data_read_write_across_boundaries(y);
+	data_read_write_across_boundaries(yLocal);
 	address_to_control();
 	// data_read_store_release();
 	// data_read_store_mb();
