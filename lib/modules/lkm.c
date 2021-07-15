@@ -10,10 +10,9 @@ MODULE_AUTHOR("Paul Heidekruger");
 static int x, y, z;
 static int arr[50];
 // implicitly convert arr to int*
-const volatile int *foo = arr;
-const volatile int *xp, *bar;
-const volatile int *bar;
-	
+static const volatile int *foo = arr;
+static const volatile int *xp, *bar;
+static const volatile int *bar;
 
 // Most basic data dependencies
 static int data_read_write(void)
@@ -58,7 +57,7 @@ static int data_read_write_across_boundaries(int yLocal)
 }
 
 // source: https://linuxplumbersconf.org/event/7/contributions/821/attachments/598/1075/LPC_2020_--_Dependency_ordering.pdf - slide 4
-static int address_to_control(void) 
+static int address_to_control(void)
 {
 	// Begin address dependency
 	// xp == foo && *x == foo[0] after assignment
@@ -66,7 +65,7 @@ static int address_to_control(void)
 
 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
 	bar = &xp[42];
-	
+
 	// End data dependency
 	// y == x[42] == 0
 	y = READ_ONCE(*bar);
