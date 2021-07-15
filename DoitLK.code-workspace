@@ -94,6 +94,7 @@
             "*.inc": "cpp",
             "*.def": "cpp"
         },
-        "checkpatch.run": "onSave"
+        "checkpatch.run": "onSave",
+        "checkpatch.checkpatchPath": "scripts/checkpatch.pl"
     }
 }
