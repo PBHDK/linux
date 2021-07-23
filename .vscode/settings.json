@@ -18,4 +18,5 @@
     ],
     "makefile.makefilePath": "./Makefile",
     "makefile.makeDirectory": ".",
+    "nixEnvSelector.nixFile": "${workspaceRoot}/shell.nix",
 }
