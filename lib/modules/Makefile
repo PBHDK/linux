@@ -1,4 +1,4 @@
-KDIR = $(HOME)/src/git/DoitLK-linux/
+KDIR = $(HOME)/src/DoitLK-linux/
 obj-m = lkm.o
 
 kbuild:
