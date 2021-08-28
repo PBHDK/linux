@@ -73,6 +73,42 @@ static int address_to_control(void)
 	return 0;
 }
 
+static int address_to_control1(void)
+{
+	// Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+	bar = &xp[42];
+
+	// End data dependency
+	// y == x[42] == 0
+	y = READ_ONCE(*bar);
+
+	return 0;
+}
+
+static int address_to_control2(void)
+{
+	// Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+	bar = &xp[42];
+
+	// End data dependency
+	// y == x[42] == 0
+	y = READ_ONCE(*bar);
+
+	bar = &xp[10];
+
+	y = READ_ONCE(*bar);
+
+	return 0;
+}
+
 // static int data_read_store_release(void)
 // {
 // 	// Declaration
@@ -240,6 +276,8 @@ static int lkm_init(void)
 	data_read_write_addition();
 	data_read_write_across_boundaries(yLocal);
 	address_to_control();
+	address_to_control1();
+	address_to_control2();
 	// data_read_store_release();
 	// data_read_store_mb();
 	// data_load_acquire_write();
