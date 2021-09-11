@@ -7,7 +7,7 @@ MODULE_AUTHOR("Paul Heidekruger");
 MODULE_LICENSE("GPL");
 
 // global declarations
-static int x, y, z;
+static int y;
 static int arr[50];
 // implicitly convert arr to int*
 static const volatile int *foo = arr;
