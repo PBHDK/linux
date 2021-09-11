@@ -90,11 +90,13 @@ static const volatile int* noinline dep_4_through_second_helper(const volatile i
 
 static int dep_4_through_second (void)
 {
+  const volatile int *barLocal;
+
   // Begin address dependency
 	// xp == foo && *x == foo[0] after assignment
 	xp = READ_ONCE(foo);
 
-  const volatile int *barLocal = dep_4_through_second_helper(xp);
+  barLocal = dep_4_through_second_helper(xp);
 
   // End address dependency
 	// y == x[42] == 0
