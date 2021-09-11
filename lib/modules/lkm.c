@@ -4,7 +4,7 @@
 
 MODULE_DESCRIPTION("Kernel module for understanding dependency orderings in unoptimised IR");
 MODULE_AUTHOR("Paul Heidekruger");
-// MODULE_LICENSE("GPL");
+MODULE_LICENSE("GPL");
 
 // global declarations
 static int x, y, z;
