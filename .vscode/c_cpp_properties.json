@@ -13,7 +13,8 @@
             "defines": [
                 "__GNUC__",
                 "__KERNEL__",
-                "KBUILD_MODNAME=\"lkm\""
+                "KBUILD_MODNAME=\"lkm\"",
+                "MODULE"
             ],
             "compilerPath": "/usr/bin/clang-11",
             "cStandard": "c89",
