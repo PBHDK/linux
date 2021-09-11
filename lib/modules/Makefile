@@ -1,5 +1,6 @@
 KDIR = $(HOME)/src/DoitLK-linux/
 obj-m = lkm.o
+obj-m = dep_chain_tests.o
 
 kbuild:
 	make -C $(KDIR) M=`pwd`
