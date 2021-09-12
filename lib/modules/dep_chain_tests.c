@@ -96,7 +96,7 @@ static int dep_3_begin_second (void)
 	return 0;
 }
 
-// DEP 3: address dependency accross two function. Dep begins in first functions, runs through second function and ends in first function
+// DEP 4: address dependency accross two function. Dep begins in first functions, runs through second function and ends in first function
 static const volatile int* noinline dep_4_through_second_helper(const volatile int *xpLocal) {
 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
 	bar = &xpLocal[42];
