@@ -97,7 +97,7 @@ static int dep_3_begin_second (void)
 }
 
 // DEP 4: address dependency accross two function. Dep begins in first functions, runs through second function and ends in first function
-static const volatile int* noinline dep_4_through_second_helper(const volatile int *xpLocal) {
+static const volatile int* noinline dep_4_through_second_begin_helper(const volatile int *xpLocal) {
 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
 	bar = &xpLocal[42];
 
@@ -105,7 +105,7 @@ static const volatile int* noinline dep_4_through_second_helper(const volatile i
   return bar;
 }
 
-static int dep_4_through_second (void)
+static int dep_4_through_second_begin (void)
 {
   const volatile int *barLocal;
 
@@ -113,7 +113,33 @@ static int dep_4_through_second (void)
 	// xp == foo && *x == foo[0] after assignment
 	xp = READ_ONCE(foo);
 
-  barLocal = dep_4_through_second_helper(xp);
+  barLocal = dep_4_through_second_begin_helper(xp);
+
+  // End address dependency
+	// y == x[42] == 0
+	y = READ_ONCE(*barLocal);
+
+	return 0;
+}
+
+// DEP 4: address dependency accross two function. Dep begins in first functions, runs through second function and ends in first function
+static const volatile int* noinline dep_4_through_second_end_helper(const volatile int *xpLocal) {
+	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+	bar = &xpLocal[42];
+
+  // copy bar and return it
+  return bar;
+}
+
+static int dep_4_through_second_end (void)
+{
+  const volatile int *barLocal;
+
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+  barLocal = dep_4_through_second_end_helper(xp);
 
   // End address dependency
 	// y == x[42] == 0
@@ -128,7 +154,8 @@ static int lkm_init(void)
 	dep_1_same_function_end();
   dep_2_begin_first();
   dep_3_begin_second();
-  dep_4_through_second();
+  dep_4_through_second_begin();
+	dep_4_through_second_end();
   return 0;
 }
 
