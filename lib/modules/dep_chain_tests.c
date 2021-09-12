@@ -14,8 +14,25 @@ static const volatile int *foo = arr;
 static const volatile int *xp, *bar;
 static const volatile int *bar;
 
-// DEP 1: address dependency within the same function
-static int dep_1_same_function(void)
+// DEP 1: address dependency within the same function - for breaking the begin annotation
+static int dep_1_same_function_begin(void)
+{
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+	bar = &xp[42];
+
+	// End address dependency
+	// y == x[42] == 0
+	y = READ_ONCE(*bar);
+
+	return 0;
+}
+
+// DEP 1: address dependency within the same function - for breaking the end annotation
+static int dep_1_same_function_end(void)
 {
   // Begin address dependency
 	// xp == foo && *x == foo[0] after assignment
@@ -107,7 +124,8 @@ static int dep_4_through_second (void)
 
 static int lkm_init(void)
 {
-  dep_1_same_function();
+  dep_1_same_function_begin();
+	dep_1_same_function_end();
   dep_2_begin_first();
   dep_3_begin_second();
   dep_4_through_second();
