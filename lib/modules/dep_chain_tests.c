@@ -48,14 +48,14 @@ static int noinline dep_1_same_function_end(void)
 	return 0;
 }
 
-// DEP 2: address dependency accross two function. Dep begins in first function
-static void noinline dep_2_begin_first_helper(const volatile int *local_bar) {
+// DEP 2: address dependency accross two function. Dep begins in first function - for breaking begin annotation
+static void noinline dep_2_begin_first_begin_helper(const volatile int *local_bar) {
 	// End address dependency
 	// y == x[42] == 0
 	y = READ_ONCE(*local_bar);
 }
 
-static int noinline dep_2_begin_first (void)
+static int noinline dep_2_begin_first_begin (void)
 {
   // Begin address dependency
 	// xp == foo && *x == foo[0] after assignment
@@ -66,6 +66,28 @@ static int noinline dep_2_begin_first (void)
 
   // copy bar into local var and dereference it in call
   dep_2_begin_first_helper(bar);
+
+	return 0;
+}
+
+// DEP 2: address dependency accross two function. Dep begins in first function - for breaking end annotation
+static void noinline dep_2_begin_first_end_helper(const volatile int *local_bar) {
+	// End address dependency
+	// y == x[42] == 0
+	y = READ_ONCE(*local_bar);
+}
+
+static int noinline dep_2_begin_first_end (void)
+{
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+	bar = &xp[42];
+
+  // copy bar into local var and dereference it in call
+  dep_2_begin_first_end_helper(bar);
 
 	return 0;
 }
@@ -152,7 +174,8 @@ static int lkm_init(void)
 {
   dep_1_same_function_begin();
 	dep_1_same_function_end();
-  dep_2_begin_first();
+  dep_2_begin_first_begin();
+	dep_2_begin_first_end();
   dep_3_begin_second();
   dep_4_through_second_begin();
 	dep_4_through_second_end();
