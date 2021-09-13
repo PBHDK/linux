@@ -65,7 +65,7 @@ static int noinline dep_2_begin_first_begin (void)
 	bar = &xp[42];
 
   // copy bar into local var and dereference it in call
-  dep_2_begin_first_helper(bar);
+  dep_2_begin_first_begin_helper(bar);
 
 	return 0;
 }
@@ -92,8 +92,8 @@ static int noinline dep_2_begin_first_end (void)
 	return 0;
 }
 
-// DEP 3: address dependency accross two function. Dep begins in second function
-static const volatile int* noinline dep_3_begin_second_helper(void) {
+// DEP 3: address dependency accross two function. Dep begins in second function - for breaking beginn annotation
+static const volatile int* noinline dep_3_begin_second_begin_helper(void) {
   // Begin address dependency
 	// xp == foo && *x == foo[0] after assignment
 	xp = READ_ONCE(foo);
@@ -105,11 +105,37 @@ static const volatile int* noinline dep_3_begin_second_helper(void) {
   return bar;
 }
 
-static int noinline dep_3_begin_second (void)
+static int noinline dep_3_begin_second_begin (void)
 {
   // End address dependency
 	// y == x[42] == 0
-	y = READ_ONCE(*dep_3_begin_second_helper());
+	y = READ_ONCE(*dep_3_begin_second_begin_helper());
+
+  // alternative
+  // const volatile int* yLocal = dep_2_begin_second_helper();
+  // y = READ_ONCE(yLocal);
+
+	return 0;
+}
+
+// DEP 3: address dependency accross two function. Dep begins in second function - for breaking end annotation
+static const volatile int* noinline dep_3_begin_second_end_helper(void) {
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+	bar = &xp[42];
+
+  // copy bar and return it
+  return bar;
+}
+
+static int noinline dep_3_begin_second_end (void)
+{
+  // End address dependency
+	// y == x[42] == 0
+	y = READ_ONCE(*dep_3_begin_second_end_helper());
 
   // alternative
   // const volatile int* yLocal = dep_2_begin_second_helper();
@@ -176,7 +202,8 @@ static int lkm_init(void)
 	dep_1_same_function_end();
   dep_2_begin_first_begin();
 	dep_2_begin_first_end();
-  dep_3_begin_second();
+  dep_3_begin_second_begin();
+	dep_3_begin_second_end();
   dep_4_through_second_begin();
 	dep_4_through_second_end();
   return 0;
