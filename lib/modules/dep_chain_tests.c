@@ -15,7 +15,7 @@ static const volatile int *xp, *bar;
 static const volatile int *bar;
 
 // DEP 1: address dependency within the same function - for breaking the begin annotation
-static int dep_1_same_function_begin(void)
+static int noinline dep_1_same_function_begin(void)
 {
   // Begin address dependency
 	// xp == foo && *x == foo[0] after assignment
@@ -32,7 +32,7 @@ static int dep_1_same_function_begin(void)
 }
 
 // DEP 1: address dependency within the same function - for breaking the end annotation
-static int dep_1_same_function_end(void)
+static int noinline dep_1_same_function_end(void)
 {
   // Begin address dependency
 	// xp == foo && *x == foo[0] after assignment
@@ -55,7 +55,7 @@ static void noinline dep_2_begin_first_helper(const volatile int *local_bar) {
 	y = READ_ONCE(*local_bar);
 }
 
-static int dep_2_begin_first (void)
+static int noinline dep_2_begin_first (void)
 {
   // Begin address dependency
 	// xp == foo && *x == foo[0] after assignment
@@ -83,7 +83,7 @@ static const volatile int* noinline dep_3_begin_second_helper(void) {
   return bar;
 }
 
-static int dep_3_begin_second (void)
+static int noinline dep_3_begin_second (void)
 {
   // End address dependency
 	// y == x[42] == 0
@@ -105,7 +105,7 @@ static const volatile int* noinline dep_4_through_second_begin_helper(const vola
   return bar;
 }
 
-static int dep_4_through_second_begin (void)
+static int noinline dep_4_through_second_begin (void)
 {
   const volatile int *barLocal;
 
@@ -131,7 +131,7 @@ static const volatile int* noinline dep_4_through_second_end_helper(const volati
   return bar;
 }
 
-static int dep_4_through_second_end (void)
+static int noinline dep_4_through_second_end (void)
 {
   const volatile int *barLocal;
 
