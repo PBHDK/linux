@@ -384,6 +384,9 @@ static int lkm_init(void)
 	dep_4_through_second_end();
 	// dep_5_same_function_loop_begin();
 	// dep_5_same_function_loop_end();
+	// TODO: WRITE_ONCE() for second access
+	// TODO: Address dep that runs through control dep and ends afterwards
+	// TODO: add two deps with same beginning
 	dep_6_same_function_begin();
 	dep_6_same_function_end();
 	ctrl_dep_1_same_function_begin();
