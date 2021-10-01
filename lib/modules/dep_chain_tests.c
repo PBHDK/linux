@@ -10,9 +10,9 @@ MODULE_LICENSE("GPL");
 static int y;
 static int arr[50];
 // implicitly convert arr to int*
-static const volatile int *foo = arr;
-static const volatile int *xp, *bar;
-static const volatile int *bar;
+static volatile int *foo = arr;
+static volatile int *xp, *bar;
+static volatile int *bar;
 
 // DEP 1: address dependency within the same function - for breaking the begin annotation
 static int noinline dep_1_same_function_begin(void)
@@ -49,7 +49,7 @@ static int noinline dep_1_same_function_end(void)
 }
 
 // DEP 2: address dependency accross two function. Dep begins in first function - for breaking begin annotation
-static void noinline dep_2_begin_first_begin_helper(const volatile int *local_bar) {
+static void noinline dep_2_begin_first_begin_helper(volatile int *local_bar) {
 	// End address dependency
 	// y == x[42] == 0
 	y = READ_ONCE(*local_bar);
@@ -71,7 +71,7 @@ static int noinline dep_2_begin_first_begin (void)
 }
 
 // DEP 2: address dependency accross two function. Dep begins in first function - for breaking end annotation
-static void noinline dep_2_begin_first_end_helper(const volatile int *local_bar) {
+static void noinline dep_2_begin_first_end_helper(volatile int *local_bar) {
 	// End address dependency
 	// y == x[42] == 0
 	y = READ_ONCE(*local_bar);
@@ -145,7 +145,7 @@ static int noinline dep_3_begin_second_end (void)
 }
 
 // DEP 4: address dependency accross two function. Dep begins in first functions, runs through second function and ends in first function
-static const volatile int* noinline dep_4_through_second_begin_helper(const volatile int *xpLocal) {
+static const volatile int* noinline dep_4_through_second_begin_helper(volatile int *xpLocal) {
 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
 	bar = &xpLocal[42];
 
@@ -171,7 +171,7 @@ static int noinline dep_4_through_second_begin (void)
 }
 
 // DEP 4: address dependency accross two function. Dep begins in first functions, runs through second function and ends in first function
-static const volatile int* noinline dep_4_through_second_end_helper(const volatile int *xpLocal) {
+static const volatile int* noinline dep_4_through_second_end_helper(volatile int *xpLocal) {
 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
 	bar = &xpLocal[42];
 
