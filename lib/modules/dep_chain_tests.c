@@ -196,6 +196,42 @@ static int noinline dep_4_through_second_end (void)
 	return 0;
 }
 
+// // DEP 5: address dependency running through a loop within the same function -  for breaking the begin annotation
+// static int noinline dep_5_same_function_loop_begin(void)
+// {
+// 	int i = 0;
+//   // Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
+
+// 	for(; i < 42; ++i) {
+// 		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 		bar = &xp[i];
+
+// 		// End address dependency
+// 		// y == x[42] == 0
+// 		y = READ_ONCE(*bar);
+// 	}
+// 	return 0;
+// }
+
+// static int noinline dep_5_same_function_loop_end(void)
+// {
+// 	int i = 0;
+//   // Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
+
+// 	for(; i < 42; ++i) {
+// 		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 		bar = &xp[i];
+
+// 		// End address dependency
+// 		// y == x[42] == 0
+// 		y = READ_ONCE(*bar);
+// 	}
+// 	return 0;
+// }
 // CTRL DEP 1: control dependency within the same function -  for breaking the begin annotation
 static int noinline ctrl_dep_1_same_function_begin(void)
 {
@@ -311,6 +347,8 @@ static int lkm_init(void)
 	dep_3_begin_second_end();
   dep_4_through_second_begin();
 	dep_4_through_second_end();
+	// dep_5_same_function_loop_begin();
+	// dep_5_same_function_loop_end();
 	ctrl_dep_1_same_function_begin();
 	ctrl_dep_1_same_function_end();
 	ctrl_dep_2_same_function_begin();
