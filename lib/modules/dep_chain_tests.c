@@ -196,6 +196,111 @@ static int noinline dep_4_through_second_end (void)
 	return 0;
 }
 
+// CTRL DEP 1: control dependency within the same function -  for breaking the begin annotation
+static int noinline ctrl_dep_1_same_function_begin(void)
+{
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	if(xp) {
+		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+		bar = &xp[42];
+
+		// End address dependency
+		// y == x[42] == 0
+		y = READ_ONCE(*bar);
+	}
+	return 0;
+}
+
+static int noinline ctrl_dep_1_same_function_end(void)
+{
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	if(xp) {
+		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+		bar = &xp[42];
+
+		// End address dependency
+		// y == x[42] == 0
+		y = READ_ONCE(*bar);
+	}
+	return 0;
+}
+
+// CTRL DEP 2: control dependency within the same function -  for breaking the begin annotation
+static int noinline ctrl_dep_2_same_function_begin(void)
+{
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	if(foo) {
+		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+		bar = &xp[42];
+
+		// End address dependency
+		// y == x[42] == 0
+		y = READ_ONCE(*bar);
+	}
+	return 0;
+}
+
+static int noinline ctrl_dep_2_same_function_end(void)
+{
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	if(foo) {
+		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+		bar = &xp[42];
+
+		// End address dependency
+		// y == x[42] == 0
+		y = READ_ONCE(*bar);
+	}
+	return 0;
+}
+
+// CTRL DEP 3: control dependency with dead branch within the same function -  for breaking the begin annotation
+static int noinline ctrl_dep_3_same_function_begin(void)
+{
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	if(0) {
+		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+		bar = &xp[42];
+
+		// End address dependency
+		// y == x[42] == 0
+		y = READ_ONCE(*bar);
+	}
+	return 0;
+}
+
+static int noinline ctrl_dep_3_same_function_end(void)
+{
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	if(0) {
+		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+		bar = &xp[42];
+
+		// End address dependency
+		// y == x[42] == 0
+		y = READ_ONCE(*bar);
+	}
+	return 0;
+}
+
 static int lkm_init(void)
 {
   dep_1_same_function_begin();
@@ -206,6 +311,13 @@ static int lkm_init(void)
 	dep_3_begin_second_end();
   dep_4_through_second_begin();
 	dep_4_through_second_end();
+	ctrl_dep_1_same_function_begin();
+	ctrl_dep_1_same_function_end();
+	ctrl_dep_2_same_function_begin();
+	ctrl_dep_2_same_function_end();
+	ctrl_dep_3_same_function_begin();
+	ctrl_dep_3_same_function_end();
+	
   return 0;
 }
 
