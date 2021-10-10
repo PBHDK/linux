@@ -375,6 +375,38 @@ static int noinline doitlk_ctrl_dep_end_3(void)
 	return 0;
 }
 
+// Begin ctrl dep 4: control dependency with dead branch within the same function -  for breaking the begin annotation
+static int noinline doitlk_ctrl_dep_begin_4(void)
+{
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	if((xp = READ_ONCE(foo))) {
+		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+		bar = &xp[42];
+
+		// End address dependency
+		// y == x[42] == 0
+		y = READ_ONCE(*bar);
+	}
+	return 0;
+}
+
+// End ctrl dep 4: control dependency with dead branch within the same function -  for breaking the begin annotation
+static int noinline doitlk_ctrl_dep_end_4(void)
+{
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	if((xp = READ_ONCE(foo))) {
+		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+		bar = &xp[42];
+
+		// End address dependency
+		// y == x[42] == 0
+		y = READ_ONCE(*bar);
+	}
+	return 0;
+}
+
 static int lkm_init(void)
 {
 	// rr addr deps
@@ -403,6 +435,8 @@ static int lkm_init(void)
 	doitlk_ctrl_dep_end_2();
 	doitlk_ctrl_dep_begin_3();
 	doitlk_ctrl_dep_end_3();
+	doitlk_ctrl_dep_begin_4();
+	doitlk_ctrl_dep_end_4();
 	
   return 0;
 }
