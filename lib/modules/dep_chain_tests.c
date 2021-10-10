@@ -14,8 +14,8 @@ static volatile int *foo = arr;
 static volatile int *xp, *bar;
 static volatile int *bar;
 
-// DEP 1: address dependency within the same function - for breaking the begin annotation
-static int noinline dep_1_same_function_begin(void)
+// Begin addr dep 1: address dependency within the same function - for breaking the begin annotation
+static int noinline doitlk_rr_addr_dep_begin_1(void)
 {
   // Begin address dependency
 	// xp == foo && *x == foo[0] after assignment
@@ -31,8 +31,8 @@ static int noinline dep_1_same_function_begin(void)
 	return 0;
 }
 
-// DEP 1: address dependency within the same function - for breaking the end annotation
-static int noinline dep_1_same_function_end(void)
+// End addr dep 1: address dependency within the same function - for breaking the end annotation
+static int noinline doitlk_rr_addr_dep_end_1(void)
 {
   // Begin address dependency
 	// xp == foo && *x == foo[0] after assignment
@@ -48,14 +48,14 @@ static int noinline dep_1_same_function_end(void)
 	return 0;
 }
 
-// DEP 2: address dependency accross two function. Dep begins in first function - for breaking begin annotation
-static void noinline dep_2_begin_first_begin_helper(volatile int *local_bar) {
+// Begin addr dep 2: address dependency accross two function. Dep begins in first function - for breaking begin annotation
+static void noinline begin_2_helper(volatile int *local_bar) {
 	// End address dependency
 	// y == x[42] == 0
 	y = READ_ONCE(*local_bar);
 }
 
-static int noinline dep_2_begin_first_begin (void)
+static int noinline doitlk_rr_addr_dep_begin_2 (void)
 {
   // Begin address dependency
 	// xp == foo && *x == foo[0] after assignment
@@ -65,19 +65,19 @@ static int noinline dep_2_begin_first_begin (void)
 	bar = &xp[42];
 
   // copy bar into local var and dereference it in call
-  dep_2_begin_first_begin_helper(bar);
+  begin_2_helper(bar);
 
 	return 0;
 }
 
-// DEP 2: address dependency accross two function. Dep begins in first function - for breaking end annotation
-static void noinline dep_2_begin_first_end_helper(volatile int *local_bar) {
+// End addr dep 2: address dependency accross two function. Dep begins in first function - for breaking end annotation
+static void noinline doitlk_rr_addr_dep_end_2_helper(volatile int *local_bar) {
 	// End address dependency
 	// y == x[42] == 0
 	y = READ_ONCE(*local_bar);
 }
 
-static int noinline dep_2_begin_first_end (void)
+static int noinline rr_addr_dep_end_2(void)
 {
   // Begin address dependency
 	// xp == foo && *x == foo[0] after assignment
@@ -87,13 +87,13 @@ static int noinline dep_2_begin_first_end (void)
 	bar = &xp[42];
 
   // copy bar into local var and dereference it in call
-  dep_2_begin_first_end_helper(bar);
+  doitlk_rr_addr_dep_end_2_helper(bar);
 
 	return 0;
 }
 
-// DEP 3: address dependency accross two function. Dep begins in second function - for breaking beginn annotation
-static const volatile int* noinline dep_3_begin_second_begin_helper(void) {
+// Begin addr dep 3: address dependency accross two function. Dep begins in second function - for breaking beginn annotation
+static const volatile int* noinline doitlk_rr_addr_dep_begin_3_helper(void) {
   // Begin address dependency
 	// xp == foo && *x == foo[0] after assignment
 	xp = READ_ONCE(foo);
@@ -105,11 +105,11 @@ static const volatile int* noinline dep_3_begin_second_begin_helper(void) {
   return bar;
 }
 
-static int noinline dep_3_begin_second_begin (void)
+static int noinline rr_addr_dep_begin_3 (void)
 {
   // End address dependency
 	// y == x[42] == 0
-	y = READ_ONCE(*dep_3_begin_second_begin_helper());
+	y = READ_ONCE(*doitlk_rr_addr_dep_begin_3_helper());
 
   // alternative
   // const volatile int* yLocal = dep_2_begin_second_helper();
@@ -118,8 +118,8 @@ static int noinline dep_3_begin_second_begin (void)
 	return 0;
 }
 
-// DEP 3: address dependency accross two function. Dep begins in second function - for breaking end annotation
-static const volatile int* noinline dep_3_begin_second_end_helper(void) {
+// End addr dep 3: address dependency accross two function. Dep begins in second function - for breaking end annotation
+static const volatile int* noinline end_3_helper(void) {
   // Begin address dependency
 	// xp == foo && *x == foo[0] after assignment
 	xp = READ_ONCE(foo);
@@ -131,11 +131,11 @@ static const volatile int* noinline dep_3_begin_second_end_helper(void) {
   return bar;
 }
 
-static int noinline dep_3_begin_second_end (void)
+static int noinline doitlk_rr_addr_dep_end_3 (void)
 {
   // End address dependency
 	// y == x[42] == 0
-	y = READ_ONCE(*dep_3_begin_second_end_helper());
+	y = READ_ONCE(*end_3_helper());
 
   // alternative
   // const volatile int* yLocal = dep_2_begin_second_helper();
@@ -144,8 +144,8 @@ static int noinline dep_3_begin_second_end (void)
 	return 0;
 }
 
-// DEP 4: address dependency accross two function. Dep begins in first functions, runs through second function and ends in first function
-static const volatile int* noinline dep_4_through_second_begin_helper(volatile int *xpLocal) {
+// Begin addr dep 4: address dependency accross two function. Dep begins in first functions, runs through second function and ends in first function
+static const volatile int* noinline begin_4_helper(volatile int *xpLocal) {
 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
 	bar = &xpLocal[42];
 
@@ -153,7 +153,7 @@ static const volatile int* noinline dep_4_through_second_begin_helper(volatile i
   return bar;
 }
 
-static int noinline dep_4_through_second_begin (void)
+static int noinline doitlk_rr_addr_dep_begin_4 (void)
 {
   const volatile int *barLocal;
 
@@ -161,7 +161,7 @@ static int noinline dep_4_through_second_begin (void)
 	// xp == foo && *x == foo[0] after assignment
 	xp = READ_ONCE(foo);
 
-  barLocal = dep_4_through_second_begin_helper(xp);
+  barLocal = begin_4_helper(xp);
 
   // End address dependency
 	// y == x[42] == 0
@@ -170,8 +170,8 @@ static int noinline dep_4_through_second_begin (void)
 	return 0;
 }
 
-// DEP 4: address dependency accross two function. Dep begins in first functions, runs through second function and ends in first function
-static const volatile int* noinline dep_4_through_second_end_helper(volatile int *xpLocal) {
+// End addr dep 4: address dependency accross two function. Dep begins in first functions, runs through second function and ends in first function
+static const volatile int* noinline end_4_helper(volatile int *xpLocal) {
 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
 	bar = &xpLocal[42];
 
@@ -179,7 +179,7 @@ static const volatile int* noinline dep_4_through_second_end_helper(volatile int
   return bar;
 }
 
-static int noinline dep_4_through_second_end (void)
+static int noinline doitlk_rr_addr_dep_end_4 (void)
 {
   const volatile int *barLocal;
 
@@ -187,7 +187,7 @@ static int noinline dep_4_through_second_end (void)
 	// xp == foo && *x == foo[0] after assignment
 	xp = READ_ONCE(foo);
 
-  barLocal = dep_4_through_second_end_helper(xp);
+  barLocal = end_4_helper(xp);
 
   // End address dependency
 	// y == x[42] == 0
@@ -197,7 +197,7 @@ static int noinline dep_4_through_second_end (void)
 }
 
 // // DEP 5: address dependency running through a loop within the same function -  for breaking the begin annotation
-// static int noinline dep_5_same_function_loop_begin(void)
+// static int noinline doitlk_rr_addr_dep_begin_5_helper(void)
 // {
 // 	int i = 0;
 //   // Begin address dependency
@@ -215,7 +215,7 @@ static int noinline dep_4_through_second_end (void)
 // 	return 0;
 // }
 
-// static int noinline dep_5_same_function_loop_end(void)
+// static int noinline doitlk_rr_addr_dep_begin_5(void)
 // {
 // 	int i = 0;
 //   // Begin address dependency
@@ -233,8 +233,8 @@ static int noinline dep_4_through_second_end (void)
 // 	return 0;
 // }
 
-// DEP 1: address dependency within the same function - for breaking the begin annotation
-static int noinline dep_6_same_function_begin(void)
+// Begin addr dep 6: rw address dependency within the same function - for breaking the begin annotation
+static int noinline doitlk_rw_addr_dep_begin_1(void)
 {
   // Begin address dependency
 	// xp == foo && *x == foo[0] after assignment
@@ -250,8 +250,8 @@ static int noinline dep_6_same_function_begin(void)
 	return 0;
 }
 
-// DEP 1: address dependency within the same function - for breaking the begin annotation
-static int noinline dep_6_same_function_end(void)
+// End addr dep 6: rw address dependency within the same function - for breaking the end annotation
+static int noinline doitlk_rw_addr_dep_end_1(void)
 {
   // Begin address dependency
 	// xp == foo && *x == foo[0] after assignment
@@ -267,8 +267,8 @@ static int noinline dep_6_same_function_end(void)
 	return 0;
 }
 
-// CTRL DEP 1: control dependency within the same function -  for breaking the begin annotation
-static int noinline ctrl_dep_1_same_function_begin(void)
+// Begin ctrl dep 1: control dependency within the same function - independent - for breaking the begin annotation
+static int noinline doitlk_ctrl_dep_begin_1(void)
 {
   // Begin address dependency
 	// xp == foo && *x == foo[0] after assignment
@@ -285,7 +285,8 @@ static int noinline ctrl_dep_1_same_function_begin(void)
 	return 0;
 }
 
-static int noinline ctrl_dep_1_same_function_end(void)
+// End ctrl dep 1: control dependency within the same function - independent condition - for breaking the end annotation
+static int noinline doitlk_ctrl_dep_end_1(void)
 {
   // Begin address dependency
 	// xp == foo && *x == foo[0] after assignment
@@ -302,8 +303,8 @@ static int noinline ctrl_dep_1_same_function_end(void)
 	return 0;
 }
 
-// CTRL DEP 2: control dependency within the same function -  for breaking the begin annotation
-static int noinline ctrl_dep_2_same_function_begin(void)
+// Begin ctrl dep 2: control dependency within the same function - dependent condition - for breaking the begin annotation
+static int noinline doitlk_ctrl_dep_begin_2(void)
 {
   // Begin address dependency
 	// xp == foo && *x == foo[0] after assignment
@@ -320,7 +321,8 @@ static int noinline ctrl_dep_2_same_function_begin(void)
 	return 0;
 }
 
-static int noinline ctrl_dep_2_same_function_end(void)
+// End ctrl dep 2: control dependency within the same function - dependent condition - for breaking the end annotation
+static int noinline doitlk_ctrl_dep_end_2(void)
 {
   // Begin address dependency
 	// xp == foo && *x == foo[0] after assignment
@@ -337,8 +339,8 @@ static int noinline ctrl_dep_2_same_function_end(void)
 	return 0;
 }
 
-// CTRL DEP 3: control dependency with dead branch within the same function -  for breaking the begin annotation
-static int noinline ctrl_dep_3_same_function_begin(void)
+// Begin ctrl dep 3: control dependency with dead branch within the same function -  for breaking the begin annotation
+static int noinline doitlk_ctrl_dep_begin_3(void)
 {
   // Begin address dependency
 	// xp == foo && *x == foo[0] after assignment
@@ -355,7 +357,8 @@ static int noinline ctrl_dep_3_same_function_begin(void)
 	return 0;
 }
 
-static int noinline ctrl_dep_3_same_function_end(void)
+// End ctrl dep 3: control dependency with dead branch within the same function -  for breaking the begin annotation
+static int noinline doitlk_ctrl_dep_end_3(void)
 {
   // Begin address dependency
 	// xp == foo && *x == foo[0] after assignment
@@ -374,27 +377,32 @@ static int noinline ctrl_dep_3_same_function_end(void)
 
 static int lkm_init(void)
 {
-  dep_1_same_function_begin();
-	dep_1_same_function_end();
-  dep_2_begin_first_begin();
-	dep_2_begin_first_end();
-  dep_3_begin_second_begin();
-	dep_3_begin_second_end();
-  dep_4_through_second_begin();
-	dep_4_through_second_end();
+	// rr addr deps
+  doitlk_rr_addr_dep_begin_1();
+	doitlk_rr_addr_dep_end_1();
+  doitlk_rr_addr_dep_begin_2();
+	rr_addr_dep_end_2();
+	rr_addr_dep_begin_3();
+	doitlk_rr_addr_dep_end_3();
+	doitlk_rr_addr_dep_begin_4();
+	doitlk_rr_addr_dep_end_4();
 	// dep_5_same_function_loop_begin();
 	// dep_5_same_function_loop_end();
 	// TODO: WRITE_ONCE() for second access
 	// TODO: Address dep that runs through control dep and ends afterwards
 	// TODO: add two deps with same beginning
-	dep_6_same_function_begin();
-	dep_6_same_function_end();
-	ctrl_dep_1_same_function_begin();
-	ctrl_dep_1_same_function_end();
-	ctrl_dep_2_same_function_begin();
-	ctrl_dep_2_same_function_end();
-	ctrl_dep_3_same_function_begin();
-	ctrl_dep_3_same_function_end();
+
+	// rw addr deps
+	doitlk_rw_addr_dep_begin_1();
+	doitlk_rw_addr_dep_end_1();
+
+	// ctrl deps
+	doitlk_ctrl_dep_begin_1();
+	doitlk_ctrl_dep_end_1();
+	doitlk_ctrl_dep_begin_2();
+	doitlk_ctrl_dep_end_2();
+	doitlk_ctrl_dep_begin_3();
+	doitlk_ctrl_dep_end_3();
 	
   return 0;
 }
