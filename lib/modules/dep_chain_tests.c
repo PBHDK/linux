@@ -307,6 +307,41 @@ static int noinline doitlk_rr_addr_dep_end_7(void)
 	return 0;
 }
 
+// Begin addr dep 8: address dependency within the same function - for breaking the begin annotation
+static int noinline doitlk_rr_addr_dep_begin_8(void)
+{
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+	if(&xp[0])
+		bar = &xp[42];
+	else bar = &xp[21];
+
+	// End address dependency
+	y = READ_ONCE(*bar);
+
+	return 0;
+}
+
+// End addr dep 8: address dependency within the same function - for breaking the end annotation
+static int noinline doitlk_rr_addr_dep_end_8(void)
+{
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	if(&xp[0])
+		bar = &xp[42];
+	else bar = &xp[21];
+
+	// End address dependency
+	y = READ_ONCE(*bar);
+
+	return 0;
+}
+
 // Begin addr dep 6: rw address dependency within the same function - for breaking the begin annotation
 static int noinline doitlk_rw_addr_dep_begin_1(void)
 {
@@ -536,6 +571,8 @@ static int lkm_init(void)
 	doitlk_rr_addr_dep_end_6();
 	doitlk_rr_addr_dep_begin_7();
 	doitlk_rr_addr_dep_end_7();
+	doitlk_rr_addr_dep_begin_8();
+	doitlk_rr_addr_dep_end_8();
 	// TODO: WRITE_ONCE() for second access
 	// TODO: Address dep that runs through control dep and ends afterwards
 	// TODO: add two deps with same beginning
