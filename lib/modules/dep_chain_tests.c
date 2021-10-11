@@ -573,7 +573,6 @@ static int lkm_init(void)
 	doitlk_rr_addr_dep_end_7();
 	doitlk_rr_addr_dep_begin_8();
 	doitlk_rr_addr_dep_end_8();
-	// TODO: Address dep that runs through control dep and ends afterwards
 	// TODO: add two deps with same beginning
 
 	// rw addr deps
