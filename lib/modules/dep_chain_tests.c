@@ -196,6 +196,44 @@ static int noinline doitlk_rr_addr_dep_end_4 (void)
 	return 0;
 }
 
+// Begin addr dep 5: address dependency within the same function - for breaking the begin annotation
+static int noinline doitlk_rr_addr_dep_begin_5(void)
+{
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+	bar = &xp[42];
+
+	// End address dependency
+	// y == x[42] == 0
+	if((y = READ_ONCE(*bar)))
+		bar = &xp[21];
+	else bar = &xp[0];
+
+	return 0;
+}
+
+// End addr dep 5: address dependency within the same function - for breaking the end annotation
+static int noinline doitlk_rr_addr_dep_end_5(void)
+{
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+	bar = &xp[42];
+
+	// End address dependency
+	// y == x[42] == 0
+	if((y = READ_ONCE(*bar)))
+		bar = &xp[21];
+	else bar = &xp[0];
+
+	return 0;
+}
+
 // // DEP 5: address dependency running through a loop within the same function -  for breaking the begin annotation
 // static int noinline doitlk_rr_addr_dep_begin_5_helper(void)
 // {
@@ -418,6 +456,8 @@ static int lkm_init(void)
 	doitlk_rr_addr_dep_end_3();
 	doitlk_rr_addr_dep_begin_4();
 	doitlk_rr_addr_dep_end_4();
+	doitlk_rr_addr_dep_begin_5();
+	doitlk_rr_addr_dep_end_5();
 	// dep_5_same_function_loop_begin();
 	// dep_5_same_function_loop_end();
 	// TODO: WRITE_ONCE() for second access
