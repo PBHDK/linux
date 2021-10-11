@@ -7,7 +7,7 @@ MODULE_AUTHOR("Paul Heidekruger");
 MODULE_LICENSE("GPL");
 
 // global declarations
-static int y;
+static int y, z;
 static int arr[50];
 // implicitly convert arr to int*
 static volatile int *foo = arr;
@@ -342,6 +342,47 @@ static int noinline doitlk_rr_addr_dep_end_8(void)
 	return 0;
 }
 
+// Begin addr dep 9: two address dependencies with same beginning within the same function - for breaking the begin annotation
+static int noinline doitlk_rr_addr_dep_begin_9(void)
+{
+	volatile int *barLocal;
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+	bar = &xp[42];
+	barLocal = &xp[21];
+
+	// End address dependency
+	// y == x[42] == 0
+	y = READ_ONCE(*bar);
+	z = READ_ONCE(*barLocal);
+
+	return 0;
+}
+
+// End addr dep 9: two address dependencies with same beginning within the same function - for breaking the end annotation
+static int noinline doitlk_rr_addr_dep_end_9(void)
+{
+	volatile int *barLocal;
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+	bar = &xp[42];
+	barLocal = &xp[21];
+
+	// End address dependency
+	// y == x[42] == 0
+	y = READ_ONCE(*bar);
+	z = READ_ONCE(*barLocal);
+
+	return 0;
+}
+
+
 // Begin addr dep 6: rw address dependency within the same function - for breaking the begin annotation
 static int noinline doitlk_rw_addr_dep_begin_1(void)
 {
@@ -573,7 +614,8 @@ static int lkm_init(void)
 	doitlk_rr_addr_dep_end_7();
 	doitlk_rr_addr_dep_begin_8();
 	doitlk_rr_addr_dep_end_8();
-	// TODO: add two deps with same beginning
+	doitlk_rr_addr_dep_begin_9();
+	doitlk_rr_addr_dep_end_9();
 
 	// rw addr deps
 	doitlk_rw_addr_dep_begin_1();
