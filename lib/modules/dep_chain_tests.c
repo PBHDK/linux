@@ -321,7 +321,7 @@ static int noinline doitlk_ctrl_dep_begin_1(void)
 
 		// End address dependency
 		// y == x[42] == 0
-		y = READ_ONCE(*bar);
+		WRITE_ONCE(y, *bar);
 	}
 	return 0;
 }
@@ -339,7 +339,7 @@ static int noinline doitlk_ctrl_dep_end_1(void)
 
 		// End address dependency
 		// y == x[42] == 0
-		y = READ_ONCE(*bar);
+		WRITE_ONCE(y, *bar);
 	}
 	return 0;
 }
@@ -357,7 +357,7 @@ static int noinline doitlk_ctrl_dep_begin_2(void)
 
 		// End address dependency
 		// y == x[42] == 0
-		y = READ_ONCE(*bar);
+		WRITE_ONCE(y, *bar);
 	}
 	return 0;
 }
@@ -375,7 +375,7 @@ static int noinline doitlk_ctrl_dep_end_2(void)
 
 		// End address dependency
 		// y == x[42] == 0
-		y = READ_ONCE(*bar);
+		WRITE_ONCE(y, *bar);
 	}
 	return 0;
 }
@@ -393,7 +393,7 @@ static int noinline doitlk_ctrl_dep_begin_3(void)
 
 		// End address dependency
 		// y == x[42] == 0
-		y = READ_ONCE(*bar);
+		WRITE_ONCE(y, *bar);
 	}
 	return 0;
 }
@@ -411,7 +411,7 @@ static int noinline doitlk_ctrl_dep_end_3(void)
 
 		// End address dependency
 		// y == x[42] == 0
-		y = READ_ONCE(*bar);
+		WRITE_ONCE(y, *bar);
 	}
 	return 0;
 }
@@ -427,7 +427,7 @@ static int noinline doitlk_ctrl_dep_begin_4(void)
 
 		// End address dependency
 		// y == x[42] == 0
-		y = READ_ONCE(*bar);
+		WRITE_ONCE(y, *bar);
 	}
 	return 0;
 }
@@ -443,7 +443,7 @@ static int noinline doitlk_ctrl_dep_end_4(void)
 
 		// End address dependency
 		// y == x[42] == 0
-		y = READ_ONCE(*bar);
+		WRITE_ONCE(y, *bar);
 	}
 	return 0;
 }
@@ -462,7 +462,7 @@ static int noinline doitlk_ctrl_dep_begin_5(void)
 
 		// End address dependency
 		// y == x[42] == 0
-		y = READ_ONCE(*bar);
+		WRITE_ONCE(y, *bar);
 	}
 	return 0;
 }
@@ -481,7 +481,7 @@ static int noinline doitlk_ctrl_dep_end_5(void)
 
 		// End address dependency
 		// y == x[42] == 0
-		y = READ_ONCE(*bar);
+		WRITE_ONCE(y, *bar);
 	}
 	return 0;
 }
