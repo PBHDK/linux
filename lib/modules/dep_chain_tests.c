@@ -274,43 +274,6 @@ static int noinline doitlk_rr_addr_dep_end_6(void)
 	return 0;
 }
 
-// // DEP 5: address dependency running through a loop within the same function -  for breaking the begin annotation
-// static int noinline doitlk_rr_addr_dep_begin_5_helper(void)
-// {
-// 	int i = 0;
-//   // Begin address dependency
-// 	// xp == foo && *x == foo[0] after assignment
-// 	xp = READ_ONCE(foo);
-
-// 	for(; i < 42; ++i) {
-// 		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-// 		bar = &xp[i];
-
-// 		// End address dependency
-// 		// y == x[42] == 0
-// 		y = READ_ONCE(*bar);
-// 	}
-// 	return 0;
-// }
-
-// static int noinline doitlk_rr_addr_dep_begin_5(void)
-// {
-// 	int i = 0;
-//   // Begin address dependency
-// 	// xp == foo && *x == foo[0] after assignment
-// 	xp = READ_ONCE(foo);
-
-// 	for(; i < 42; ++i) {
-// 		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-// 		bar = &xp[i];
-
-// 		// End address dependency
-// 		// y == x[42] == 0
-// 		y = READ_ONCE(*bar);
-// 	}
-// 	return 0;
-// }
-
 // Begin addr dep 6: rw address dependency within the same function - for breaking the begin annotation
 static int noinline doitlk_rw_addr_dep_begin_1(void)
 {
@@ -485,6 +448,44 @@ static int noinline doitlk_ctrl_dep_end_4(void)
 	return 0;
 }
 
+// Begin ctrl dep 5: control dependency with end in for loop -  for breaking the begin annotation
+static int noinline doitlk_ctrl_dep_begin_5(void)
+{
+	int i = 0;
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	for(; i < 42; ++i) {
+		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+		bar = &xp[i];
+
+		// End address dependency
+		// y == x[42] == 0
+		y = READ_ONCE(*bar);
+	}
+	return 0;
+}
+
+// End ctrl dep 5: control dependency with end in for loop -  for breaking the begin annotation
+static int noinline doitlk_ctrl_dep_end_5(void)
+{
+	int i = 0;
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	for(; i < 42; ++i) {
+		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+		bar = &xp[i];
+
+		// End address dependency
+		// y == x[42] == 0
+		y = READ_ONCE(*bar);
+	}
+	return 0;
+}
+
 static int lkm_init(void)
 {
 	// rr addr deps
@@ -500,8 +501,6 @@ static int lkm_init(void)
 	doitlk_rr_addr_dep_end_5();
 	doitlk_rr_addr_dep_begin_6();
 	doitlk_rr_addr_dep_end_6();
-	// dep_5_same_function_loop_begin();
-	// dep_5_same_function_loop_end();
 	// TODO: WRITE_ONCE() for second access
 	// TODO: Address dep that runs through control dep and ends afterwards
 	// TODO: add two deps with same beginning
@@ -519,6 +518,8 @@ static int lkm_init(void)
 	doitlk_ctrl_dep_end_3();
 	doitlk_ctrl_dep_begin_4();
 	doitlk_ctrl_dep_end_4();
+	doitlk_ctrl_dep_begin_5();
+	doitlk_ctrl_dep_end_5();
 	
   return 0;
 }
