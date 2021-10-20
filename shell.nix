@@ -12,6 +12,7 @@ in
   nativeBuildInputs = old.nativeBuildInputs ++ [
     pkgs.gllvm
     pkgs.ncurses
+    pkgs.perl
   ];
   ASAN_SYMBOLIZER_PATH="~/src/DoitLK-llvm/build/bin/llvm-symbolizer";
   MSAN_SYMBOLIZER_PATH="~/src/DoitLK-llvm/build/bin/llvm-symbolizer";
