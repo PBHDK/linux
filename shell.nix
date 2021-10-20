@@ -11,6 +11,7 @@ in
 }).overrideAttrs (old: {
   nativeBuildInputs = old.nativeBuildInputs ++ [
     pkgs.gllvm
+    pkgs.ncurses
   ];
   ASAN_SYMBOLIZER_PATH="~/src/DoitLK-llvm/build/bin/llvm-symbolizer";
   MSAN_SYMBOLIZER_PATH="~/src/DoitLK-llvm/build/bin/llvm-symbolizer";
