@@ -16,4 +16,5 @@ in
   ];
   ASAN_SYMBOLIZER_PATH="~/src/DoitLK-llvm/build/bin/llvm-symbolizer";
   MSAN_SYMBOLIZER_PATH="~/src/DoitLK-llvm/build/bin/llvm-symbolizer";
+  makeFlags = ["CC=/home/paul/src/DoitLK-llvm/build/bin/clang" "ARCH=arm64" "CROSS_COMPILE=aarch64-unknown-linux-gnu-" "SHELL=bash" "-j$NIX_BUILD_CORES"];
 })
