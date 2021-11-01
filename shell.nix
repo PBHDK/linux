@@ -1,4 +1,5 @@
-{ pkgs ? import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/953909341ea62291a4c4a9483214f9a12d58ec99.tar.gz") {} }:
+# { pkgs ? import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/953909341ea62291a4c4a9483214f9a12d58ec99.tar.gz") {} }:
+with import <nixpkgs> {};
 let
   aarch64 = pkgs.pkgsCross.aarch64-multiplatform;
 in
