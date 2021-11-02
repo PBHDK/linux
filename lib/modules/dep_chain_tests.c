@@ -307,7 +307,7 @@ static int noinline doitlk_rr_addr_dep_end_7(void)
 	return 0;
 }
 
-// Begin addr dep 9: two address dependencies with same beginning within the same function - for breaking the begin annotation
+// Begin addr dep 8: two address dependencies with same beginning within the same function - for breaking the begin annotation
 static int noinline doitlk_rr_addr_dep_begin_8(void)
 {
 	volatile int *barLocal;
@@ -327,7 +327,7 @@ static int noinline doitlk_rr_addr_dep_begin_8(void)
 	return 0;
 }
 
-// End addr dep 9: two address dependencies with same beginning within the same function - for breaking the end annotation
+// End addr dep 8: two address dependencies with same beginning within the same function - for breaking the end annotation
 static int noinline doitlk_rr_addr_dep_end_8(void)
 {
 	volatile int *barLocal;
@@ -570,7 +570,7 @@ static int noinline doitlk_rw_addr_dep_end_7(void)
 	return 0;
 }
 
-// Begin addr dep 9: two address dependencies with same beginning within the same function - for breaking the begin annotation
+// Begin addr dep 8: two address dependencies with same beginning within the same function - for breaking the begin annotation
 static int noinline doitlk_rw_addr_dep_begin_8(void)
 {
 	volatile int *barLocal;
@@ -590,7 +590,7 @@ static int noinline doitlk_rw_addr_dep_begin_8(void)
 	return 0;
 }
 
-// End addr dep 9: two address dependencies with same beginning within the same function - for breaking the end annotation
+// End addr dep 8: two address dependencies with same beginning within the same function - for breaking the end annotation
 static int noinline doitlk_rw_addr_dep_end_8(void)
 {
 	volatile int *barLocal;
