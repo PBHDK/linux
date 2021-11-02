@@ -27,7 +27,7 @@ in
 }).overrideAttrs (old: {
   nativeBuildInputs = old.nativeBuildInputs ++ [
     pkgs.gllvm
-    #pkgs.llvmPackages_13.llvm
+    pkgs.llvmPackages_13.clang
     #pkgs.llvmPackages_13.bintools
     pkgs.ncurses
     pkgs.perl
