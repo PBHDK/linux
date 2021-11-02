@@ -861,24 +861,39 @@ static int noinline doitlk_ctrl_dep_end_5(void)
 static int lkm_init(void)
 {
 	// rr addr deps
+	// simple case
   doitlk_rr_addr_dep_begin_1();
 	doitlk_rr_addr_dep_end_1();
+	// in via function parameter
   doitlk_rr_addr_dep_begin_2();
 	rr_addr_dep_end_2();
+	// out via function return
 	rr_addr_dep_begin_3();
 	doitlk_rr_addr_dep_end_3();
+	// in and out same chain
 	doitlk_rr_addr_dep_begin_4();
 	doitlk_rr_addr_dep_end_4();
+	// TODO in and out different chains
+	// simple case, end in if condition
 	doitlk_rr_addr_dep_begin_5();
 	doitlk_rr_addr_dep_end_5();
+	// Simple Case - Chain Through If-Else
 	doitlk_rr_addr_dep_begin_6();
 	doitlk_rr_addr_dep_end_6();
+	// Simple Case - Chain Through If
 	doitlk_rr_addr_dep_begin_7();
 	doitlk_rr_addr_dep_end_7();
+	// TODO duplicate
 	doitlk_rr_addr_dep_begin_8();
 	doitlk_rr_addr_dep_end_8();
+	// simple case, fan out
 	doitlk_rr_addr_dep_begin_9();
 	doitlk_rr_addr_dep_end_9();
+	// TODO in and out but different chains
+	// TODO chain fanning in
+	// TODO chain fanning out
+	// TODO chain fanning in and out
+	// TODO doitlk example
 
 	// rw addr deps
 	doitlk_rw_addr_dep_begin_1();
@@ -898,7 +913,11 @@ static int lkm_init(void)
 	doitlk_rw_addr_dep_end_8();
 	doitlk_rw_addr_dep_begin_9();
 	doitlk_rw_addr_dep_end_9();
-
+	// TODO in and out but different chains
+	// TODO chain fanning in
+	// TODO chain fanning out
+	// TODO chain fanning in and out
+	// TODO doitlk example
 
 	// ctrl deps
 	doitlk_ctrl_dep_begin_1();
@@ -911,6 +930,7 @@ static int lkm_init(void)
 	doitlk_ctrl_dep_end_4();
 	doitlk_ctrl_dep_begin_5();
 	doitlk_ctrl_dep_end_5();
+	// TODO all cases from above
 	
   return 0;
 }
