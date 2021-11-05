@@ -347,12 +347,12 @@ static int noinline doitlk_rr_addr_dep_end_8(void)
 	return 0;
 }
 
-static void noinline begin_9_helper1(volatile int *local_bar1) {
+static void noinline rr_begin_9_helper1(volatile int *local_bar1) {
 	// End address dependency
 	y = READ_ONCE(*local_bar1);
 }
 
-static void noinline begin_9_helper2(volatile int *local_bar2) {
+static void noinline rr_begin_9_helper2(volatile int *local_bar2) {
 	// End address dependency
 	z = READ_ONCE(*local_bar2);
 }
@@ -369,8 +369,8 @@ static int noinline doitlk_rr_addr_dep_begin_9(void)
 	bar = &xp[42];
 	barLocal = &xp[21];
 
-	begin_9_helper1(bar);
-	begin_9_helper2(barLocal);
+	rr_begin_9_helper1(bar);
+	rr_begin_9_helper2(barLocal);
 
 	return 0;
 }
@@ -667,6 +667,63 @@ static int noinline doitlk_rw_addr_dep_end_8(void)
 	return 0;
 }
 
+static void noinline rw_begin_9_helper1(volatile int *local_bar1) {
+	// End address dependency
+	WRITE_ONCE(*local_bar1, y);
+}
+
+static void noinline rw_begin_9_helper2(volatile int *local_bar2) {
+	// End address dependency
+	WRITE_ONCE(*local_bar2, z);
+}
+
+// Begin addr dep 9: two address dependencies with same beginning within the same function - for breaking the begin annotation
+static int noinline doitlk_rw_addr_dep_begin_9(void)
+{
+	volatile int *barLocal1, *barLocal2;
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+	barLocal1 = &xp[42];
+	barLocal2 = &xp[21];
+
+	rw_begin_9_helper1(barLocal1);
+	rw_begin_9_helper2(barLocal2);
+
+	return 0;
+}
+
+// End addr dep 9: two address dependencies with same beginning within the same function - for breaking the end annotation
+static void noinline doitlk_rw_addr_dep_end_9_helper1(volatile int *local_bar1) {
+	// End address dependency
+	WRITE_ONCE(*local_bar1, y);
+}
+
+static void noinline doitlk_rw_addr_dep_end_9_helper2(volatile int *local_bar2) {
+	// End address dependency
+	WRITE_ONCE(*local_bar2, z);
+}
+
+// Begin addr dep 9: two address dependencies with same beginning within the same function - for breaking the begin annotation
+static int noinline rw_addr_dep_end_9(void)
+{
+	volatile int *barLocal1, *barLocal2;
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+	barLocal1 = &xp[42];
+	barLocal2 = &xp[21];
+
+	doitlk_rw_addr_dep_end_9_helper1(barLocal1);
+	doitlk_rw_addr_dep_end_9_helper2(barLocal2);
+
+	return 0;
+}
+
 // Begin ctrl dep 1: control dependency within the same function - independent - for breaking the begin annotation
 static int noinline doitlk_ctrl_dep_begin_1(void)
 {
@@ -898,6 +955,8 @@ static int lkm_init(void)
 	doitlk_rw_addr_dep_end_7();
 	doitlk_rw_addr_dep_begin_8();
 	doitlk_rw_addr_dep_end_8();
+	doitlk_rw_addr_dep_begin_9();
+	rw_addr_dep_end_9();
 	// TODO in and out but different chains
 	// TODO chain fanning in
 	// TODO chain fanning out
