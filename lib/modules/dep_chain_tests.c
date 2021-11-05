@@ -347,6 +347,63 @@ static int noinline doitlk_rr_addr_dep_end_8(void)
 	return 0;
 }
 
+static void noinline begin_9_helper1(volatile int *local_bar1) {
+	// End address dependency
+	y = READ_ONCE(*local_bar1);
+}
+
+static void noinline begin_9_helper2(volatile int *local_bar2) {
+	// End address dependency
+	z = READ_ONCE(*local_bar2);
+}
+
+// Begin addr dep 9: two address dependencies with same beginning within the same function - for breaking the begin annotation
+static int noinline doitlk_rr_addr_dep_begin_9(void)
+{
+	volatile int *barLocal;
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+	bar = &xp[42];
+	barLocal = &xp[21];
+
+	begin_9_helper1(bar);
+	begin_9_helper2(barLocal);
+
+	return 0;
+}
+
+// End addr dep 9: two address dependencies with same beginning within the same function - for breaking the end annotation
+static void noinline doitlk_rr_addr_dep_end_9_helper1(volatile int *local_bar1) {
+	// End address dependency
+	y = READ_ONCE(*local_bar1);
+}
+
+static void noinline doitlk_rr_addr_dep_end_9_helper2(volatile int *local_bar2) {
+	// End address dependency
+	z = READ_ONCE(*local_bar2);
+}
+
+// Begin addr dep 9: two address dependencies with same beginning within the same function - for breaking the begin annotation
+static int noinline rr_addr_dep_end_9(void)
+{
+	volatile int *barLocal;
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+	bar = &xp[42];
+	barLocal = &xp[21];
+
+	doitlk_rr_addr_dep_end_9_helper1(bar);
+	doitlk_rr_addr_dep_end_9_helper2(barLocal);
+
+	return 0;
+}
+
 // 
 // ====
 // Read -> Write Address Dependencies
@@ -817,6 +874,8 @@ static int lkm_init(void)
 	// simple case, fan out
 	doitlk_rr_addr_dep_begin_8();
 	doitlk_rr_addr_dep_end_8();
+	doitlk_rr_addr_dep_begin_9();
+	rr_addr_dep_end_9();
 	// TODO in and out but different chains
 	// TODO chain fanning in
 	// TODO chain fanning out
