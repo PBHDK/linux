@@ -1071,9 +1071,8 @@ static int lkm_init(void)
 	// in and out, but different chains 
 	doitlk_rr_addr_dep_begin_10();
 	doitlk_rr_addr_dep_end_10();
-	// TODO in and out but different chains
-	// TODO chain fanning in
-	// TODO chain fanning in and out
+	// chain fanning in not relevant
+	
 	// TODO doitlk example
 
 	// rw addr deps
