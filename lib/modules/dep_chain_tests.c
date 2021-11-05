@@ -2,6 +2,11 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 
+// for timekeeping
+#include <linux/timekeeper_internal.h>
+#include "../kernel/time/timekeeping_internal.h"
+#include <linux/seqlock.h>
+
 MODULE_DESCRIPTION("Kernel module, which contains several dependeny chains used for testing CustomMemDep passes");
 MODULE_AUTHOR("Paul Heidekruger");
 MODULE_LICENSE("GPL");
@@ -13,6 +18,11 @@ static int arr[50];
 static volatile int *foo = arr;
 static volatile int *xp, *bar;
 static volatile int *bar;
+
+extern unsigned raw_read_seqcount_latch(const seqcount_latch_t *s);
+extern u64 timekeeping_delta_to_ns(const struct tk_read_base *tkr, u64 delta);
+extern u64 tk_clock_read(const struct tk_read_base *tkr);
+extern u64 dummy_clock_read(struct clocksource *cs);
 
 // Begin addr dep 1: address dependency within the same function - for breaking the begin annotation
 static int noinline doitlk_rr_addr_dep_begin_1(void)
@@ -470,6 +480,33 @@ static int noinline doitlk_rr_addr_dep_end_10 (void)
 	z = READ_ONCE(*barLocal);
 
 	return 0;
+}
+
+// Example from original DoitLK talk at LPC 2020
+struct tk_fast {
+	seqcount_latch_t	seq;
+	struct tk_read_base	base[2];
+};
+
+static __always_inline u64 doitlk_ktime(struct tk_fast *tkf)
+{
+	struct tk_read_base *tkr;
+	unsigned int seq;
+	u64 now;
+
+	do {
+		seq = raw_read_seqcount_latch(&tkf->seq);
+		tkr = tkf->base + (seq & 0x01);
+		now = ktime_to_ns(READ_ONCE(tkr->base));
+
+		now += timekeeping_delta_to_ns(tkr,
+				clocksource_delta(
+					tk_clock_read(tkr),
+					tkr->cycle_last,
+					tkr->mask));
+	} while (read_seqcount_latch_retry(&tkf->seq, seq));
+
+	return now;
 }
 
 // 
@@ -1040,6 +1077,24 @@ static int noinline doitlk_ctrl_dep_end_5(void)
 
 static int lkm_init(void)
 {
+	static struct clocksource dummy_clock = {
+		.read = dummy_clock_read,
+	};
+
+	#define FAST_TK_INIT						\
+	{							\
+		.clock		= &dummy_clock,			\
+		.mask		= CLOCKSOURCE_MASK(64),		\
+		.mult		= 1,				\
+		.shift		= 0,				\
+	}
+
+	static struct tk_fast tk_fast_raw  ____cacheline_aligned = {
+		.seq     = SEQCNT_LATCH_ZERO(tk_fast_raw.seq),
+		.base[0] = FAST_TK_INIT,
+		.base[1] = FAST_TK_INIT,
+	};
+
 	// rr addr deps
 	// simple case
   doitlk_rr_addr_dep_begin_1();
@@ -1072,8 +1127,8 @@ static int lkm_init(void)
 	doitlk_rr_addr_dep_begin_10();
 	doitlk_rr_addr_dep_end_10();
 	// chain fanning in not relevant
-	
-	// TODO doitlk example
+	// doitlk example
+	doitlk_ktime(&tk_fast_raw);
 
 	// rw addr deps
 	// simple case
