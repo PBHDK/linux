@@ -404,6 +404,74 @@ static int noinline rr_addr_dep_end_9(void)
 	return 0;
 }
 
+// Begin addr dep 10: address dependencies through function call, but different chains
+static volatile int* noinline begin_10_helper(volatile int *xpLocal) {
+	volatile int *barLocal;
+	
+	bar = &xpLocal[42];
+
+	// End address dependency
+	y = READ_ONCE(*bar);
+
+	// Begin address dependency
+	xp = READ_ONCE(foo);	
+
+	barLocal = &xp[42];
+
+  // copy bar and return it
+  return barLocal;
+}
+
+static int noinline doitlk_rr_addr_dep_begin_10 (void)
+{
+  volatile int *barLocal;
+
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+  barLocal = begin_10_helper(xp);
+
+	z = READ_ONCE(*barLocal);
+
+	return 0;
+}
+
+// End addr dep 10: address dependencies through function call, but different chains
+static volatile int* noinline end_10_helper(volatile int *xpLocal) {
+	volatile int *barLocal;
+
+	bar = &xpLocal[42];
+
+	// End address dependency
+	y = READ_ONCE(*bar);
+
+	// Begin address dependency
+	xp = READ_ONCE(foo);	
+
+	barLocal = &xp[42];
+
+  // copy bar and return it
+  return barLocal;
+}
+
+static int noinline doitlk_rr_addr_dep_end_10 (void)
+{
+  volatile int *barLocal;
+
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+  barLocal = end_10_helper(xp);
+
+  // End address dependency
+	// y == x[42] == 0
+	z = READ_ONCE(*barLocal);
+
+	return 0;
+}
+
 // 
 // ====
 // Read -> Write Address Dependencies
@@ -724,6 +792,74 @@ static int noinline rw_addr_dep_end_9(void)
 	return 0;
 }
 
+// Begin addr dep 10: address dependencies through function call, but different chains
+static volatile int* noinline rw_begin_10_helper(volatile int *xpLocal) {
+	volatile int *barLocal;
+	
+	bar = &xpLocal[42];
+
+	// End address dependency
+	WRITE_ONCE(*bar, y);
+
+	// Begin address dependency
+	xp = READ_ONCE(foo);	
+
+	barLocal = &xp[42];
+
+  // copy bar and return it
+  return barLocal;
+}
+
+static int noinline doitlk_rw_addr_dep_begin_10 (void)
+{
+  volatile int *barLocal;
+
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+  barLocal = rw_begin_10_helper(xp);
+
+	WRITE_ONCE(*barLocal, z);
+
+	return 0;
+}
+
+// End addr dep 10: address dependencies through function call, but different chains
+static volatile int* noinline rw_end_10_helper(volatile int *xpLocal) {
+	volatile int *barLocal;
+	
+	bar = &xpLocal[42];
+
+	// End address dependency
+	WRITE_ONCE(*bar, y);
+
+	// Begin address dependency
+	xp = READ_ONCE(foo);	
+
+	barLocal = &xp[42];
+
+  // copy bar and return it
+  return barLocal;
+}
+
+static int noinline doitlk_rw_addr_dep_end_10 (void)
+{
+  volatile int *barLocal;
+
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+  barLocal = rw_end_10_helper(xp);
+
+  // End address dependency
+	// y == x[42] == 0
+	WRITE_ONCE(*barLocal, z);
+
+	return 0;
+}
+
 // Begin ctrl dep 1: control dependency within the same function - independent - for breaking the begin annotation
 static int noinline doitlk_ctrl_dep_begin_1(void)
 {
@@ -933,6 +1069,8 @@ static int lkm_init(void)
 	doitlk_rr_addr_dep_begin_9();
 	rr_addr_dep_end_9();
 	// in and out, but different chains 
+	doitlk_rr_addr_dep_begin_10();
+	doitlk_rr_addr_dep_end_10();
 	// TODO in and out but different chains
 	// TODO chain fanning in
 	// TODO chain fanning in and out
@@ -964,6 +1102,9 @@ static int lkm_init(void)
 	// dep chain fanning out
 	doitlk_rw_addr_dep_begin_9();
 	rw_addr_dep_end_9();
+	// in and out, but different chains 
+	doitlk_rw_addr_dep_begin_10();
+	doitlk_rw_addr_dep_end_10();
 
 	// ctrl deps
 	doitlk_ctrl_dep_begin_1();
