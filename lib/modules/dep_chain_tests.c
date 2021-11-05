@@ -917,7 +917,6 @@ static int lkm_init(void)
 	// in and out same chain
 	doitlk_rr_addr_dep_begin_4();
 	doitlk_rr_addr_dep_end_4();
-	// TODO in and out different chains
 	// simple case, end in if condition
 	doitlk_rr_addr_dep_begin_5();
 	doitlk_rr_addr_dep_end_5();
@@ -927,41 +926,44 @@ static int lkm_init(void)
 	// Simple Case - Chain Through If
 	doitlk_rr_addr_dep_begin_7();
 	doitlk_rr_addr_dep_end_7();
-	// TODO duplicate
 	// simple case, fan out
 	doitlk_rr_addr_dep_begin_8();
 	doitlk_rr_addr_dep_end_8();
+	// dep chain fanning out
 	doitlk_rr_addr_dep_begin_9();
 	rr_addr_dep_end_9();
+	// in and out, but different chains 
 	// TODO in and out but different chains
 	// TODO chain fanning in
-	// TODO chain fanning out
 	// TODO chain fanning in and out
 	// TODO doitlk example
 
 	// rw addr deps
+	// simple case
 	doitlk_rw_addr_dep_begin_1();
 	doitlk_rw_addr_dep_end_1();
+	// in via function parameter
 	doitlk_rw_addr_dep_begin_2();
 	rw_addr_dep_end_2();
+	// out via function return
 	rw_addr_dep_begin_3();
 	doitlk_rw_addr_dep_end_3();
+	// in and out same chain
 	doitlk_rw_addr_dep_begin_4();
 	doitlk_rw_addr_dep_end_4();
 	// dep 5 ommitted since we can't use WRITE_ONCE() as if condition
+	// Simple Case - Chain Through If-Else
 	doitlk_rw_addr_dep_begin_6();
 	doitlk_rw_addr_dep_end_6();
+	// Simple Case - Chain Through If
 	doitlk_rw_addr_dep_begin_7();
 	doitlk_rw_addr_dep_end_7();
+	// simple case, fan out
 	doitlk_rw_addr_dep_begin_8();
 	doitlk_rw_addr_dep_end_8();
+	// dep chain fanning out
 	doitlk_rw_addr_dep_begin_9();
 	rw_addr_dep_end_9();
-	// TODO in and out but different chains
-	// TODO chain fanning in
-	// TODO chain fanning out
-	// TODO chain fanning in and out
-	// TODO doitlk example
 
 	// ctrl deps
 	doitlk_ctrl_dep_begin_1();
