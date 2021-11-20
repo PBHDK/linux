@@ -19,7 +19,6 @@ static int arr[50];
 // implicitly convert arr to int*
 static volatile int *foo = arr;
 static volatile int *xp, *bar;
-static volatile int *bar;
 
 extern unsigned raw_read_seqcount_latch(const seqcount_latch_t *s);
 extern u64 timekeeping_delta_to_ns(const struct tk_read_base *tkr, u64 delta);
@@ -1141,6 +1140,26 @@ static int noinline doitlk_ctrl_dep_end_8(void)
 	return 0;
 }
 
+// Begin ctrl dep 9: two dep chains in condition
+static int noinline doitlk_ctrl_dep_begin_9(void)
+{
+	x = READ_ONCE(*foo);
+	y = READ_ONCE(*bar);
+	if (x > y)
+		WRITE_ONCE(z, 1);
+	return 0;
+}
+
+// End ctrl dep 9: two dep chains in condition
+static int noinline doitlk_ctrl_dep_end_9(void)
+{
+	x = READ_ONCE(*foo);
+	y = READ_ONCE(*bar);
+	if (x > y)
+		WRITE_ONCE(z, 1);
+	return 0;
+}
+
 static int lkm_init(void)
 {
 	static struct clocksource dummy_clock = {
@@ -1243,7 +1262,8 @@ static int lkm_init(void)
 	doitlk_ctrl_dep_end_7();
 	doitlk_ctrl_dep_begin_8();
 	doitlk_ctrl_dep_end_8();
-	// TODO memory-barriers cases
+	doitlk_ctrl_dep_begin_9();
+	doitlk_ctrl_dep_end_9();
 	// TODO all cases from above?
 	
   return 0;
