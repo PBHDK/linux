@@ -1097,6 +1097,24 @@ static int noinline doitlk_ctrl_dep_end_6(void)
 	return 0;
 }
 
+// Begin ctrl dep 7: memory-barriers.txt case 3, constant dependent condition
+static int noinline doitlk_ctrl_dep_begin_7(void)
+{
+	x = READ_ONCE(*foo);
+	if (x || 1 > 0)
+		WRITE_ONCE(y, 1);
+	return 0;
+}
+
+// End ctrl dep 7: memory-barriers.txt case 3, constant dependent condition
+static int noinline doitlk_ctrl_dep_end_7(void)
+{
+	x = READ_ONCE(*foo);
+	if (x || 1 > 0)
+		WRITE_ONCE(y, 1);
+	return 0;
+}
+
 static int lkm_init(void)
 {
 	static struct clocksource dummy_clock = {
@@ -1195,6 +1213,8 @@ static int lkm_init(void)
 	doitlk_ctrl_dep_end_5();
 	doitlk_ctrl_dep_begin_6();
 	doitlk_ctrl_dep_end_6();
+	doitlk_ctrl_dep_begin_7();
+	doitlk_ctrl_dep_end_7();
 	// TODO memory-barriers cases
 	// TODO all cases from above?
 	
