@@ -11,8 +11,10 @@ MODULE_DESCRIPTION("Kernel module, which contains several dependeny chains used 
 MODULE_AUTHOR("Paul Heidekruger");
 MODULE_LICENSE("GPL");
 
+#define MAX 1
+
 // global declarations
-static int y, z;
+static int x, y, z;
 static int arr[50];
 // implicitly convert arr to int*
 static volatile int *foo = arr;
@@ -897,7 +899,7 @@ static int noinline doitlk_rw_addr_dep_end_10 (void)
 	return 0;
 }
 
-// Begin ctrl dep 1: control dependency within the same function - independent - for breaking the begin annotation
+// Begin ctrl dep 1: memory-barriers.txt case 1, control dependency within the same function - dependent - for breaking the begin annotation
 static int noinline doitlk_ctrl_dep_begin_1(void)
 {
   // Begin address dependency
@@ -915,7 +917,7 @@ static int noinline doitlk_ctrl_dep_begin_1(void)
 	return 0;
 }
 
-// End ctrl dep 1: control dependency within the same function - independent condition - for breaking the end annotation
+// End ctrl dep 1: control dependency within the same function - dependent condition - for breaking the end annotation
 static int noinline doitlk_ctrl_dep_end_1(void)
 {
   // Begin address dependency
@@ -1075,6 +1077,26 @@ static int noinline doitlk_ctrl_dep_end_5(void)
 	return 0;
 }
 
+// Begin ctrl dep 6: memory-barriers.txt case 2, constant dependent condition
+static int noinline doitlk_ctrl_dep_begin_6(void)
+{
+	x = READ_ONCE(*foo);
+	if(x % MAX == 0) {
+		WRITE_ONCE(*bar, y);
+	}
+	return 0;
+}
+
+// End ctrl dep 6: memory-barriers.txt case 2, constant dependent condition
+static int noinline doitlk_ctrl_dep_end_6(void)
+{
+	x = READ_ONCE(*foo);
+	if(x % MAX == 0) {
+		WRITE_ONCE(*bar, y);
+	}
+	return 0;
+}
+
 static int lkm_init(void)
 {
 	static struct clocksource dummy_clock = {
@@ -1171,7 +1193,10 @@ static int lkm_init(void)
 	doitlk_ctrl_dep_end_4();
 	doitlk_ctrl_dep_begin_5();
 	doitlk_ctrl_dep_end_5();
-	// TODO all cases from above
+	doitlk_ctrl_dep_begin_6();
+	doitlk_ctrl_dep_end_6();
+	// TODO memory-barriers cases
+	// TODO all cases from above?
 	
   return 0;
 }
