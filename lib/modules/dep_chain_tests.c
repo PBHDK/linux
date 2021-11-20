@@ -1160,6 +1160,28 @@ static int noinline doitlk_ctrl_dep_end_9(void)
 	return 0;
 }
 
+// Begin ctrl dep 10: three dep chains in condition
+static int noinline doitlk_ctrl_dep_begin_10(void)
+{
+	x = READ_ONCE(*foo);
+	y = READ_ONCE(*bar);
+	z = READ_ONCE(*xp);
+	if (x > y || z < y)
+		WRITE_ONCE(*foo, 1);
+	return 0;
+}
+
+// End ctrl dep 10: three dep chains in condition
+static int noinline doitlk_ctrl_dep_end_10(void)
+{
+	x = READ_ONCE(*foo);
+	y = READ_ONCE(*bar);
+	z = READ_ONCE(*xp);
+	if (x > y || z < y)
+		WRITE_ONCE(*foo, 1);
+	return 0;
+}
+
 static int lkm_init(void)
 {
 	static struct clocksource dummy_clock = {
@@ -1264,6 +1286,8 @@ static int lkm_init(void)
 	doitlk_ctrl_dep_end_8();
 	doitlk_ctrl_dep_begin_9();
 	doitlk_ctrl_dep_end_9();
+	doitlk_ctrl_dep_begin_10();
+	doitlk_ctrl_dep_end_10();
 	// TODO all cases from above?
 	
   return 0;
