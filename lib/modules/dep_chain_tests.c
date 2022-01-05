@@ -1182,6 +1182,30 @@ static int noinline doitlk_ctrl_dep_end_10(void)
 	return 0;
 }
 
+// Begin ctrl dep 11: nested if
+static int noinline doitlk_ctrl_dep_begin_11(void)
+{
+	x = READ_ONCE(*foo);
+	if(x) {
+		y = READ_ONCE(*bar);
+		if(y)
+			WRITE_ONCE(*foo, 1);
+	}
+	return 0;
+}
+
+// End ctrl dep 11: nested if
+static int noinline doitlk_ctrl_dep_end_11(void)
+{
+	x = READ_ONCE(*foo);
+	if(x) {
+		y = READ_ONCE(*bar);
+		if(y)
+			WRITE_ONCE(*foo, 1);
+	}
+	return 0;
+}
+
 static int lkm_init(void)
 {
 	static struct clocksource dummy_clock = {
@@ -1288,6 +1312,8 @@ static int lkm_init(void)
 	doitlk_ctrl_dep_end_9();
 	doitlk_ctrl_dep_begin_10();
 	doitlk_ctrl_dep_end_10();
+	doitlk_ctrl_dep_begin_11();
+	doitlk_ctrl_dep_end_11();
 	// TODO all cases from above?
 	
   return 0;
