@@ -1236,6 +1236,22 @@ static int noinline doitlk_ctrl_dep_end_12(void)
 	return 0;
 }
 
+static into noinline doitlk_ctrl_dep_begin_13(void)
+{
+	x = doitlk_rr_addr_dep_begin_3_helper();
+	if(x)
+		WRITE_ONCE(*foo, 1);
+	return 0;
+}
+
+static into noinline doitlk_ctrl_dep_end_13(void)
+{
+	x = doitlk_rr_addr_dep_begin_3_helper();
+	if(x)
+		WRITE_ONCE(*foo, 1);
+	return 0;
+}
+
 static int lkm_init(void)
 {
 	static struct clocksource dummy_clock = {
