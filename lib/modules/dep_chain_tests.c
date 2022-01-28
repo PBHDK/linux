@@ -1236,7 +1236,7 @@ static int noinline doitlk_ctrl_dep_end_12(void)
 	return 0;
 }
 
-static into noinline doitlk_ctrl_dep_begin_13(void)
+static int noinline doitlk_ctrl_dep_begin_13(void)
 {
 	x = doitlk_rr_addr_dep_begin_3_helper();
 	if(x)
@@ -1244,7 +1244,7 @@ static into noinline doitlk_ctrl_dep_begin_13(void)
 	return 0;
 }
 
-static into noinline doitlk_ctrl_dep_end_13(void)
+static int noinline doitlk_ctrl_dep_end_13(void)
 {
 	x = doitlk_rr_addr_dep_begin_3_helper();
 	if(x)
@@ -1252,7 +1252,7 @@ static into noinline doitlk_ctrl_dep_end_13(void)
 	return 0;
 }
 
-static into noinline doitlk_ctrl_dep_begin_14(void)
+static int noinline doitlk_ctrl_dep_begin_14(void)
 {
 	x = doitlk_rr_addr_dep_begin_3_helper();
 	if(x)
@@ -1260,7 +1260,7 @@ static into noinline doitlk_ctrl_dep_begin_14(void)
 	return 0;
 }
 
-static into noinline doitlk_ctrl_dep_end_14(void)
+static int noinline doitlk_ctrl_dep_end_14(void)
 {
 	x = doitlk_rr_addr_dep_begin_3_helper();
 	if(x)
@@ -1268,7 +1268,7 @@ static into noinline doitlk_ctrl_dep_end_14(void)
 	return 0;
 }
 
-static into noinline doitlk_ctrl_dep_begin_15(void)
+static int noinline doitlk_ctrl_dep_begin_15(void)
 {
 	x = READ_ONCE(*foo);
 	if(x)
@@ -1276,7 +1276,7 @@ static into noinline doitlk_ctrl_dep_begin_15(void)
 	return 0;
 }
 
-static into noinline doitlk_ctrl_dep_end_15(void)
+static int noinline doitlk_ctrl_dep_end_15(void)
 {
 	x = READ_ONCE(*foo);
 	if(x)
