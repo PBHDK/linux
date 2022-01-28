@@ -1394,6 +1394,12 @@ static int lkm_init(void)
 	doitlk_ctrl_dep_end_11();
 	doitlk_ctrl_dep_begin_12();
 	doitlk_ctrl_dep_end_12();
+	doitlk_ctrl_dep_begin_13();
+	doitlk_ctrl_dep_end_13();
+	doitlk_ctrl_dep_begin_14();
+	doitlk_ctrl_dep_end_14();
+	doitlk_ctrl_dep_begin_15();
+	doitlk_ctrl_dep_end_15();
 	// TODO all cases from above?
 	
   return 0;
