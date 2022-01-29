@@ -1284,6 +1284,36 @@ static int noinline doitlk_ctrl_dep_end_15(void)
 	return 0;
 }
 
+static int noinline doitlk_ctrl_dep_begin_16(void) {
+loop:
+  foo = READ_ONCE(bar);
+  if(foo)
+    goto end;
+
+  // do something with x
+  x++;
+  goto loop;
+
+end:
+  WRITE_ONCE(*foo, *bar);
+  return x;
+}
+
+static int noinline doitlk_ctrl_dep_end_16(void) {
+loop:
+  foo = READ_ONCE(bar);
+  if(*foo == x)
+    goto end;
+
+  // do something with x
+  x++;
+  goto loop;
+
+end:
+  WRITE_ONCE(*foo, *bar);
+  return x;
+}
+
 static int lkm_init(void)
 {
 	static struct clocksource dummy_clock = {
@@ -1400,6 +1430,8 @@ static int lkm_init(void)
 	doitlk_ctrl_dep_end_14();
 	doitlk_ctrl_dep_begin_15();
 	doitlk_ctrl_dep_end_15();
+	doitlk_ctrl_dep_begin_16();
+	doitlk_ctrl_dep_end_16();
 	// TODO all cases from above?
 	
   return 0;
