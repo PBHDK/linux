@@ -15,15 +15,19 @@ MODULE_LICENSE("GPL");
 
 // global declarations
 static int x, y, z;
+static unsigned xUnsigned;
 static int arr[50];
 // implicitly convert arr to int*
 static volatile int *foo = arr;
 static volatile int *xp, *bar;
+static volatile unsigned *fooUnsigned;
 
 extern unsigned raw_read_seqcount_latch(const seqcount_latch_t *s);
 extern u64 timekeeping_delta_to_ns(const struct tk_read_base *tkr, u64 delta);
 extern u64 tk_clock_read(const struct tk_read_base *tkr);
 extern u64 dummy_clock_read(struct clocksource *cs);
+
+// TODO: Ensure that helper functions are not visited before the functions calling them - reorder?
 
 // Begin addr dep 1: address dependency within the same function - for breaking the begin annotation
 static int noinline doitlk_rr_addr_dep_begin_1(void)
@@ -1236,9 +1240,33 @@ static int noinline doitlk_ctrl_dep_end_12(void)
 	return 0;
 }
 
+static volatile int* noinline ctrl_dep_begin_13_helper(void) {
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+	bar = &xp[42];
+
+  // copy bar and return it
+  return bar;
+}
+
+static volatile int* noinline ctrl_dep_end_13_helper(void) {
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+	bar = &xp[42];
+
+  // copy bar and return it
+  return bar;
+}
+
 static int noinline doitlk_ctrl_dep_begin_13(void)
 {
-	foo = doitlk_rr_addr_dep_begin_3_helper();
+	foo = ctrl_dep_begin_13_helper();
 	if(foo)
 		WRITE_ONCE(*foo, 1);
 	return 0;
@@ -1246,33 +1274,73 @@ static int noinline doitlk_ctrl_dep_begin_13(void)
 
 static int noinline doitlk_ctrl_dep_end_13(void)
 {
-	foo = doitlk_rr_addr_dep_begin_3_helper();
+	foo = ctrl_dep_end_13_helper();
 	if(foo)
 		WRITE_ONCE(*foo, 1);
 	return 0;
 }
 
+static volatile int* noinline ctrl_dep_begin_14_helper1(void) {
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+	bar = &xp[42];
+
+  // copy bar and return it
+  return bar;
+}
+
+static volatile int* noinline ctrl_dep_end_14_helper1(void) {
+  // Begin address dependency
+	// xp == foo && *x == foo[0] after assignment
+	xp = READ_ONCE(foo);
+
+	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+	bar = &xp[42];
+
+  // copy bar and return it
+  return bar;
+}
+
+static void noinline ctrl_dep_begin_14_helper2(volatile int *local_bar) {
+	WRITE_ONCE(*local_bar, y);
+}
+
+static void noinline ctrl_dep_end_14_helper2(volatile int *local_bar) {
+	WRITE_ONCE(*local_bar, y);
+}
+
 static int noinline doitlk_ctrl_dep_begin_14(void)
 {
-	foo = doitlk_rr_addr_dep_begin_3_helper();
+	foo = ctrl_dep_begin_14_helper1();
 	if(foo)
-		rw_begin_2_helper(foo);
+		ctrl_dep_begin_14_helper2(foo);
 	return 0;
 }
 
 static int noinline doitlk_ctrl_dep_end_14(void)
 {
-	foo = doitlk_rr_addr_dep_begin_3_helper();
+	foo = ctrl_dep_end_14_helper1();
 	if(foo)
-		rw_begin_2_helper(foo);
+		ctrl_dep_end_14_helper2(foo);
 	return 0;
+}
+
+static void noinline ctrl_dep_begin_15_helper(volatile int *local_bar) {
+	WRITE_ONCE(*local_bar, y);
+}
+
+static void noinline ctrl_dep_end_15_helper(volatile int *local_bar) {
+	WRITE_ONCE(*local_bar, y);
 }
 
 static int noinline doitlk_ctrl_dep_begin_15(void)
 {
 	foo = READ_ONCE(bar);
 	if(foo)
-		rw_begin_2_helper(foo);
+		ctrl_dep_begin_15_helper(foo);
 	return 0;
 }
 
@@ -1280,7 +1348,7 @@ static int noinline doitlk_ctrl_dep_end_15(void)
 {
 	foo = READ_ONCE(bar);
 	if(foo)
-		rw_begin_2_helper(foo);
+		ctrl_dep_end_15_helper(foo);
 	return 0;
 }
 
@@ -1338,6 +1406,26 @@ loop:
   // do something with x
   x++;
   goto loop;
+}
+
+// Begin ctrl dep 18: memory-barriers.txt case 2, constant dependent condition
+static int noinline doitlk_ctrl_dep_begin_18(void)
+{
+	xUnsigned = READ_ONCE(*foo);
+	if(xUnsigned % MAX == 0) {
+		WRITE_ONCE(*bar, y);
+	}
+	return 0;
+}
+
+// End ctrl dep 18: memory-barriers.txt case 2, constant dependent condition
+static int noinline doitlk_ctrl_dep_end_18(void)
+{
+	xUnsigned = READ_ONCE(*fooUnsigned);
+	if(xUnsigned % MAX == 0) {
+		WRITE_ONCE(*bar, y);
+	}
+	return 0;
 }
 
 
@@ -1461,6 +1549,8 @@ static int lkm_init(void)
 	doitlk_ctrl_dep_end_16();
 	doitlk_ctrl_dep_begin_17();
 	doitlk_ctrl_dep_end_17();
+	doitlk_ctrl_dep_begin_18();
+	doitlk_ctrl_dep_end_18();
 	// TODO all cases from above?
 	
   return 0;
