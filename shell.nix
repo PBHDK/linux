@@ -28,7 +28,7 @@ in
   nativeBuildInputs = old.nativeBuildInputs ++ [
     pkgs.gllvm
     pkgs.llvmPackages_13.clang
-    #pkgs.llvmPackages_13.bintools
+    pkgs.llvmPackages_13.bintools
     pkgs.ncurses
     pkgs.perl
   ];
