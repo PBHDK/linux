@@ -31,6 +31,8 @@ in
     pkgs.llvmPackages_13.bintools
     pkgs.ncurses
     pkgs.perl
+    pkgs.gdb
+    pkgs.lldb
   ];
   ASAN_SYMBOLIZER_PATH="/scratch/paul/src/DoitLK-llvm/build/bin/llvm-symbolizer";
   MSAN_SYMBOLIZER_PATH="/scratch/paul/src/DoitLK-llvm/build/bin/llvm-symbolizer";
