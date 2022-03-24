@@ -72,15 +72,16 @@ static void noinline begin_2_helper(volatile int *local_bar) {
 
 static int noinline doitlk_rr_addr_dep_begin_2 (void)
 {
+	volatile int* local_bar;
   // Begin address dependency
 	// xp == foo && *x == foo[0] after assignment
 	xp = READ_ONCE(foo);
 
 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xp[42];
+	local_bar = &xp[42];
 
   // copy bar into local var and dereference it in call
-  begin_2_helper(bar);
+  begin_2_helper(local_bar);
 
 	return 0;
 }
@@ -94,15 +95,16 @@ static void noinline doitlk_rr_addr_dep_end_2_helper(volatile int *local_bar) {
 
 static int noinline rr_addr_dep_end_2(void)
 {
+	volatile int* local_bar;
   // Begin address dependency
 	// xp == foo && *x == foo[0] after assignment
 	xp = READ_ONCE(foo);
 
 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xp[42];
+	local_bar = &xp[42];
 
   // copy bar into local var and dereference it in call
-  doitlk_rr_addr_dep_end_2_helper(bar);
+  doitlk_rr_addr_dep_end_2_helper(local_bar);
 
 	return 0;
 }
@@ -1060,7 +1062,7 @@ static int noinline doitlk_ctrl_dep_begin_5(void)
 	}
 	return 0;
 }
-
+// TODO syntactic dep?
 // End ctrl dep 5: control dependency with end in for loop -  for breaking the begin annotation
 static int noinline doitlk_ctrl_dep_end_5(void)
 {
