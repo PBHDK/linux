@@ -489,7 +489,53 @@ static int noinline doitlk_rr_addr_dep_end_10 (void)
 	return 0;
 }
 
-// Example from original DoitLK talk at LPC 2020
+static volatile int* noinline doitlk_rr_addr_dep_begin_11_helper1() {
+	xp = READ_ONCE(foo);
+
+	bar = &xp[42];
+
+	return bar;
+}
+
+static void noinline begin_11_helper2(volatile int *local_bar) {
+	y = READ_ONCE(*local_bar);
+}
+
+static int noinline rr_addr_dep_begin_11 (void)
+{
+	volatile int* local_bar;
+
+	local_bar = doitlk_rr_addr_dep_begin_11_helper1();
+
+  begin_11_helper2(local_bar);
+
+	return 0;
+}
+
+static volatile int* noinline end_11_helper1() {
+	xp = READ_ONCE(foo);
+
+	bar = &xp[42];
+
+	return bar;
+}
+
+static void noinline doitlk_rr_addr_dep_end_11_helper2(volatile int *local_bar) {
+	y = READ_ONCE(*local_bar);
+}
+
+static int noinline rr_addr_dep_end_11 (void)
+{
+	volatile int* local_bar;
+
+	local_bar = end_11_helper1();
+
+  doitlk_rr_addr_dep_end_11_helper2(local_bar);
+
+	return 0;
+}
+
+// Example from original DoitLk talk at LPC 2020
 struct tk_fast {
 	seqcount_latch_t	seq;
 	struct tk_read_base	base[2];
@@ -900,6 +946,52 @@ static int noinline doitlk_rw_addr_dep_end_10 (void)
   // End address dependency
 	// y == x[42] == 0
 	WRITE_ONCE(*barLocal, z);
+
+	return 0;
+}
+
+static volatile int* noinline doitlk_rw_addr_dep_begin_11_helper1() {
+	xp = READ_ONCE(foo);
+
+	bar = &xp[42];
+
+	return bar;
+}
+
+static void noinline rw_begin_11_helper2(volatile int *local_bar) {
+	WRITE_ONCE(*local_bar, 42);
+}
+
+static int noinline rw_addr_dep_begin_11 (void)
+{
+	volatile int* local_bar;
+
+	local_bar = doitlk_rw_addr_dep_begin_11_helper1();
+
+  rw_begin_11_helper2(local_bar);
+
+	return 0;
+}
+
+static volatile int* noinline rw_end_11_helper1() {
+	xp = READ_ONCE(foo);
+
+	bar = &xp[42];
+
+	return bar;
+}
+
+static void noinline doitlk_rw_addr_dep_end_11_helper2(volatile int *local_bar) {
+	WRITE_ONCE(*local_bar, 42);
+}
+
+static int noinline rw_addr_dep_end_11 (void)
+{
+	volatile int* local_bar;
+
+	local_bar = rw_end_11_helper1();
+
+  doitlk_rw_addr_dep_end_11_helper2(local_bar);
 
 	return 0;
 }
@@ -1482,6 +1574,8 @@ static int lkm_init(void)
 	// in and out, but different chains 
 	doitlk_rr_addr_dep_begin_10();
 	doitlk_rr_addr_dep_end_10();
+	rr_addr_dep_begin_11();
+	rr_addr_dep_end_11();
 	// chain fanning in not relevant
 	// doitlk example
 	doitlk_ktime(&tk_fast_raw);
@@ -1515,6 +1609,8 @@ static int lkm_init(void)
 	// in and out, but different chains 
 	doitlk_rw_addr_dep_begin_10();
 	doitlk_rw_addr_dep_end_10();
+	rw_addr_dep_begin_11();
+	rw_addr_dep_end_11();
 
 	// ctrl deps
 	doitlk_ctrl_dep_begin_1();
