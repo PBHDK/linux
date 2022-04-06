@@ -535,6 +535,41 @@ static int noinline rr_addr_dep_end_11 (void)
 	return 0;
 }
 
+static volatile int* noinline doitlk_rr_addr_dep_begin_12_helper(volatile int *foo) {
+	xp = READ_ONCE(foo);
+
+	xp += 42;
+
+	return xp;
+}
+
+static int noinline rr_addr_dep_begin_12 (void)
+{
+	volatile int* local_bar;
+
+	local_bar = doitlk_rr_addr_dep_begin_12_helper(foo);
+
+  return *doitlk_rr_addr_dep_begin_12_helper(local_bar);
+}
+
+//FIXME LLVM currently looses the annotation metadata here after the bug was inserted
+static volatile int* noinline doitlk_rr_addr_dep_end_12_helper(volatile int *foo) {
+	xp = READ_ONCE(foo);
+
+	xp += 42;
+
+	return xp;
+}
+
+static int noinline rr_addr_dep_end_12 (void)
+{
+	volatile int* local_bar;
+
+	local_bar = doitlk_rr_addr_dep_end_12_helper(foo);
+
+  return *doitlk_rr_addr_dep_end_12_helper(local_bar);
+}
+
 // Example from original DoitLk talk at LPC 2020
 struct tk_fast {
 	seqcount_latch_t	seq;
@@ -1576,6 +1611,8 @@ static int lkm_init(void)
 	doitlk_rr_addr_dep_end_10();
 	rr_addr_dep_begin_11();
 	rr_addr_dep_end_11();
+	rr_addr_dep_begin_12();
+	rr_addr_dep_end_12();
 	// chain fanning in not relevant
 	// doitlk example
 	doitlk_ktime(&tk_fast_raw);
