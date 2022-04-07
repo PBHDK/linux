@@ -34,9 +34,9 @@ in
     pkgs.gdb
     pkgs.lldb
   ];
-  ASAN_SYMBOLIZER_PATH="/scratch/paul/src/DoitLK-llvm/build/bin/llvm-symbolizer";
-  MSAN_SYMBOLIZER_PATH="/scratch/paul/src/DoitLK-llvm/build/bin/llvm-symbolizer";
-  makeFlags = ["CC=/scratch/paul/src/DoitLK-llvm/build/bin/clang" "ARCH=arm64" "CROSS_COMPILE=aarch64-unknown-linux-gnu-" "SHELL=bash" "KCFLAGS=-g -fsanitize=lkmm-dep-checker" "-j$NIX_BUILD_CORES"];
-  makeFlags1 = ["CC=/scratch/paul/src/DoitLK-llvm/build/bin/clang" "ARCH=arm64" "CROSS_COMPILE=aarch64-unknown-linux-gnu-" "SHELL=bash" "KCFLAGS=-g -fsanitize=lkmm-dep-checker" "-j1"];
-  makeFlagsLLVM = ["CC=/scratch/paul/src/DoitLK-llvm/build/bin/clang" "LD=/scratch/paul/src/DoitLK-llvm/build/bin/ld.lld" "AR=/scratch/paul/src/DoitLK-llvm/build/bin/llvm-ar" "NM=/scratch/paul/src/DoitLK-llvm/build/bin/llvm-nm" "STRIP=/scratch/paul/src/DoitLK-llvm/build/bin/llvm-strip" "OBJCOPY=/scratch/paul/src/DoitLK-llvm/build/bin/llvm-objcopy" "OBJDUMP=/scratch/paul/src/DoitLK-llvm/build/bin/llvm-objdump" "READELF=/scratch/paul/src/DoitLK-llvm/build/bin/llvm-readelf" "HOSTCC=clang" "HOSTCXX=clang++" "HOSTAR=llvm-ar" "HOSTLD=ld.lld" "LLVM_IAS=1" "ARCH=arm64" "CROSS_COMPILE=aarch64-unknown-linux-gnu-" "SHELL=bash" "KCFLAGS=-g" "-j$NIX_BUILD_CORES"];
+  ASAN_SYMBOLIZER_PATH="/scratch/paul/src/llvm-project/build/bin/llvm-symbolizer";
+  MSAN_SYMBOLIZER_PATH="/scratch/paul/src/llvm-project/build/bin/llvm-symbolizer";
+  makeFlags = ["CC=/scratch/paul/src/llvm-project/build/bin/clang" "ARCH=arm64" "CROSS_COMPILE=aarch64-unknown-linux-gnu-" "SHELL=bash" "KCFLAGS=-g" "KCFLAGS=-fsanitize=lkmm-dep-checker" "-j$NIX_BUILD_CORES"];
+  makeFlags1 = ["CC=/scratch/paul/src/llvm-rpoject/build/bin/clang" "ARCH=arm64" "CROSS_COMPILE=aarch64-unknown-linux-gnu-" "SHELL=bash" "KCFLAGS=-g" "KCFLAGS=-fsanitize=lkmm-dep-checker" "-j1"];
+  makeFlagsLLVM = ["CC=/scratch/paul/src/llvm-project/build/bin/clang" "LD=/scratch/paul/src/llvm-project/build/bin/ld.lld" "AR=/scratch/paul/src/llvm-project/build/bin/llvm-ar" "NM=/scratch/paul/src/llvm-project/build/bin/llvm-nm" "STRIP=/scratch/paul/src/llvm-project/build/bin/llvm-strip" "OBJCOPY=/scratch/paul/src/llvm-project/build/bin/llvm-objcopy" "OBJDUMP=/scratch/paul/src/llvm-project/build/bin/llvm-objdump" "READELF=/scratch/paul/src/llvm-project/build/bin/llvm-readelf" "HOSTCC=clang" "HOSTCXX=clang++" "HOSTAR=llvm-ar" "HOSTLD=ld.lld" "LLVM_IAS=1" "ARCH=arm64" "CROSS_COMPILE=aarch64-unknown-linux-gnu-" "SHELL=bash" "KCFLAGS=-g" "KCFLAGS=-fsanitize=lkmm-dep-checker" "-j$NIX_BUILD_CORES"];
 })
