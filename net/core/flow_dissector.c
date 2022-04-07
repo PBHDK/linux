@@ -5,6 +5,7 @@
 #include <linux/ip.h>
 #include <linux/ipv6.h>
 #include <linux/if_vlan.h>
+#include <linux/filter.h>
 #include <net/dsa.h>
 #include <net/dst_metadata.h>
 #include <net/ip.h>
@@ -21,6 +22,7 @@
 #include <linux/ppp_defs.h>
 #include <linux/stddef.h>
 #include <linux/if_ether.h>
+#include <linux/if_hsr.h>
 #include <linux/mpls.h>
 #include <linux/tcp.h>
 #include <linux/ptp_classify.h>
@@ -1281,6 +1283,23 @@ proto_again:
 		break;
 	}
 
+	case htons(ETH_P_PRP):
+	case htons(ETH_P_HSR): {
+		struct hsr_tag *hdr, _hdr;
+
+		hdr = __skb_header_pointer(skb, nhoff, sizeof(_hdr), data, hlen,
+					   &_hdr);
+		if (!hdr) {
+			fdret = FLOW_DISSECT_RET_OUT_BAD;
+			break;
+		}
+
+		proto = hdr->encap_proto;
+		nhoff += HSR_HLEN;
+		fdret = FLOW_DISSECT_RET_PROTO_AGAIN;
+		break;
+	}
+
 	default:
 		fdret = FLOW_DISSECT_RET_OUT_BAD;
 		break;
@@ -1461,7 +1480,7 @@ out_bad:
 }
 EXPORT_SYMBOL(__skb_flow_dissect);
 
-static siphash_key_t hashrnd __read_mostly;
+static siphash_aligned_key_t hashrnd;
 static __always_inline void __flow_hash_secret_init(void)
 {
 	net_get_random_once(&hashrnd, sizeof(hashrnd));

@@ -1,7 +1,7 @@
 /*******************************************************************
  * This file is part of the Emulex Linux Device Driver for         *
  * Fibre Channel Host Bus Adapters.                                *
- * Copyright (C) 2017-2021 Broadcom. All Rights Reserved. The term *
+ * Copyright (C) 2017-2022 Broadcom. All Rights Reserved. The term *
  * “Broadcom” refers to Broadcom Inc. and/or its subsidiaries.     *
  * Copyright (C) 2004-2016 Emulex.  All rights reserved.           *
  * EMULEX and SLI are trademarks of Emulex.                        *
@@ -869,9 +869,15 @@ lpfc_work_done(struct lpfc_hba *phba)
 	if (phba->pci_dev_grp == LPFC_PCI_DEV_OC)
 		lpfc_sli4_post_async_mbox(phba);
 
-	if (ha_copy & HA_ERATT)
+	if (ha_copy & HA_ERATT) {
 		/* Handle the error attention event */
 		lpfc_handle_eratt(phba);
+
+		if (phba->fw_dump_cmpl) {
+			complete(phba->fw_dump_cmpl);
+			phba->fw_dump_cmpl = NULL;
+		}
+	}
 
 	if (ha_copy & HA_MBATT)
 		lpfc_sli_handle_mb_event(phba);
@@ -3928,7 +3934,6 @@ lpfc_mbx_cmpl_unreg_vpi(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmb)
 	vport->vpi_state &= ~LPFC_VPI_REGISTERED;
 	vport->fc_flag |= FC_VPORT_NEEDS_REG_VPI;
 	spin_unlock_irq(shost->host_lock);
-	vport->unreg_vpi_cmpl = VPORT_OK;
 	mempool_free(pmb, phba->mbox_mem_pool);
 	lpfc_cleanup_vports_rrqs(vport, NULL);
 	/*
@@ -3958,7 +3963,6 @@ lpfc_mbx_unreg_vpi(struct lpfc_vport *vport)
 		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
 				 "1800 Could not issue unreg_vpi\n");
 		mempool_free(mbox, phba->mbox_mem_pool);
-		vport->unreg_vpi_cmpl = VPORT_ERROR;
 		return rc;
 	}
 	return 0;
@@ -5055,7 +5059,8 @@ lpfc_can_disctmo(struct lpfc_vport *vport)
 		vport->port_state, vport->fc_ns_retry, vport->fc_flag);
 
 	/* Turn off discovery timer if its running */
-	if (vport->fc_flag & FC_DISC_TMO) {
+	if (vport->fc_flag & FC_DISC_TMO ||
+	    timer_pending(&vport->fc_disctmo)) {
 		spin_lock_irqsave(shost->host_lock, iflags);
 		vport->fc_flag &= ~FC_DISC_TMO;
 		spin_unlock_irqrestore(shost->host_lock, iflags);
@@ -5084,20 +5089,26 @@ lpfc_check_sli_ndlp(struct lpfc_hba *phba,
 		    struct lpfc_iocbq *iocb,
 		    struct lpfc_nodelist *ndlp)
 {
-	IOCB_t *icmd = &iocb->iocb;
-	struct lpfc_vport    *vport = ndlp->vport;
+	struct lpfc_vport *vport = ndlp->vport;
+	u8 ulp_command;
+	u16 ulp_context;
+	u32 remote_id;
 
 	if (iocb->vport != vport)
 		return 0;
 
+	ulp_command = get_job_cmnd(phba, iocb);
+	ulp_context = get_job_ulpcontext(phba, iocb);
+	remote_id = get_job_els_rsp64_did(phba, iocb);
+
 	if (pring->ringno == LPFC_ELS_RING) {
-		switch (icmd->ulpCommand) {
+		switch (ulp_command) {
 		case CMD_GEN_REQUEST64_CR:
 			if (iocb->context_un.ndlp == ndlp)
 				return 1;
 			fallthrough;
 		case CMD_ELS_REQUEST64_CR:
-			if (icmd->un.elsreq64.remoteID == ndlp->nlp_DID)
+			if (remote_id == ndlp->nlp_DID)
 				return 1;
 			fallthrough;
 		case CMD_XMIT_ELS_RSP64_CX:
@@ -5110,9 +5121,8 @@ lpfc_check_sli_ndlp(struct lpfc_hba *phba,
 		    (ndlp->nlp_flag & NLP_DELAY_TMO)) {
 			return 0;
 		}
-		if (icmd->ulpContext == (volatile ushort)ndlp->nlp_rpi) {
+		if (ulp_context == ndlp->nlp_rpi)
 			return 1;
-		}
 	}
 	return 0;
 }
@@ -6023,9 +6033,9 @@ static void
 lpfc_free_tx(struct lpfc_hba *phba, struct lpfc_nodelist *ndlp)
 {
 	LIST_HEAD(completions);
-	IOCB_t     *icmd;
 	struct lpfc_iocbq    *iocb, *next_iocb;
 	struct lpfc_sli_ring *pring;
+	u32 ulp_command;
 
 	pring = lpfc_phba_elsring(phba);
 	if (unlikely(!pring))
@@ -6036,12 +6046,13 @@ lpfc_free_tx(struct lpfc_hba *phba, struct lpfc_nodelist *ndlp)
 	 */
 	spin_lock_irq(&phba->hbalock);
 	list_for_each_entry_safe(iocb, next_iocb, &pring->txq, list) {
-		if (iocb->context1 != ndlp) {
+		if (iocb->context1 != ndlp)
 			continue;
-		}
-		icmd = &iocb->iocb;
-		if ((icmd->ulpCommand == CMD_ELS_REQUEST64_CR) ||
-		    (icmd->ulpCommand == CMD_XMIT_ELS_RSP64_CX)) {
+
+		ulp_command = get_job_cmnd(phba, iocb);
+
+		if (ulp_command == CMD_ELS_REQUEST64_CR ||
+		    ulp_command == CMD_XMIT_ELS_RSP64_CX) {
 
 			list_move_tail(&iocb->list, &completions);
 		}
@@ -6049,12 +6060,13 @@ lpfc_free_tx(struct lpfc_hba *phba, struct lpfc_nodelist *ndlp)
 
 	/* Next check the txcmplq */
 	list_for_each_entry_safe(iocb, next_iocb, &pring->txcmplq, list) {
-		if (iocb->context1 != ndlp) {
+		if (iocb->context1 != ndlp)
 			continue;
-		}
-		icmd = &iocb->iocb;
-		if (icmd->ulpCommand == CMD_ELS_REQUEST64_CR ||
-		    icmd->ulpCommand == CMD_XMIT_ELS_RSP64_CX) {
+
+		ulp_command = get_job_cmnd(phba, iocb);
+
+		if (ulp_command == CMD_ELS_REQUEST64_CR ||
+		    ulp_command == CMD_XMIT_ELS_RSP64_CX) {
 			lpfc_sli_issue_abort_iotag(phba, pring, iocb, NULL);
 		}
 	}

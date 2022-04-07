@@ -168,13 +168,16 @@ struct gpio_irq_chip {
 
 	/**
 	 * @parent_handler_data:
+	 *
+	 * If @per_parent_data is false, @parent_handler_data is a single
+	 * pointer used as the data associated with every parent interrupt.
+	 *
 	 * @parent_handler_data_array:
 	 *
-	 * Data associated, and passed to, the handler for the parent
-	 * interrupt. Can either be a single pointer if @per_parent_data
-	 * is false, or an array of @num_parents pointers otherwise.  If
-	 * @per_parent_data is true, @parent_handler_data_array cannot be
-	 * NULL.
+	 * If @per_parent_data is true, @parent_handler_data_array is
+	 * an array of @num_parents pointers, and is used to associate
+	 * different data for each parent. This cannot be NULL if
+	 * @per_parent_data is true.
 	 */
 	union {
 		void *parent_handler_data;
@@ -289,6 +292,7 @@ struct gpio_irq_chip {
  *	number or the name of the SoC IP-block implementing it.
  * @gpiodev: the internal state holder, opaque struct
  * @parent: optional parent device providing the GPIOs
+ * @fwnode: optional fwnode providing this controller's properties
  * @owner: helps prevent removal of modules exporting active GPIOs
  * @request: optional hook for chip-specific activation, such as
  *	enabling module power and clock; may sleep
@@ -377,6 +381,7 @@ struct gpio_chip {
 	const char		*label;
 	struct gpio_device	*gpiodev;
 	struct device		*parent;
+	struct fwnode_handle	*fwnode;
 	struct module		*owner;
 
 	int			(*request)(struct gpio_chip *gc,

@@ -161,7 +161,7 @@ static bool optc31_immediate_disable_crtc(struct timing_generator *optc)
 	return true;
 }
 
-static void optc31_set_drr(
+void optc31_set_drr(
 	struct timing_generator *optc,
 	const struct drr_params *params)
 {
@@ -256,6 +256,7 @@ static struct timing_generator_funcs dcn31_tg_funcs = {
 		.get_crc = optc1_get_crc,
 		.configure_crc = optc2_configure_crc,
 		.set_dsc_config = optc3_set_dsc_config,
+		.get_dsc_status = optc2_get_dsc_status,
 		.set_dwb_source = NULL,
 		.set_odm_bypass = optc3_set_odm_bypass,
 		.set_odm_combine = optc31_set_odm_combine,

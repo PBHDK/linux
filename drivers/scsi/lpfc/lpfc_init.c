@@ -1,7 +1,7 @@
 /*******************************************************************
  * This file is part of the Emulex Linux Device Driver for         *
  * Fibre Channel Host Bus Adapters.                                *
- * Copyright (C) 2017-2021 Broadcom. All Rights Reserved. The term *
+ * Copyright (C) 2017-2022 Broadcom. All Rights Reserved. The term *
  * “Broadcom” refers to Broadcom Inc. and/or its subsidiaries.  *
  * Copyright (C) 2004-2016 Emulex.  All rights reserved.           *
  * EMULEX and SLI are trademarks of Emulex.                        *
@@ -340,7 +340,6 @@ lpfc_dump_wakeup_param_cmpl(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmboxq)
 
 /**
  * lpfc_update_vport_wwn - Updates the fc_nodename, fc_portname,
- *	cfg_soft_wwnn, cfg_soft_wwpn
  * @vport: pointer to lpfc vport data structure.
  *
  *
@@ -353,19 +352,11 @@ lpfc_update_vport_wwn(struct lpfc_vport *vport)
 	uint8_t vvvl = vport->fc_sparam.cmn.valid_vendor_ver_level;
 	u32 *fawwpn_key = (u32 *)&vport->fc_sparam.un.vendorVersion[0];
 
-	/* If the soft name exists then update it using the service params */
-	if (vport->phba->cfg_soft_wwnn)
-		u64_to_wwn(vport->phba->cfg_soft_wwnn,
-			   vport->fc_sparam.nodeName.u.wwn);
-	if (vport->phba->cfg_soft_wwpn)
-		u64_to_wwn(vport->phba->cfg_soft_wwpn,
-			   vport->fc_sparam.portName.u.wwn);
-
 	/*
 	 * If the name is empty or there exists a soft name
 	 * then copy the service params name, otherwise use the fc name
 	 */
-	if (vport->fc_nodename.u.wwn[0] == 0 || vport->phba->cfg_soft_wwnn)
+	if (vport->fc_nodename.u.wwn[0] == 0)
 		memcpy(&vport->fc_nodename, &vport->fc_sparam.nodeName,
 			sizeof(struct lpfc_name));
 	else
@@ -382,7 +373,6 @@ lpfc_update_vport_wwn(struct lpfc_vport *vport)
 		vport->vport_flag |= FAWWPN_PARAM_CHG;
 
 	if (vport->fc_portname.u.wwn[0] == 0 ||
-	    vport->phba->cfg_soft_wwpn ||
 	    (vvvl == 1 && cpu_to_be32(*fawwpn_key) == FAPWWN_KEY_VENDOR) ||
 	    vport->vport_flag & FAWWPN_SET) {
 		memcpy(&vport->fc_portname, &vport->fc_sparam.portName,
@@ -1027,7 +1017,7 @@ lpfc_hba_clean_txcmplq(struct lpfc_hba *phba)
 		spin_lock_irq(&pring->ring_lock);
 		list_for_each_entry_safe(piocb, next_iocb,
 					 &pring->txcmplq, list)
-			piocb->iocb_flag &= ~LPFC_IO_ON_TXCMPLQ;
+			piocb->cmd_flag &= ~LPFC_IO_ON_TXCMPLQ;
 		list_splice_init(&pring->txcmplq, &completions);
 		pring->txcmplq_cnt = 0;
 		spin_unlock_irq(&pring->ring_lock);
@@ -2104,7 +2094,7 @@ lpfc_handle_eratt_s4(struct lpfc_hba *phba)
 		}
 		if (reg_err1 == SLIPORT_ERR1_REG_ERR_CODE_2 &&
 		    reg_err2 == SLIPORT_ERR2_REG_FW_RESTART) {
-			lpfc_printf_log(phba, KERN_ERR, LOG_TRACE_EVENT,
+			lpfc_printf_log(phba, KERN_ERR, LOG_SLI,
 					"3143 Port Down: Firmware Update "
 					"Detected\n");
 			en_rn_msg = false;
@@ -2688,7 +2678,7 @@ lpfc_get_hba_model_desc(struct lpfc_hba *phba, uint8_t *mdp, uint8_t *descp)
 }
 
 /**
- * lpfc_post_buffer - Post IOCB(s) with DMA buffer descriptor(s) to a IOCB ring
+ * lpfc_sli3_post_buffer - Post IOCB(s) with DMA buffer descriptor(s) to a IOCB ring
  * @phba: pointer to lpfc hba data structure.
  * @pring: pointer to a IOCB ring.
  * @cnt: the number of IOCBs to be posted to the IOCB ring.
@@ -2700,7 +2690,7 @@ lpfc_get_hba_model_desc(struct lpfc_hba *phba, uint8_t *mdp, uint8_t *descp)
  *   The number of IOCBs NOT able to be posted to the IOCB ring.
  **/
 int
-lpfc_post_buffer(struct lpfc_hba *phba, struct lpfc_sli_ring *pring, int cnt)
+lpfc_sli3_post_buffer(struct lpfc_hba *phba, struct lpfc_sli_ring *pring, int cnt)
 {
 	IOCB_t *icmd;
 	struct lpfc_iocbq *iocb;
@@ -2806,7 +2796,7 @@ lpfc_post_rcv_buf(struct lpfc_hba *phba)
 	struct lpfc_sli *psli = &phba->sli;
 
 	/* Ring 0, ELS / CT buffers */
-	lpfc_post_buffer(phba, &psli->sli3_ring[LPFC_ELS_RING], LPFC_BUF_RING0);
+	lpfc_sli3_post_buffer(phba, &psli->sli3_ring[LPFC_ELS_RING], LPFC_BUF_RING0);
 	/* Ring 2 - FCP no buffers needed */
 
 	return 0;
@@ -4260,8 +4250,7 @@ lpfc_io_buf_replenish(struct lpfc_hba *phba, struct list_head *cbuf)
 			qp = &phba->sli4_hba.hdwq[idx];
 			lpfc_cmd->hdwq_no = idx;
 			lpfc_cmd->hdwq = qp;
-			lpfc_cmd->cur_iocbq.wqe_cmpl = NULL;
-			lpfc_cmd->cur_iocbq.iocb_cmpl = NULL;
+			lpfc_cmd->cur_iocbq.cmd_cmpl = NULL;
 			spin_lock(&qp->io_buf_list_put_lock);
 			list_add_tail(&lpfc_cmd->list,
 				      &qp->lpfc_io_buf_list_put);
@@ -5373,8 +5362,10 @@ lpfc_sli4_async_link_evt(struct lpfc_hba *phba,
 	 */
 	if (!(phba->hba_flag & HBA_FCOE_MODE)) {
 		rc = lpfc_sli_issue_mbox(phba, pmb, MBX_NOWAIT);
-		if (rc == MBX_NOT_FINISHED)
+		if (rc == MBX_NOT_FINISHED) {
+			lpfc_mbuf_free(phba, mp->virt, mp->phys);
 			goto out_free_dmabuf;
+		}
 		return;
 	}
 	/*
@@ -5925,7 +5916,7 @@ lpfc_cmf_timer(struct hrtimer *timer)
 	uint32_t io_cnt;
 	uint32_t head, tail;
 	uint32_t busy, max_read;
-	uint64_t total, rcv, lat, mbpi, extra;
+	uint64_t total, rcv, lat, mbpi, extra, cnt;
 	int timer_interval = LPFC_CMF_INTERVAL;
 	uint32_t ms;
 	struct lpfc_cgn_stat *cgs;
@@ -5996,20 +5987,28 @@ lpfc_cmf_timer(struct hrtimer *timer)
 
 		/* Calculate any extra bytes needed to account for the
 		 * timer accuracy. If we are less than LPFC_CMF_INTERVAL
-		 * add an extra 3% slop factor, equal to LPFC_CMF_INTERVAL
-		 * add an extra 2%. The goal is to equalize total with a
-		 * time > LPFC_CMF_INTERVAL or <= LPFC_CMF_INTERVAL + 1
+		 * calculate the adjustment needed for total to reflect
+		 * a full LPFC_CMF_INTERVAL.
 		 */
-		if (ms == LPFC_CMF_INTERVAL)
-			extra = div_u64(total, 50);
-		else if (ms < LPFC_CMF_INTERVAL)
-			extra = div_u64(total, 33);
+		if (ms && ms < LPFC_CMF_INTERVAL) {
+			cnt = div_u64(total, ms); /* bytes per ms */
+			cnt *= LPFC_CMF_INTERVAL; /* what total should be */
+
+			/* If the timeout is scheduled to be shorter,
+			 * this value may skew the data, so cap it at mbpi.
+			 */
+			if ((phba->hba_flag & HBA_SHORT_CMF) && cnt > mbpi)
+				cnt = mbpi;
+
+			extra = cnt - total;
+		}
 		lpfc_issue_cmf_sync_wqe(phba, LPFC_CMF_INTERVAL, total + extra);
 	} else {
 		/* For Monitor mode or link down we want mbpi
 		 * to be the full link speed
 		 */
 		mbpi = phba->cmf_link_byte_count;
+		extra = 0;
 	}
 	phba->cmf_timer_cnt++;
 
@@ -6040,6 +6039,7 @@ lpfc_cmf_timer(struct hrtimer *timer)
 				   LPFC_RXMONITOR_TABLE_IN_USE);
 		entry = &phba->rxtable[head];
 		entry->total_bytes = total;
+		entry->cmf_bytes = total + extra;
 		entry->rcv_bytes = rcv;
 		entry->cmf_busy = busy;
 		entry->cmf_info = phba->cmf_active_info;
@@ -6082,6 +6082,8 @@ lpfc_cmf_timer(struct hrtimer *timer)
 	/* Each minute save Fabric and Driver congestion information */
 	lpfc_cgn_save_evt_cnt(phba);
 
+	phba->hba_flag &= ~HBA_SHORT_CMF;
+
 	/* Since we need to call lpfc_cgn_save_evt_cnt every minute, on the
 	 * minute, adjust our next timer interval, if needed, to ensure a
 	 * 1 minute granularity when we get the next timer interrupt.
@@ -6092,6 +6094,8 @@ lpfc_cmf_timer(struct hrtimer *timer)
 						  jiffies);
 		if (timer_interval <= 0)
 			timer_interval = LPFC_CMF_INTERVAL;
+		else
+			phba->hba_flag |= HBA_SHORT_CMF;
 
 		/* If we adjust timer_interval, max_bytes_per_interval
 		 * needs to be adjusted as well.
@@ -6337,8 +6341,10 @@ lpfc_sli4_async_fc_evt(struct lpfc_hba *phba, struct lpfc_acqe_fc_la *acqe_fc)
 	}
 
 	rc = lpfc_sli_issue_mbox(phba, pmb, MBX_NOWAIT);
-	if (rc == MBX_NOT_FINISHED)
+	if (rc == MBX_NOT_FINISHED) {
+		lpfc_mbuf_free(phba, mp->virt, mp->phys);
 		goto out_free_dmabuf;
+	}
 	return;
 
 out_free_dmabuf:
@@ -8529,7 +8535,6 @@ static void
 lpfc_unset_driver_resource_phase2(struct lpfc_hba *phba)
 {
 	if (phba->wq) {
-		flush_workqueue(phba->wq);
 		destroy_workqueue(phba->wq);
 		phba->wq = NULL;
 	}
@@ -12709,7 +12714,7 @@ lpfc_irq_set_aff(struct lpfc_hba_eq_hdl *eqhdl, unsigned int cpu)
 	cpumask_clear(&eqhdl->aff_mask);
 	cpumask_set_cpu(cpu, &eqhdl->aff_mask);
 	irq_set_status_flags(eqhdl->irq, IRQ_NO_BALANCING);
-	irq_set_affinity_hint(eqhdl->irq, &eqhdl->aff_mask);
+	irq_set_affinity(eqhdl->irq, &eqhdl->aff_mask);
 }
 
 /**
@@ -12998,7 +13003,6 @@ cfg_fail_out:
 	for (--index; index >= 0; index--) {
 		eqhdl = lpfc_get_eq_hdl(index);
 		lpfc_irq_clear_aff(eqhdl);
-		irq_set_affinity_hint(eqhdl->irq, NULL);
 		free_irq(eqhdl->irq, eqhdl);
 	}
 
@@ -13159,7 +13163,6 @@ lpfc_sli4_disable_intr(struct lpfc_hba *phba)
 		for (index = 0; index < phba->cfg_irq_chann; index++) {
 			eqhdl = lpfc_get_eq_hdl(index);
 			lpfc_irq_clear_aff(eqhdl);
-			irq_set_affinity_hint(eqhdl->irq, NULL);
 			free_irq(eqhdl->irq, eqhdl);
 		}
 	} else {
@@ -13466,7 +13469,7 @@ lpfc_init_congestion_buf(struct lpfc_hba *phba)
 	phba->cgn_evt_minute = 0;
 	phba->hba_flag &= ~HBA_CGN_DAY_WRAP;
 
-	memset(cp, 0xff, LPFC_CGN_DATA_SIZE);
+	memset(cp, 0xff, offsetof(struct lpfc_cgn_info, cgn_stat));
 	cp->cgn_info_size = cpu_to_le16(LPFC_CGN_INFO_SZ);
 	cp->cgn_info_version = LPFC_CGN_INFO_V3;
 
@@ -13525,7 +13528,7 @@ lpfc_init_congestion_stat(struct lpfc_hba *phba)
 		return;
 
 	cp = (struct lpfc_cgn_info *)phba->cgn_i->virt;
-	memset(&cp->cgn_stat_npm, 0, LPFC_CGN_STAT_SIZE);
+	memset(&cp->cgn_stat, 0, sizeof(cp->cgn_stat));
 
 	ktime_get_real_ts64(&cmpl_time);
 	time64_to_tm(cmpl_time.tv_sec, 0, &broken);

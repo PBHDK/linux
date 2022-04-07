@@ -424,8 +424,13 @@ static struct attribute *scsi_sysfs_shost_attrs[] = {
 	NULL
 };
 
-const struct attribute_group scsi_shost_attr_group = {
+static const struct attribute_group scsi_shost_attr_group = {
 	.attrs =	scsi_sysfs_shost_attrs,
+};
+
+const struct attribute_group *scsi_shost_groups[] = {
+	&scsi_shost_attr_group,
+	NULL
 };
 
 static void scsi_device_cls_release(struct device *class_dev)
@@ -1223,14 +1228,6 @@ static umode_t scsi_sdev_attr_is_visible(struct kobject *kobj,
 	    !sdev->host->hostt->change_queue_depth)
 		return 0;
 
-#ifdef CONFIG_SCSI_DH
-	if (attr == &dev_attr_access_state.attr &&
-	    !sdev->handler)
-		return 0;
-	if (attr == &dev_attr_preferred_path.attr &&
-	    !sdev->handler)
-		return 0;
-#endif
 	return attr->mode;
 }
 
