@@ -1,0 +1,29 @@
+C arm-vs-lkmm 
+
+{}
+
+P0(int *x) 
+{
+	int r0;
+
+	r0 = READ_ONCE(*x);
+	WRITE_ONCE(*x, 1);
+}
+
+P1(int *x, int *y) 
+{
+	int r0;
+
+	r0 = READ_ONCE(*x);
+	WRITE_ONCE(*y, r0);
+}
+
+P2(int *x, int *y) 
+{
+	int r0;
+
+	r0 = READ_ONCE(*y);
+	WRITE_ONCE(*x, r0);
+}
+
+exists(0:r0=1)
