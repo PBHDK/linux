@@ -830,6 +830,7 @@ static void smc_fback_replace_callbacks(struct smc_sock *smc)
 {
 	struct sock *clcsk = smc->clcsock->sk;
 
+	write_lock_bh(&clcsk->sk_callback_lock);
 	clcsk->sk_user_data = (void *)((uintptr_t)smc | SK_USER_DATA_NOCOPY);
 
 	smc_clcsock_replace_cb(&clcsk->sk_state_change, smc_fback_state_change,
@@ -840,6 +841,8 @@ static void smc_fback_replace_callbacks(struct smc_sock *smc)
 			       &smc->clcsk_write_space);
 	smc_clcsock_replace_cb(&clcsk->sk_error_report, smc_fback_error_report,
 			       &smc->clcsk_error_report);
+
+	write_unlock_bh(&clcsk->sk_callback_lock);
 }
 
 static int smc_switch_to_fallback(struct smc_sock *smc, int reason_code)
