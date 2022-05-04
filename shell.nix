@@ -26,6 +26,7 @@ in (aarch64.buildPackages.overrideCC aarch64.stdenv myclang).mkDerivation {
   nativeBuildInputs = aarch64.linux.nativeBuildInputs;
   depsBuildBuild = [
     aarch64.buildPackages.stdenv.cc
+    aarch64.buildPackages.ncurses
   ];
   #NIX_CFLAGS_COMPILE = "-isystem ${clangPath}/build/tools/clang/lib/Headers";
   NIX_LDFLAGS = "-L${aarch64.buildPackages.targetPackages.llvmPackages_13.libraries.libcxxabi}/lib";
