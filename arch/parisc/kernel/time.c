@@ -259,6 +259,10 @@ static int __init init_cr16_clocksource(void)
 		clocksource_cr16.rating = 0;
 	}
 
+	/* XXX: We may want to mark sched_clock stable here if cr16 clocks are
+	 *	in sync:
+	 *	(clocksource_cr16.flags == CLOCK_SOURCE_IS_CONTINUOUS) */
+
 	/* register at clocksource framework */
 	clocksource_register_hz(&clocksource_cr16,
 		100 * PAGE0->mem_10msec);
