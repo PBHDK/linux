@@ -13,10 +13,10 @@ case $1 in
 		make $makeFlags defconfig
 		;;
 	"fast")	
-		make $makeFlags $2 -j$(nproc) 2> build_output.ll
+		make $makeFlags -j$(nproc) $2 2> build_output.ll
 		;;
 	"precise")
-		make $makeFlags $2 -j1 2> build_output.ll
+		make $makeFlags -j1 $2 2> build_output.ll
 		;;
 	*)
 		echo "Invalid command line argument"
