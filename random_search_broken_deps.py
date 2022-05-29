@@ -48,9 +48,17 @@ def restoreBrokenDeps():
         print("Restored " + str(len(prevIDedBrokenDeps)) + " broken dep(s)")
 
 def updateConfig():
+    subprocess.run(["./scripts/config", "--disable", "CONFIG_DEBUG_INFO_NONE"])
     subprocess.run(["./scripts/config", "--enable", "CONFIG_DEBUG_INFO"])
-    subprocess.run(["./scripts/config", "--enable", "CONFIG_DEBUG_INFO"])
+    subprocess.run(["./scripts/config", "--enable", "CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAU"])
     subprocess.run(["./scripts/config", "--enable", "CONFIG_LTO_NONE"])
+    subprocess.run(["./scripts/config", "--disable", "CONFIG_DEBUG_INFO_REDUCED"])
+    subprocess.run(["./scripts/config", "--disable", "CONFIG_DEBUG_INFO_SPLIT"])
+    subprocess.run(["./scripts/config", "--disable", "CONFIG_DEBUG_INFO_BTF"])
+    subprocess.run(["./scripts/config", "--enable", "CONFIG_PAHOLE_HAS_SPLIT_BTF"])
+    subprocess.run(["./scripts/config", "--enable", "CONFIG_PAHOLE_HAS_BTF_TAG"])
+    subprocess.run(["./scripts/config", "--disable", "CONFIG_GDB_SCRIPTS"])
+    subprocess.run(["./scripts/config", "--disable", "CONFIG_DEBUG_EFI"])
 
 def main(runs=1):
     print("Restoring broken deps ...")
