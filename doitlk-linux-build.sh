@@ -18,6 +18,16 @@ case $1 in
 		;;
 	"defconfig")
 		make $MAKEFLAGS defconfig
+		./scripts/config --disable CONFIG_DEBUG_INFO_NONE
+		./scripts/config --enable CONFIG_DEBUG_INFO
+		./scripts/config --enable CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT 
+		./scripts/config --disable CONFIG_DEBUG_INFO_REDUCED
+		./scripts/config --disable CONFIG_DEBUG_INFO_SPLIT
+		./scripts/config --disable CONFIG_DEBUG_INFO_BTF
+		./scripts/config --enable CONFIG_PAHOLE_HAS_SPLIT_BTF 
+		./scripts/config --enable CONFIG_PAHOLE_HAS_BTF_TAG
+		./scripts/config --disable CONFIG_GDB_SCRIPTS
+		./scripts/config --disable CONFIG_DEBUG_EFI
 		;;
 	"fast")	
 		make $MAKEFLAGS -j$(nproc) $2 2> build_output.ll
