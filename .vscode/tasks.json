@@ -1,0 +1,48 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Configure AARCH64 defconfig",
+      "type": "shell",
+      "command": "./doitlk-linux-build.py",
+      "args": [
+        "config",
+        "defconfig"
+      ]
+    },
+    {
+      "label": "Build fast",
+      "type": "shell",
+      "command": "./doitlk-linux-build.py",
+      "args": [
+        "fast"
+      ]
+    },
+    {
+      "label": "Build precise",
+      "type": "shell",
+      "command": "./doitlk-linux-build.py",
+      "args": [
+        "precise"
+      ]
+    },
+    {
+      "label": "Debug",
+      "type": "shell",
+      "command": "./doitlk-linux-build.py debug",
+      "args": [
+        "${input:variableID}"
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "id": "module",
+      "description": "Module to debug",
+      "type": "promptString"
+      // type specific configuration attributes
+    }
+  ]
+}
