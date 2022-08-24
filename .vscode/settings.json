@@ -1,22 +1,3 @@
 {
-    "makefile.configurations": [
-        {
-            "name": "Linux kernel clang-11 arm64",
-            "makeArgs": [
-                "CC=clang-11",
-                "ARCH=arm64",
-                "CROSS_COMPILE=aarch64-linux-gnu-",
-                "-j3"
-            ]
-        },
-        {
-            "name": "Linux kernel clang-11 x86",
-            "makeArgs": [
-                "CC=clang-11"
-            ]
-        }
-    ],
-    "makefile.makefilePath": "./Makefile",
-    "makefile.makeDirectory": ".",
-    "nixEnvSelector.nixFile": "${workspaceRoot}/shell.nix",
+  "nixEnvSelector.nixFile": "${workspaceRoot}/shell.nix"
 }
