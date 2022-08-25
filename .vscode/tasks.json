@@ -10,7 +10,8 @@
       "args": [
         "config",
         "defconfig"
-      ]
+      ],
+      "problemMatcher": []
     },
     {
       "label": "Build fast",
@@ -18,7 +19,8 @@
       "command": "./doitlk-linux-build.py",
       "args": [
         "fast"
-      ]
+      ],
+      "problemMatcher": []
     },
     {
       "label": "Build precise",
@@ -26,7 +28,8 @@
       "command": "./doitlk-linux-build.py",
       "args": [
         "precise"
-      ]
+      ],
+      "problemMatcher": []
     },
     {
       "label": "Debug",
@@ -34,7 +37,8 @@
       "command": "./doitlk-linux-build.py debug",
       "args": [
         "${input:module}"
-      ]
+      ],
+      "problemMatcher": []
     }
   ],
   "inputs": [
