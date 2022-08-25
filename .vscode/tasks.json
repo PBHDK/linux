@@ -33,7 +33,7 @@
       "type": "shell",
       "command": "./doitlk-linux-build.py debug",
       "args": [
-        "${input:variableID}"
+        "${input:module}"
       ]
     }
   ],
