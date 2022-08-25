@@ -37,7 +37,8 @@ def build_kernel(threads=os.environ["NIX_BUILD_CORES"], ModulePath=""):
     else:
       subprocess.run(["make"] + _MAKEFLAGS + [JStr], stderr=f)
 
-  subprocess.run(["./scripts/clang-tools/gen_compile_commands.py"], check=True)
+  print("Generating compilation database")
+  subprocess.run(["./scripts/clang-tools/gen_compile_commands.py"])
 
 def debug_kernel(ModulePath: str):
   # Build required module to obtain compile command
