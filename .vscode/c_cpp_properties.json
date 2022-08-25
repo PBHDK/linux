@@ -1,25 +1,11 @@
 {
     "configurations": [
         {
-            "name": "Linux",
+            "name": "Linux kernel",
             "includePath": [
-                "${workspaceFolder}/**",
-                "${workspaceFolder}/include",
-                "${workspaceFolder}/arch/arm64/include"
+                "${workspaceFolder}/**"
             ],
-            "forcedInclude": [
-                "${workspaceFolder}/include/generated/autoconf.h"
-            ],
-            "defines": [
-                "__GNUC__",
-                "__KERNEL__",
-                "KBUILD_MODNAME=\"lkm\"",
-                "MODULE"
-            ],
-            "compilerPath": "/usr/bin/clang-11",
-            "cStandard": "c89",
-            "intelliSenseMode": "clang-x64",
-            "compileCommands": "${workspaceFolder}/compile_commands.json",
+            "compileCommands": "compile_commands.json"
         }
     ],
     "version": 4
