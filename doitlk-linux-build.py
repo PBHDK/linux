@@ -33,9 +33,9 @@ def build_kernel(threads=os.environ["NIX_BUILD_CORES"], ModulePath=""):
   JStr = "-j" + threads
   with open("build_output.ll", "w+") as f:
     if ModulePath:
-      subprocess.run(["make"] + _MAKEFLAGS + [JStr] + [ModulePath], stderr=f, check=True)
+      subprocess.run(["make"] + _MAKEFLAGS + [JStr] + [ModulePath], stderr=f)
     else:
-      subprocess.run(["make"] + _MAKEFLAGS + [JStr], stderr=f, check=True)
+      subprocess.run(["make"] + _MAKEFLAGS + [JStr], stderr=f)
 
   subprocess.run(["./scripts/clang-tools/gen_compile_commands.py"], check=True)
 
