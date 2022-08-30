@@ -5,7 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/**"
             ],
-            "compileCommands": "compile_commands.json"
+            "compileCommands": "${workspaceFolder}/compile_commands.json"
         }
     ],
     "version": 4
