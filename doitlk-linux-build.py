@@ -29,8 +29,9 @@ def configure_kernel(config):
   subprocess.run(["make"] + _MAKEFLAGS + [config], check=True)
   update_config()
 
-def build_kernel(threads=os.environ["NIX_BUILD_CORES"], ModulePath=""):
+def build_kernel(threads=os.getenv("NIX_BUILD_CORES", "128"), ModulePath=""):
   JStr = "-j" + threads
+  print("JStr: "+ JStr)
   with open("build_output.ll", "w+") as f:
     if ModulePath:
       subprocess.run(["make"] + _MAKEFLAGS + [JStr] + [ModulePath], stderr=f)
