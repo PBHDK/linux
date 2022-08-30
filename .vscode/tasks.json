@@ -34,8 +34,9 @@
     {
       "label": "Debug",
       "type": "shell",
-      "command": "./doitlk-linux-build.py debug",
+      "command": "./doitlk-linux-build.py",
       "args": [
+        "debug",
         "${input:module}"
       ],
       "problemMatcher": []
