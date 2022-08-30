@@ -466,7 +466,7 @@ pointer.
 
 Finally, a read event and another memory access event are linked by a
 control dependency if the value obtained by the read affects whether
-the second event is executed.  Simple example:
+the second event is executed at all.  Simple example:
 
 	int x, y;
 
