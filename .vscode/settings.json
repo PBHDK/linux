@@ -2,6 +2,7 @@
   "nixEnvSelector.nixFile": "${workspaceRoot}/shell.nix",
   "C_Cpp.clang_format_path": "clang-format",
   "clang-format.executable": "clang-format",
+  "editor.tabSize": 8,
   "[plaintext]": {
     "vim.textwidth": 72
   },
@@ -100,6 +101,10 @@
     "__memory": "cpp",
     "memory_resource": "cpp",
     "*.tcc": "cpp",
-    "qxl_object.h": "c"
+    "qxl_object.h": "c",
+    "module.h": "c",
+    "dep_chain_tests.h": "c",
+    "init.h": "c",
+    "kernel.h": "c"
   },
 }
