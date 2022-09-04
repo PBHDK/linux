@@ -1,5 +1,7 @@
 {
   "nixEnvSelector.nixFile": "${workspaceRoot}/shell.nix",
+  "C_Cpp.clang_format_path": "clang-format",
+  "clang-format.executable": "clang-format",
   "[plaintext]": {
     "vim.textwidth": 72
   },
