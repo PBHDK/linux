@@ -4,20 +4,20 @@ import subprocess
 import sys
 import re
 
-_BROKEN_DEPS_FILE_PATH="/scratch/paul/src/broken_deps/broken_deps"
+_BROKEN_DEPS_FILE_PATH = "/scratch/paul/src/broken_deps/broken_deps"
 
-_CROSS=["ARCH=arm64", "CROSS_COMPILE=aarch64-unknown-linux-gnu-"]
-_ENABLE_DEP_CHEKER=["KCFLAGS=-fsanitize=lkmm-dep-checker"]
-_RANDOM=["randconfig"]
+_CROSS = ["ARCH=arm64", "CROSS_COMPILE=aarch64-unknown-linux-gnu-"]
+_ENABLE_DEP_CHEKER = ["KCFLAGS=-fsanitize=lkmm-dep-checker"]
+_RANDOM = ["randconfig"]
 
-_MAKEFLAGS=["make", "CC=clang"] + _CROSS + _ENABLE_DEP_CHEKER
-_MAKEFLAGS_RANDOM_CONFIG=_MAKEFLAGS + _RANDOM
-_MAKEFLAGS_BUILD=_MAKEFLAGS + ["-j32", "-s"]
+_MAKEFLAGS = ["make", "CC=clang"] + _CROSS + _ENABLE_DEP_CHEKER
+_MAKEFLAGS_RANDOM_CONFIG = _MAKEFLAGS + _RANDOM
+_MAKEFLAGS_BUILD = _MAKEFLAGS + ["-j32", "-s"]
 
-_SEED_PATTERN=r"(?<=^KCONFIG_SEED=).*"
+_SEED_PATTERN = r"(?<=^KCONFIG_SEED=).*"
 
-_BROKEN_DEP_PATTERN=r'//===-{26}Broken Dependency-{27}===//.*?//===-{70}===//$'
-_BROKEN_DEP_ID_PATTERN=r'(?<=^(Address|Control) dependency with ID: ).*'
+_BROKEN_DEP_PATTERN = r'//===-{26}Broken Dependency-{27}===//.*?//===-{70}===//$'
+_BROKEN_DEP_ID_PATTERN = r'(?<=^(Address|Control) dependency with ID: ).*'
 
 # Matchers
 seedMatcher = re.compile(_SEED_PATTERN, re.MULTILINE)
@@ -25,14 +25,16 @@ seedMatcher = re.compile(_SEED_PATTERN, re.MULTILINE)
 brokenDepMatcher = re.compile(_BROKEN_DEP_PATTERN, re.MULTILINE | re.DOTALL)
 brokenIDMatcher = re.compile(_BROKEN_DEP_ID_PATTERN, re.MULTILINE)
 
-# Set of IDs of broken deps for faster access 
+# Set of IDs of broken deps for faster access
 setOfBrokenIDs = set()
 
 # Store previously discovered broken deps into set
+
+
 def restoreBrokenDeps():
     # Holds all of our discovered broken dependencies
     with open(_BROKEN_DEPS_FILE_PATH) as brokenDepsFile:
-        brokenDepsStr = brokenDepsFile.read();
+        brokenDepsStr = brokenDepsFile.read()
 
         prevIDedBrokenDeps = brokenDepMatcher.findall(brokenDepsStr)
 
@@ -47,18 +49,25 @@ def restoreBrokenDeps():
 
         print("Restored " + str(len(prevIDedBrokenDeps)) + " broken dep(s)")
 
+
 def updateConfig():
     subprocess.run(["./scripts/config", "--disable", "CONFIG_DEBUG_INFO_NONE"])
     subprocess.run(["./scripts/config", "--enable", "CONFIG_DEBUG_INFO"])
-    subprocess.run(["./scripts/config", "--enable", "CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAU"])
+    subprocess.run(["./scripts/config", "--enable",
+                   "CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAU"])
     subprocess.run(["./scripts/config", "--enable", "CONFIG_LTO_NONE"])
-    subprocess.run(["./scripts/config", "--disable", "CONFIG_DEBUG_INFO_REDUCED"])
-    subprocess.run(["./scripts/config", "--disable", "CONFIG_DEBUG_INFO_SPLIT"])
+    subprocess.run(["./scripts/config", "--disable",
+                   "CONFIG_DEBUG_INFO_REDUCED"])
+    subprocess.run(["./scripts/config", "--disable",
+                   "CONFIG_DEBUG_INFO_SPLIT"])
     subprocess.run(["./scripts/config", "--disable", "CONFIG_DEBUG_INFO_BTF"])
-    subprocess.run(["./scripts/config", "--enable", "CONFIG_PAHOLE_HAS_SPLIT_BTF"])
-    subprocess.run(["./scripts/config", "--enable", "CONFIG_PAHOLE_HAS_BTF_TAG"])
+    subprocess.run(["./scripts/config", "--enable",
+                   "CONFIG_PAHOLE_HAS_SPLIT_BTF"])
+    subprocess.run(["./scripts/config", "--enable",
+                   "CONFIG_PAHOLE_HAS_BTF_TAG"])
     subprocess.run(["./scripts/config", "--disable", "CONFIG_GDB_SCRIPTS"])
     subprocess.run(["./scripts/config", "--disable", "CONFIG_DEBUG_EFI"])
+
 
 def main(runs=1):
     print("Restoring broken deps ...")
@@ -91,7 +100,8 @@ def main(runs=1):
 
             # Build config
             print("Building ...")
-            buildResult = subprocess.run(_MAKEFLAGS_BUILD, stderr=subprocess.PIPE, text=True)
+            buildResult = subprocess.run(
+                _MAKEFLAGS_BUILD, stderr=subprocess.PIPE, text=True)
 
             # Gather results
             newDeps = brokenDepMatcher.findall(buildResult.stderr)
@@ -112,14 +122,16 @@ def main(runs=1):
                 if id in setOfBrokenIDs:
                     continue
 
-                # Add seed 
+                # Add seed
                 lastNewline = newDep.rfind("\n")
-                newDep = newDep[:lastNewline] + "\n\nFound with seed: " + currSeed + "\n" + newDep[lastNewline:]
+                newDep = newDep[:lastNewline] + "\n\nFound with seed: " + \
+                    currSeed + "\n" + newDep[lastNewline:]
 
                 brokenDepsFile.write(newDep + "\n\n")
                 setOfBrokenIDs.add(id)
 
                 print(newDep + "\n\n")
+
 
 if __name__ == '__main__':
     if len(sys.argv) == 2:
