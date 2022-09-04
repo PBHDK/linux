@@ -2,36 +2,23 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 
-// for timekeeping
-#include <linux/timekeeper_internal.h>
-#include "../kernel/time/timekeeping_internal.h"
-#include <linux/seqlock.h>
+#include <DoitLk/dep_chain_tests.h>
 
 MODULE_DESCRIPTION(
 	"Kernel module, which contains several dependeny chains used for testing CustomMemDep passes");
 MODULE_AUTHOR("Paul Heidekruger");
 MODULE_LICENSE("GPL");
 
-#define MAX 1
-
-// global declarations
-static int x, y, z;
-static unsigned int xUnsigned;
-static int arr[50];
-// implicitly convert arr to int*
-static volatile int *foo = arr;
-static volatile int *xp, *bar;
-static volatile unsigned int *fooUnsigned;
-
-extern unsigned raw_read_seqcount_latch(const seqcount_latch_t *s);
-extern u64 timekeeping_delta_to_ns(const struct tk_read_base *tkr, u64 delta);
-extern u64 tk_clock_read(const struct tk_read_base *tkr);
-extern u64 dummy_clock_read(struct clocksource *cs);
-
 // TODO: Ensure that helper functions are not visited before the functions calling them - reorder?
 
+/* Test Cases:
+ * - Address Dependency:
+ *
+ * Control Dependency:
+ */
+
 // Begin addr dep 1: address dependency within the same function - for breaking the begin annotation
-static int noinline doitlk_rr_addr_dep_begin_1(void)
+static noinline int doitlk_rr_addr_dep_begin_1(void)
 {
 	// Begin address dependency
 	// xp == foo && *x == foo[0] after assignment
