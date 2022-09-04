@@ -1,5 +1,6 @@
 with import <nixpkgs> { };
 let
+  myPython = aarch64.buildPackages.python310.withPackages (ps: with ps; [ autopep8 ]);
   aarch64 = pkgsCross.aarch64-multiplatform;
   clangPath = toString ../llvm-project/build;
   myclang = aarch64.buildPackages.wrapCCWith {
@@ -24,11 +25,12 @@ let
 in
 (aarch64.buildPackages.overrideCC aarch64.stdenv myclang).mkDerivation {
   name = "env";
+  packages = [ myPython ];
   nativeBuildInputs = aarch64.linux.nativeBuildInputs;
   depsBuildBuild = [
     aarch64.buildPackages.stdenv.cc
     aarch64.buildPackages.ncurses
-    aarch64.buildPackages.python311
+    myPython
   ];
   #NIX_CFLAGS_COMPILE = "-isystem ${clangPath}/build/tools/clang/lib/Headers";
   NIX_LDFLAGS = "-L${aarch64.buildPackages.targetPackages.llvmPackages_13.libraries.libcxxabi}/lib";
