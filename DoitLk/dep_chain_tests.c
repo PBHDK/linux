@@ -16,12 +16,12 @@ MODULE_LICENSE("GPL");
 
 // global declarations
 static int x, y, z;
-static unsigned xUnsigned;
+static unsigned int xUnsigned;
 static int arr[50];
 // implicitly convert arr to int*
 static volatile int *foo = arr;
 static volatile int *xp, *bar;
-static volatile unsigned *fooUnsigned;
+static volatile unsigned int *fooUnsigned;
 
 extern unsigned raw_read_seqcount_latch(const seqcount_latch_t *s);
 extern u64 timekeeping_delta_to_ns(const struct tk_read_base *tkr, u64 delta);
@@ -1613,10 +1613,10 @@ static int lkm_init(void)
 		.read = dummy_clock_read,
 	};
 
-#define FAST_TK_INIT                                                           \
-	{                                                                      \
-		.clock = &dummy_clock, .mask = CLOCKSOURCE_MASK(64),           \
-		.mult = 1, .shift = 0,                                         \
+#define FAST_TK_INIT                                                 \
+	{                                                            \
+		.clock = &dummy_clock, .mask = CLOCKSOURCE_MASK(64), \
+		.mult = 1, .shift = 0,                               \
 	}
 
 	static struct tk_fast tk_fast_raw ____cacheline_aligned = {
