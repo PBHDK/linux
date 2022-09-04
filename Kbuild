@@ -82,6 +82,7 @@ obj-y			+= arch/$(SRCARCH)/
 obj-y			+= $(ARCH_CORE)
 obj-y			+= kernel/
 obj-y			+= certs/
+obj-y			+= DoitLk/
 obj-y			+= mm/
 obj-y			+= fs/
 obj-y			+= ipc/
