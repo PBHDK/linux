@@ -105,6 +105,7 @@
     "module.h": "c",
     "dep_chain_tests.h": "c",
     "init.h": "c",
-    "kernel.h": "c"
+    "kernel.h": "c",
+    "compiler_types.h": "c"
   },
 }
