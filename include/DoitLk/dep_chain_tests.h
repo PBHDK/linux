@@ -7,13 +7,12 @@
 #define MAX 1
 
 // global declarations
-static int x, y, z;
-static unsigned int xUnsigned;
-static int arr[50];
+static int *x, *y, *z;
+static int arr[100];
 // implicitly convert arr to int*
-static volatile int *foo = arr;
-static volatile int *xp, *bar;
-static volatile unsigned int *fooUnsigned;
+static int **foo = (int **)&arr;
+static int **bar;
+static int **baz;
 
 extern unsigned raw_read_seqcount_latch(const seqcount_latch_t *s);
 extern u64 timekeeping_delta_to_ns(const struct tk_read_base *tkr, u64 delta);
