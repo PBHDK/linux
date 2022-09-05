@@ -32,6 +32,26 @@
       "problemMatcher": []
     },
     {
+      "label": "Module",
+      "type": "shell",
+      "command": "./doitlk-linux-build.py",
+      "args": [
+        "module",
+        "${input:module}"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Build tests",
+      "type": "shell",
+      "command": "./doitlk-linux-build.py",
+      "args": [
+        "module",
+        "DoitLk/dep_chain_tests.o"
+      ],
+      "problemMatcher": []
+    },
+    {
       "label": "Debug",
       "type": "shell",
       "command": "./doitlk-linux-build.py",
@@ -40,14 +60,23 @@
         "${input:module}"
       ],
       "problemMatcher": []
-    }
+    },
+    {
+      "label": "Debug tests",
+      "type": "shell",
+      "command": "./doitlk-linux-build.py",
+      "args": [
+        "debug",
+        "DoitLk/dep_chain_tests.o"
+      ],
+      "problemMatcher": []
+    },
   ],
   "inputs": [
     {
       "id": "module",
-      "description": "Module to debug",
+      "description": "Relative path to the module we want to debug",
       "type": "promptString"
-      // type specific configuration attributes
     }
   ]
 }
