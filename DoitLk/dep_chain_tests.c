@@ -12,1714 +12,1647 @@ MODULE_LICENSE("GPL");
 // TODO: Ensure that helper functions are not visited before the functions calling them - reorder?
 
 /* Test Cases:
- * - Address Dependency:
- *
+ * Address Dependency:
+ *	Test cases:
+ *	Inside ctrl dep
  * Control Dependency:
  */
 
 // Begin addr dep 1: address dependency within the same function - for breaking the begin annotation
+/* BUGs: 1 */
 static noinline int doitlk_rr_addr_dep_begin_1(void)
 {
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
+	volatile int *r1;
+	volatile int *r2;
+	volatile int r3;
 
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xp[42];
+	r1 = READ_ONCE(*foo);
 
-	// End address dependency
-	// y == x[42] == 0
-	y = READ_ONCE(*bar);
+	r2 = &r1[42];
 
-	return 0;
+	r3 = READ_ONCE(*r2);
+
+	return r3;
 }
 
 // End addr dep 1: address dependency within the same function - for breaking the end annotation
-static int noinline doitlk_rr_addr_dep_end_1(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
-
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xp[42];
-
-	// End address dependency
-	// y == x[42] == 0
-	y = READ_ONCE(*bar);
-
-	return 0;
-}
-
-// Begin addr dep 2: address dependency accross two function. Dep begins in first function - for breaking begin annotation
-static void noinline begin_2_helper(volatile int *local_bar)
-{
-	// End address dependency
-	// y == x[42] == 0
-	y = READ_ONCE(*local_bar);
-}
-
-static int noinline doitlk_rr_addr_dep_begin_2(void)
-{
-	volatile int *local_bar;
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
+/* BUGs: 1 */
+static noinline int doitlk_rr_addr_dep_end_1(void)
+{
+	volatile int *r1;
+	volatile int *r2;
+	volatile int r3;
+
+	r1 = READ_ONCE(*foo);
+
+	r2 = &r1[42];
+
+	r3 = READ_ONCE(*r2);
 
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	local_bar = &xp[42];
+	return r3;
+}
+
+// // Begin addr dep 2: address dependency accross two function. Dep begins in first function - for breaking begin annotation
+// static noinline void begin_2_helper(volatile int *r1)
+// {
+// 	// End address dependency
+// 	// y == x[42] == 0
+// 	z = READ_ONCE(*r1);
+// }
+
+// /* BUGs: 1 */
+// static noinline int doitlk_rr_addr_dep_begin_2(void)
+// {
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	x = READ_ONCE(*foo);
 
-	// copy bar into local var and dereference it in call
-	begin_2_helper(local_bar);
+// 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 	y = &x[42];
 
-	return 0;
-}
+// 	// copy bar into local var and dereference it in call
+// 	begin_2_helper(y);
 
-// End addr dep 2: address dependency accross two function. Dep begins in first function - for breaking end annotation
-static void noinline doitlk_rr_addr_dep_end_2_helper(volatile int *local_bar)
-{
-	// End address dependency
-	// y == x[42] == 0
-	y = READ_ONCE(*local_bar);
-}
+// 	return 0;
+// }
 
-static int noinline rr_addr_dep_end_2(void)
-{
-	volatile int *local_bar;
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
+// // End addr dep 2: address dependency accross two function. Dep begins in first function - for breaking end annotation
+// static noinline void doitlk_rr_addr_dep_end_2_helper(volatile int *r1)
+// {
+// 	// End address dependency
+// 	// y == x[42] == 0
+// 	z = READ_ONCE(*r1);
+// }
 
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	local_bar = &xp[42];
+// static noinline int rr_addr_dep_end_2(void)
+// {
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	x = READ_ONCE(*foo);
 
-	// copy bar into local var and dereference it in call
-	doitlk_rr_addr_dep_end_2_helper(local_bar);
+// 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 	y = &x[42];
 
-	return 0;
-}
+// 	// copy bar into local var and dereference it in call
+// 	doitlk_rr_addr_dep_end_2_helper(y);
 
-// Begin addr dep 3: address dependency accross two function. Dep begins in second function - for breaking beginn annotation
-static volatile int *noinline doitlk_rr_addr_dep_begin_3_helper(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
-
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xp[42];
-
-	// copy bar and return it
-	return bar;
-}
+// 	return 0;
+// }
 
-static int noinline rr_addr_dep_begin_3(void)
-{
-	// End address dependency
-	// y == x[42] == 0
-	y = READ_ONCE(*doitlk_rr_addr_dep_begin_3_helper());
-
-	// alternative
-	// const volatile int* yLocal = dep_2_begin_second_helper();
-	// y = READ_ONCE(yLocal);
-
-	return 0;
-}
+// // Begin addr dep 3: address dependency accross two function. Dep begins in second function - for breaking beginn annotation
+// static volatile int *noinline doitlk_rr_addr_dep_begin_3_helper(void)
+// {
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	x = READ_ONCE(*foo);
 
-// End addr dep 3: address dependency accross two function. Dep begins in second function - for breaking end annotation
-static volatile int *noinline end_3_helper(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
-
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xp[42];
-
-	// copy bar and return it
-	return bar;
-}
+// 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 	y = &x[42];
 
-static int noinline doitlk_rr_addr_dep_end_3(void)
-{
-	// End address dependency
-	// y == x[42] == 0
-	y = READ_ONCE(*end_3_helper());
-
-	// alternative
-	// const volatile int* yLocal = dep_2_begin_second_helper();
-	// y = READ_ONCE(yLocal);
-
-	return 0;
-}
+// 	// copy bar and return it
+// 	return y;
+// }
 
-// Begin addr dep 4: address dependency accross two function. Dep begins in first functions, runs through second function and ends in first function
-static volatile int *noinline begin_4_helper(volatile int *xpLocal)
-{
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xpLocal[42];
-
-	// copy bar and return it
-	return bar;
-}
+// static noinline int rr_addr_dep_begin_3(void)
+// {
+// 	// End address dependency
+// 	// y == x[42] == 0
+// 	z = READ_ONCE(*doitlk_rr_addr_dep_begin_3_helper());
 
-static int noinline doitlk_rr_addr_dep_begin_4(void)
-{
-	const volatile int *barLocal;
+// 	// alternative
+// 	// const volatile int* yLocal = dep_2_begin_second_helper();
+// 	// y = READ_ONCE(yLocal);
 
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
+// 	return 0;
+// }
 
-	barLocal = begin_4_helper(xp);
+// // End addr dep 3: address dependency accross two function. Dep begins in second function - for breaking end annotation
+// static volatile int *noinline end_3_helper(void)
+// {
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	x = READ_ONCE(*foo);
 
-	// End address dependency
-	// y == x[42] == 0
-	y = READ_ONCE(*barLocal);
+// 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 	y = &x[42];
 
-	return 0;
-}
+// 	// copy bar and return it
+// 	return y;
+// }
 
-// End addr dep 4: address dependency accross two function. Dep begins in first functions, runs through second function and ends in first function
-static volatile int *noinline end_4_helper(volatile int *xpLocal)
-{
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xpLocal[42];
-
-	// copy bar and return it
-	return bar;
-}
+// static noinline int doitlk_rr_addr_dep_end_3(void)
+// {
+// 	// End address dependency
+// 	z = READ_ONCE(*end_3_helper());
 
-static int noinline doitlk_rr_addr_dep_end_4(void)
-{
-	const volatile int *barLocal;
+// 	return 0;
+// }
 
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
+// // Begin addr dep 4: address dependency accross two function. Dep begins in first functions, runs through second function and ends in first function
+// static volatile int *noinline begin_4_helper(int *r1)
+// {
+// 	y = &r1[42];
 
-	barLocal = end_4_helper(xp);
+// 	return y; /* Copy y and return it */
+// }
 
-	// End address dependency
-	// y == x[42] == 0
-	y = READ_ONCE(*barLocal);
+// static noinline int doitlk_rr_addr_dep_begin_4(void)
+// {
+// 	// Begin address dependency
+// 	x = READ_ONCE(*foo);
 
-	return 0;
-}
+// 	y = begin_4_helper(x);
 
-// Begin addr dep 5: address dependency within the same function - for breaking the begin annotation
-static int noinline doitlk_rr_addr_dep_begin_5(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
-
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xp[42];
-
-	// End address dependency
-	// y == x[42] == 0
-	if ((y = READ_ONCE(*bar)))
-		bar = &xp[21];
-	else
-		bar = &xp[0];
-
-	return 0;
-}
+// 	// End address dependency
+// 	z = READ_ONCE(*y);
 
-// End addr dep 5: address dependency within the same function - for breaking the end annotation
-static int noinline doitlk_rr_addr_dep_end_5(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
-
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xp[42];
-
-	// End address dependency
-	// y == x[42] == 0
-	if ((y = READ_ONCE(*bar)))
-		bar = &xp[21];
-	else
-		bar = &xp[0];
-
-	return 0;
-}
+// 	return 0;
+// }
 
-// Begin addr dep 6: address dependency within the same function - for breaking the begin annotation
-static int noinline doitlk_rr_addr_dep_begin_6(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
+// // End addr dep 4: address dependency accross two function. Dep begins in first functions, runs through second function and ends in first function
+// static noinline volatile int *end_4_helper(volatile int *r1)
+// {
+// 	volatile int *r2;
 
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xp[42];
+// 	r2 = &r1[42];
 
-	if (&xp[0])
-		bar = &xp[21];
-	else
-		bar = &xp[0];
+// 	return r2;
+// }
 
-	// End address dependency
-	y = READ_ONCE(*bar);
+// static noinline int doitlk_rr_addr_dep_end_4(void)
+// {
+// 	// Begin address dependency
+// 	x = READ_ONCE(*foo);
 
-	return 0;
-}
+// 	y = end_4_helper(x);
 
-// End addr dep 6: address dependency within the same function - for breaking the end annotation
-static int noinline doitlk_rr_addr_dep_end_6(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
+// 	// End address dependency
+// 	z = READ_ONCE(*y);
 
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xp[42];
+// 	return 0;
+// }
 
-	if (&xp[0])
-		bar = &xp[21];
-	else
-		bar = &xp[0];
+// // Begin addr dep 6: address dependency within the same function - for breaking the begin annotation
+// static noinline int doitlk_rr_addr_dep_begin_6(void)
+// {
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	x = READ_ONCE(foo);
 
-	// End address dependency
-	y = READ_ONCE(*bar);
+// 	if (*bar)
+// 		y = &x[21];
+// 	else
+// 		y = &x[42];
 
-	return 0;
-}
+// 	// End address dependency
+// 	z = READ_ONCE(*y);
 
-// Begin addr dep 7: address dependency within the same function - for breaking the begin annotation
-static int noinline doitlk_rr_addr_dep_begin_7(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
+// 	return 0;
+// }
 
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	if (&xp[0])
-		bar = &xp[42];
+// // End addr dep 6: address dependency within the same function - for breaking the end annotation
+// static noinline int doitlk_rr_addr_dep_end_6(void)
+// {
+// 	// Begin address dependency
+// 	x = READ_ONCE(*foo);
 
-	// End address dependency
-	y = READ_ONCE(*bar);
+// 	if (*bar)
+// 		y = &x[21];
+// 	else
+// 		y = &x[42];
 
-	return 0;
-}
+// 	// End address dependency
+// 	z = READ_ONCE(*y);
 
-// End addr dep 7: address dependency within the same function - for breaking the end annotation
-static int noinline doitlk_rr_addr_dep_end_7(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
+// 	return 0;
+// }
 
-	if (&xp[0])
-		bar = &xp[42];
+// // Begin addr dep 7: address dependency within the same function - for breaking the begin annotation
+// static noinline int doitlk_rr_addr_dep_begin_7(void)
+// {
+// 	// Begin address dependency
+// 	x = READ_ONCE(foo);
 
-	// End address dependency
-	y = READ_ONCE(*bar);
+// 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 	if (*bar)
+// 		y = &x[42];
 
-	return 0;
-}
+// 	// End address dependency
+// 	z = READ_ONCE(*y);
 
-// Begin addr dep 8: two address dependencies with same beginning within the same function - for breaking the begin annotation
-static int noinline doitlk_rr_addr_dep_begin_8(void)
-{
-	volatile int *barLocal;
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
-
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xp[42];
-	barLocal = &xp[21];
-
-	// End address dependency
-	// y == x[42] == 0
-	y = READ_ONCE(*bar);
-	z = READ_ONCE(*barLocal);
-
-	return 0;
-}
+// 	return 0;
+// }
 
-// End addr dep 8: two address dependencies with same beginning within the same function - for breaking the end annotation
-static int noinline doitlk_rr_addr_dep_end_8(void)
-{
-	volatile int *barLocal;
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
-
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xp[42];
-	barLocal = &xp[21];
-
-	// End address dependency
-	// y == x[42] == 0
-	y = READ_ONCE(*bar);
-	z = READ_ONCE(*barLocal);
-
-	return 0;
-}
+// // End addr dep 7: address dependency within the same function - for breaking the end annotation
+// static noinline int doitlk_rr_addr_dep_end_7(void)
+// {
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	x = READ_ONCE(foo);
 
-static void noinline rr_begin_9_helper1(volatile int *local_bar1)
-{
-	// End address dependency
-	y = READ_ONCE(*local_bar1);
-}
+// 	if (*bar)
+// 		y = &x[42];
 
-static void noinline rr_begin_9_helper2(volatile int *local_bar2)
-{
-	// End address dependency
-	z = READ_ONCE(*local_bar2);
-}
+// 	// End address dependency
+// 	z = READ_ONCE(*y);
 
-// Begin addr dep 9: two address dependencies with same beginning within the same function - for breaking the begin annotation
-static int noinline doitlk_rr_addr_dep_begin_9(void)
-{
-	volatile int *barLocal;
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
-
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xp[42];
-	barLocal = &xp[21];
-
-	rr_begin_9_helper1(bar);
-	rr_begin_9_helper2(barLocal);
-
-	return 0;
-}
+// 	return 0;
+// }
 
-// End addr dep 9: two address dependencies with same beginning within the same function - for breaking the end annotation
-static void noinline doitlk_rr_addr_dep_end_9_helper1(volatile int *local_bar1)
-{
-	// End address dependency
-	y = READ_ONCE(*local_bar1);
-}
+// // Begin addr dep 8: two address dependencies with same beginning within the same function - for breaking the begin annotation
+// static noinline int doitlk_rr_addr_dep_begin_8(void)
+// {
+// 	volatile int *r1, *r2;
 
-static void noinline doitlk_rr_addr_dep_end_9_helper2(volatile int *local_bar2)
-{
-	// End address dependency
-	z = READ_ONCE(*local_bar2);
-}
+// 	// Begin address dependency
+// 	x = READ_ONCE(foo);
 
-// Begin addr dep 9: two address dependencies with same beginning within the same function - for breaking the begin annotation
-static int noinline rr_addr_dep_end_9(void)
-{
-	volatile int *barLocal;
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
-
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xp[42];
-	barLocal = &xp[21];
-
-	doitlk_rr_addr_dep_end_9_helper1(bar);
-	doitlk_rr_addr_dep_end_9_helper2(barLocal);
-
-	return 0;
-}
+// 	r1 = &x[42];
+// 	r2 = &x[21];
 
-// Begin addr dep 10: address dependencies through function call, but different chains
-static volatile int *noinline begin_10_helper(volatile int *xpLocal)
-{
-	volatile int *barLocal;
+// 	// End address dependency
+// 	y = READ_ONCE(*r1);
 
-	bar = &xpLocal[42];
+// 	// End address dependency
+// 	z = READ_ONCE(*r2);
 
-	// End address dependency
-	y = READ_ONCE(*bar);
+// 	return 0;
+// }
 
-	// Begin address dependency
-	xp = READ_ONCE(foo);
+// // End addr dep 8: two address dependencies with same beginning within the same function - for breaking the end annotation
+// static noinline int doitlk_rr_addr_dep_end_8(void)
+// {
+// 	volatile int *r1, *r2;
 
-	barLocal = &xp[42];
+// 	// Begin address dependency
+// 	x = READ_ONCE(foo);
 
-	// copy bar and return it
-	return barLocal;
-}
+// 	r1 = &xp[42];
+// 	r2 = &xp[21];
 
-static int noinline doitlk_rr_addr_dep_begin_10(void)
-{
-	volatile int *barLocal;
+// 	// End address dependency
+// 	y = READ_ONCE(*r1);
 
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
+// 	// End address dependency
+// 	z = READ_ONCE(*r2);
 
-	barLocal = begin_10_helper(xp);
+// 	return 0;
+// }
 
-	z = READ_ONCE(*barLocal);
+// static noinline void rr_begin_9_helper1(volatile int *r1)
+// {
+// 	// End address dependency
+// 	x = READ_ONCE(*r1);
+// }
 
-	return 0;
-}
+// static noinline void rr_begin_9_helper2(volatile int *r1)
+// {
+// 	// End address dependency
+// 	z = READ_ONCE(*r1);
+// }
 
-// End addr dep 10: address dependencies through function call, but different chains
-static volatile int *noinline end_10_helper(volatile int *xpLocal)
-{
-	volatile int *barLocal;
+// // Begin addr dep 9: two address dependencies with same beginning within the same function - for breaking the begin annotation
+// static noinline int doitlk_rr_addr_dep_begin_9(void)
+// {
+// 	volatile int *r1, *r2;
 
-	bar = &xpLocal[42];
+// 	// Begin address dependency
+// 	x = READ_ONCE(foo);
 
-	// End address dependency
-	y = READ_ONCE(*bar);
+// 	r1 = &x[42];
+// 	r2 = &x[21];
 
-	// Begin address dependency
-	xp = READ_ONCE(foo);
+// 	rr_begin_9_helper1(r1);
+// 	rr_begin_9_helper2(r2);
 
-	barLocal = &xp[42];
+// 	return 0;
+// }
 
-	// copy bar and return it
-	return barLocal;
-}
+// // End addr dep 9: two address dependencies with same beginning within the same function - for breaking the end annotation
+// static noinline void doitlk_rr_addr_dep_end_9_helper1(volatile int *r1)
+// {
+// 	// End address dependency
+// 	y = READ_ONCE(*r1);
+// }
 
-static int noinline doitlk_rr_addr_dep_end_10(void)
-{
-	volatile int *barLocal;
+// static noinline void doitlk_rr_addr_dep_end_9_helper2(volatile int *r1)
+// {
+// 	// End address dependency
+// 	z = READ_ONCE(*r1);
+// }
 
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
+// // Begin addr dep 9: two address dependencies with same beginning within the same function - for breaking the begin annotation
+// static noinline int rr_addr_dep_end_9(void)
+// {
+// 	volatile int *r1, *r2;
 
-	barLocal = end_10_helper(xp);
+// 	// Begin address dependency
+// 	x = READ_ONCE(foo);
 
-	// End address dependency
-	// y == x[42] == 0
-	z = READ_ONCE(*barLocal);
+// 	r1 = &x[42];
+// 	r2 = &x[21];
 
-	return 0;
-}
+// 	doitlk_rr_addr_dep_end_9_helper1(r1);
+// 	doitlk_rr_addr_dep_end_9_helper2(r2);
 
-static volatile int *noinline doitlk_rr_addr_dep_begin_11_helper1()
-{
-	xp = READ_ONCE(foo);
+// 	return 0;
+// }
 
-	bar = &xp[42];
+// // Begin addr dep 10: address dependencies through function call, but different chains
+// static volatile int *noinline begin_10_helper(volatile int *r1)
+// {
+// 	volatile int *r1, *r2, *r3;
 
-	return bar;
-}
+// 	x = &r1[42];
 
-static void noinline begin_11_helper2(volatile int *local_bar)
-{
-	y = READ_ONCE(*local_bar);
-}
+// 	// End address dependency
+// 	r1 = READ_ONCE(*x);
 
-static int noinline rr_addr_dep_begin_11(void)
-{
-	volatile int *local_bar;
+// 	// Begin address dependency
+// 	r2 = READ_ONCE(*x);
 
-	local_bar = doitlk_rr_addr_dep_begin_11_helper1();
+// 	r3 = &r2[42];
 
-	begin_11_helper2(local_bar);
+// 	// copy bar and return it
+// 	return r3;
+// }
 
-	return 0;
-}
+// static noinline int doitlk_rr_addr_dep_begin_10(void)
+// {
+// 	volatile int *barLocal;
 
-static volatile int *noinline end_11_helper1()
-{
-	xp = READ_ONCE(foo);
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	x = READ_ONCE(foo);
 
-	bar = &xp[42];
+// 	y = begin_10_helper(x);
 
-	return bar;
-}
+// 	z = READ_ONCE(*y);
 
-static void noinline doitlk_rr_addr_dep_end_11_helper2(volatile int *local_bar)
-{
-	y = READ_ONCE(*local_bar);
-}
+// 	return 0;
+// }
 
-static int noinline rr_addr_dep_end_11(void)
-{
-	volatile int *local_bar;
+// // End addr dep 10: address dependencies through function call, but different chains
+// static volatile int *noinline end_10_helper(volatile int *xpLocal)
+// {
+// 	volatile int *barLocal;
 
-	local_bar = end_11_helper1();
+// 	bar = &xpLocal[42];
 
-	doitlk_rr_addr_dep_end_11_helper2(local_bar);
+// 	// End address dependency
+// 	y = READ_ONCE(*bar);
 
-	return 0;
-}
+// 	// Begin address dependency
+// 	xp = READ_ONCE(foo);
 
-static volatile int *noinline
-doitlk_rr_addr_dep_begin_12_helper(volatile int *foo)
-{
-	xp = READ_ONCE(foo);
+// 	barLocal = &xp[42];
 
-	xp += 42;
+// 	// copy bar and return it
+// 	return barLocal;
+// }
 
-	return xp;
-}
+// static noinline int doitlk_rr_addr_dep_end_10(void)
+// {
+// 	volatile int *barLocal;
 
-static int noinline rr_addr_dep_begin_12(void)
-{
-	volatile int *local_bar;
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
 
-	local_bar = doitlk_rr_addr_dep_begin_12_helper(foo);
+// 	barLocal = end_10_helper(xp);
 
-	return *doitlk_rr_addr_dep_begin_12_helper(local_bar);
-}
+// 	// End address dependency
+// 	// y == x[42] == 0
+// 	z = READ_ONCE(*barLocal);
 
-//FIXME LLVM currently looses the annotation metadata here after the bug was inserted
-static volatile int *noinline doitlk_rr_addr_dep_end_12_helper(volatile int *foo)
-{
-	xp = READ_ONCE(foo);
+// 	return 0;
+// }
 
-	xp += 42;
+// static volatile int *noinline doitlk_rr_addr_dep_begin_11_helper1()
+// {
+// 	xp = READ_ONCE(foo);
 
-	return xp;
-}
+// 	bar = &xp[42];
 
-static int noinline rr_addr_dep_end_12(void)
-{
-	volatile int *local_bar;
+// 	return bar;
+// }
 
-	local_bar = doitlk_rr_addr_dep_end_12_helper(foo);
+// static noinline void begin_11_helper2(volatile int *r1)
+// {
+// 	y = READ_ONCE(*r1);
+// }
 
-	return *doitlk_rr_addr_dep_end_12_helper(local_bar);
-}
+// static noinline int rr_addr_dep_begin_11(void)
+// {
+// 	volatile int *r1;
 
-// Example from original DoitLk talk at LPC 2020
-struct tk_fast {
-	seqcount_latch_t seq;
-	struct tk_read_base base[2];
-};
+// 	r1 = doitlk_rr_addr_dep_begin_11_helper1();
 
-static __always_inline u64 doitlk_ktime(struct tk_fast *tkf)
-{
-	struct tk_read_base *tkr;
-	unsigned int seq;
-	u64 now;
-
-	do {
-		seq = raw_read_seqcount_latch(&tkf->seq);
-		tkr = tkf->base + (seq & 0x01);
-		now = ktime_to_ns(READ_ONCE(tkr->base));
-
-		now += timekeeping_delta_to_ns(
-			tkr, clocksource_delta(tk_clock_read(tkr),
-					       tkr->cycle_last, tkr->mask));
-	} while (read_seqcount_latch_retry(&tkf->seq, seq));
-
-	return now;
-}
+// 	begin_11_helper2(r1);
 
-//
-// ====
-// Read -> Write Address Dependencies
-// ====
-//
-
-// Begin addr dep 1: rw address dependency within the same function - for breaking the begin annotation
-static int noinline doitlk_rw_addr_dep_begin_1(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
+// 	return 0;
+// }
 
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xp[42];
+// static volatile int *noinline end_11_helper1()
+// {
+// 	xp = READ_ONCE(foo);
 
-	// End address dependency
-	// y == x[42] == 0
-	WRITE_ONCE(*bar, y);
+// 	bar = &xp[42];
 
-	return 0;
-}
+// 	return bar;
+// }
 
-// End addr dep 1: rw address dependency within the same function - for breaking the end annotation
-static int noinline doitlk_rw_addr_dep_end_1(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
+// static noinline void doitlk_rr_addr_dep_end_11_helper2(volatile int *r1)
+// {
+// 	y = READ_ONCE(*r1);
+// }
 
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xp[42];
+// static noinline int rr_addr_dep_end_11(void)
+// {
+// 	volatile int *r1;
 
-	// End address dependency
-	// y == x[42] == 0
-	WRITE_ONCE(*bar, y);
+// 	r1 = end_11_helper1();
 
-	return 0;
-}
+// 	doitlk_rr_addr_dep_end_11_helper2(r1);
 
-// Begin addr dep 2: address dependency accross two function. Dep begins in first function - for breaking begin annotation
-static void noinline rw_begin_2_helper(volatile int *local_bar)
-{
-	// End address dependency
-	// y == x[42] == 0
-	WRITE_ONCE(*local_bar, y);
-}
+// 	return 0;
+// }
 
-static int noinline doitlk_rw_addr_dep_begin_2(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
+// static volatile int *noinline
+// doitlk_rr_addr_dep_begin_12_helper(volatile int *foo)
+// {
+// 	xp = READ_ONCE(foo);
 
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xp[42];
+// 	xp += 42;
 
-	// copy bar into local var and dereference it in call
-	rw_begin_2_helper(bar);
+// 	return xp;
+// }
 
-	return 0;
-}
+// static noinline int rr_addr_dep_begin_12(void)
+// {
+// 	volatile int *r1;
 
-// End addr dep 2: address dependency accross two function. Dep begins in first function - for breaking end annotation
-static void noinline doitlk_rw_addr_dep_end_2_helper(volatile int *local_bar)
-{
-	// End address dependency
-	// y == x[42] == 0
-	WRITE_ONCE(*local_bar, y);
-}
+// 	r1 = doitlk_rr_addr_dep_begin_12_helper(foo);
 
-static int noinline rw_addr_dep_end_2(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
+// 	return *doitlk_rr_addr_dep_begin_12_helper(r1);
+// }
 
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xp[42];
+// //FIXME LLVM currently looses the annotation metadata here after the bug was inserted
+// static volatile int *noinline doitlk_rr_addr_dep_end_12_helper(volatile int *foo)
+// {
+// 	xp = READ_ONCE(foo);
 
-	// copy bar into local var and dereference it in call
-	doitlk_rw_addr_dep_end_2_helper(bar);
+// 	xp += 42;
 
-	return 0;
-}
+// 	return xp;
+// }
 
-// Begin addr dep 3: address dependency accross two function. Dep begins in second function - for breaking beginn annotation
-static int noinline rw_addr_dep_begin_3(void)
-{
-	volatile int *barLocal = doitlk_rr_addr_dep_begin_3_helper();
+// static noinline int rr_addr_dep_end_12(void)
+// {
+// 	volatile int *r1;
 
-	// End address dependency
-	// y == x[42] == 0
-	WRITE_ONCE(*barLocal, y);
+// 	r1 = doitlk_rr_addr_dep_end_12_helper(foo);
 
-	// alternative
-	// const volatile int* yLocal = dep_2_begin_second_helper();
-	// y = READ_ONCE(yLocal);
+// 	return *doitlk_rr_addr_dep_end_12_helper(r1);
+// }
 
-	return 0;
-}
+// // Example from original DoitLk talk at LPC 2020
+// struct tk_fast {
+// 	seqcount_latch_t seq;
+// 	struct tk_read_base base[2];
+// };
 
-// End addr dep 3: address dependency accross two function. Dep begins in second function - for breaking end annotation
-static int noinline doitlk_rw_addr_dep_end_3(void)
-{
-	// End address dependency
-	// y == x[42] == 0
-	WRITE_ONCE(*end_3_helper(), y);
-
-	// alternative
-	// const volatile int* yLocal = dep_2_begin_second_helper();
-	// y = READ_ONCE(yLocal);
-
-	return 0;
-}
+// static __always_inline u64 doitlk_ktime(struct tk_fast *tkf)
+// {
+// 	struct tk_read_base *tkr;
+// 	unsigned int seq;
+// 	u64 now;
 
-// Begin addr dep 4: address dependency accross two function. Dep begins in first functions, runs through second function and ends in first function
-static int noinline doitlk_rw_addr_dep_begin_4(void)
-{
-	volatile int *barLocal;
+// 	do {
+// 		seq = raw_read_seqcount_latch(&tkf->seq);
+// 		tkr = tkf->base + (seq & 0x01);
+// 		now = ktime_to_ns(READ_ONCE(tkr->base));
 
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
+// 		now += timekeeping_delta_to_ns(
+// 			tkr, clocksource_delta(tk_clock_read(tkr),
+// 					       tkr->cycle_last, tkr->mask));
+// 	} while (read_seqcount_latch_retry(&tkf->seq, seq));
 
-	barLocal = begin_4_helper(xp);
+// 	return now;
+// }
 
-	// End address dependency
-	// y == x[42] == 0
-	WRITE_ONCE(*barLocal, y);
+// //
+// // ====
+// // Read -> Write Address Dependencies
+// // ====
+// //
 
-	return 0;
-}
+// // Begin addr dep 1: rw address dependency within the same function - for breaking the begin annotation
+// static noinline int doitlk_rw_addr_dep_begin_1(void)
+// {
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
 
-// End addr dep 4: address dependency accross two function. Dep begins in first functions, runs through second function and ends in first function
-static int noinline doitlk_rw_addr_dep_end_4(void)
-{
-	volatile int *barLocal;
+// 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 	bar = &xp[42];
 
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
+// 	// End address dependency
+// 	// y == x[42] == 0
+// 	WRITE_ONCE(*bar, y);
 
-	barLocal = end_4_helper(xp);
+// 	return 0;
+// }
 
-	// End address dependency
-	// y == x[42] == 0
-	WRITE_ONCE(*barLocal, y);
+// // End addr dep 1: rw address dependency within the same function - for breaking the end annotation
+// static noinline int doitlk_rw_addr_dep_end_1(void)
+// {
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
 
-	return 0;
-}
+// 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 	bar = &xp[42];
 
-// Begin addr dep 6: address dependency within the same function - for breaking the begin annotation
-static int noinline doitlk_rw_addr_dep_begin_6(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
+// 	// End address dependency
+// 	// y == x[42] == 0
+// 	WRITE_ONCE(*bar, y);
 
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xp[42];
+// 	return 0;
+// }
 
-	if (&xp[0])
-		bar = &xp[21];
-	else
-		bar = &xp[0];
+// // Begin addr dep 2: address dependency accross two function. Dep begins in first function - for breaking begin annotation
+// static noinline void rw_begin_2_helper(volatile int *r1)
+// {
+// 	// End address dependency
+// 	// y == x[42] == 0
+// 	WRITE_ONCE(*r1, y);
+// }
 
-	// End address dependency
-	WRITE_ONCE(*bar, y);
+// static noinline int doitlk_rw_addr_dep_begin_2(void)
+// {
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
 
-	return 0;
-}
+// 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 	bar = &xp[42];
 
-// End addr dep 6: address dependency within the same function - for breaking the end annotation
-static int noinline doitlk_rw_addr_dep_end_6(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
+// 	// copy bar into local var and dereference it in call
+// 	rw_begin_2_helper(bar);
 
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xp[42];
+// 	return 0;
+// }
 
-	if (&xp[0])
-		bar = &xp[21];
-	else
-		bar = &xp[0];
+// // End addr dep 2: address dependency accross two function. Dep begins in first function - for breaking end annotation
+// static noinline void doitlk_rw_addr_dep_end_2_helper(volatile int *r1)
+// {
+// 	// End address dependency
+// 	// y == x[42] == 0
+// 	WRITE_ONCE(*r1, y);
+// }
 
-	// End address dependency
-	WRITE_ONCE(*bar, y);
+// static noinline int rw_addr_dep_end_2(void)
+// {
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
 
-	return 0;
-}
+// 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 	bar = &xp[42];
 
-// Begin addr dep 7: address dependency within the same function - for breaking the begin annotation
-static int noinline doitlk_rw_addr_dep_begin_7(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
+// 	// copy bar into local var and dereference it in call
+// 	doitlk_rw_addr_dep_end_2_helper(bar);
 
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	if (&xp[0])
-		bar = &xp[42];
+// 	return 0;
+// }
 
-	// End address dependency
-	WRITE_ONCE(*bar, y);
+// // Begin addr dep 3: address dependency accross two function. Dep begins in second function - for breaking beginn annotation
+// static noinline int rw_addr_dep_begin_3(void)
+// {
+// 	volatile int *barLocal = doitlk_rr_addr_dep_begin_3_helper();
 
-	return 0;
-}
+// 	// End address dependency
+// 	// y == x[42] == 0
+// 	WRITE_ONCE(*barLocal, y);
 
-// End addr dep 7: address dependency within the same function - for breaking the end annotation
-static int noinline doitlk_rw_addr_dep_end_7(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
+// 	// alternative
+// 	// const volatile int* yLocal = dep_2_begin_second_helper();
+// 	// y = READ_ONCE(yLocal);
 
-	if (&xp[0])
-		bar = &xp[42];
+// 	return 0;
+// }
 
-	// End address dependency
-	WRITE_ONCE(*bar, y);
+// // End addr dep 3: address dependency accross two function. Dep begins in second function - for breaking end annotation
+// static noinline int doitlk_rw_addr_dep_end_3(void)
+// {
+// 	// End address dependency
+// 	// y == x[42] == 0
+// 	WRITE_ONCE(*end_3_helper(), y);
 
-	return 0;
-}
+// 	// alternative
+// 	// const volatile int* yLocal = dep_2_begin_second_helper();
+// 	// y = READ_ONCE(yLocal);
 
-// Begin addr dep 8: two address dependencies with same beginning within the same function - for breaking the begin annotation
-static int noinline doitlk_rw_addr_dep_begin_8(void)
-{
-	volatile int *barLocal;
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
-
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xp[42];
-	barLocal = &xp[21];
-
-	// End address dependency
-	// y == x[42] == 0
-	WRITE_ONCE(*bar, y);
-	WRITE_ONCE(*barLocal, y);
-
-	return 0;
-}
+// 	return 0;
+// }
 
-// End addr dep 8: two address dependencies with same beginning within the same function - for breaking the end annotation
-static int noinline doitlk_rw_addr_dep_end_8(void)
-{
-	volatile int *barLocal;
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
-
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xp[42];
-	barLocal = &xp[21];
-
-	// End address dependency
-	// y == x[42] == 0
-	WRITE_ONCE(*bar, y);
-	WRITE_ONCE(*barLocal, y);
-
-	return 0;
-}
+// // Begin addr dep 4: address dependency accross two function. Dep begins in first functions, runs through second function and ends in first function
+// static noinline int doitlk_rw_addr_dep_begin_4(void)
+// {
+// 	volatile int *barLocal;
 
-static void noinline rw_begin_9_helper1(volatile int *local_bar1)
-{
-	// End address dependency
-	WRITE_ONCE(*local_bar1, y);
-}
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
 
-static void noinline rw_begin_9_helper2(volatile int *local_bar2)
-{
-	// End address dependency
-	WRITE_ONCE(*local_bar2, z);
-}
+// 	barLocal = begin_4_helper(xp);
 
-// Begin addr dep 9: two address dependencies with same beginning within the same function - for breaking the begin annotation
-static int noinline doitlk_rw_addr_dep_begin_9(void)
-{
-	volatile int *barLocal1, *barLocal2;
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
-
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	barLocal1 = &xp[42];
-	barLocal2 = &xp[21];
-
-	rw_begin_9_helper1(barLocal1);
-	rw_begin_9_helper2(barLocal2);
-
-	return 0;
-}
+// 	// End address dependency
+// 	// y == x[42] == 0
+// 	WRITE_ONCE(*barLocal, y);
 
-// End addr dep 9: two address dependencies with same beginning within the same function - for breaking the end annotation
-static void noinline doitlk_rw_addr_dep_end_9_helper1(volatile int *local_bar1)
-{
-	// End address dependency
-	WRITE_ONCE(*local_bar1, y);
-}
+// 	return 0;
+// }
 
-static void noinline doitlk_rw_addr_dep_end_9_helper2(volatile int *local_bar2)
-{
-	// End address dependency
-	WRITE_ONCE(*local_bar2, z);
-}
+// // End addr dep 4: address dependency accross two function. Dep begins in first functions, runs through second function and ends in first function
+// static noinline int doitlk_rw_addr_dep_end_4(void)
+// {
+// 	volatile int *barLocal;
 
-// Begin addr dep 9: two address dependencies with same beginning within the same function - for breaking the begin annotation
-static int noinline rw_addr_dep_end_9(void)
-{
-	volatile int *barLocal1, *barLocal2;
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
-
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	barLocal1 = &xp[42];
-	barLocal2 = &xp[21];
-
-	doitlk_rw_addr_dep_end_9_helper1(barLocal1);
-	doitlk_rw_addr_dep_end_9_helper2(barLocal2);
-
-	return 0;
-}
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
 
-// Begin addr dep 10: address dependencies through function call, but different chains
-static volatile int *noinline rw_begin_10_helper(volatile int *xpLocal)
-{
-	volatile int *barLocal;
+// 	barLocal = end_4_helper(xp);
 
-	bar = &xpLocal[42];
+// 	// End address dependency
+// 	// y == x[42] == 0
+// 	WRITE_ONCE(*barLocal, y);
 
-	// End address dependency
-	WRITE_ONCE(*bar, y);
+// 	return 0;
+// }
 
-	// Begin address dependency
-	xp = READ_ONCE(foo);
+// // Begin addr dep 6: address dependency within the same function - for breaking the begin annotation
+// static noinline int doitlk_rw_addr_dep_begin_6(void)
+// {
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
 
-	barLocal = &xp[42];
+// 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 	bar = &xp[42];
 
-	// copy bar and return it
-	return barLocal;
-}
+// 	if (&xp[0])
+// 		bar = &xp[21];
+// 	else
+// 		bar = &xp[0];
 
-static int noinline doitlk_rw_addr_dep_begin_10(void)
-{
-	volatile int *barLocal;
+// 	// End address dependency
+// 	WRITE_ONCE(*bar, y);
 
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
+// 	return 0;
+// }
 
-	barLocal = rw_begin_10_helper(xp);
+// // End addr dep 6: address dependency within the same function - for breaking the end annotation
+// static noinline int doitlk_rw_addr_dep_end_6(void)
+// {
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
 
-	WRITE_ONCE(*barLocal, z);
+// 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 	bar = &xp[42];
 
-	return 0;
-}
+// 	if (&xp[0])
+// 		bar = &xp[21];
+// 	else
+// 		bar = &xp[0];
 
-// End addr dep 10: address dependencies through function call, but different chains
-static volatile int *noinline rw_end_10_helper(volatile int *xpLocal)
-{
-	volatile int *barLocal;
+// 	// End address dependency
+// 	WRITE_ONCE(*bar, y);
 
-	bar = &xpLocal[42];
+// 	return 0;
+// }
 
-	// End address dependency
-	WRITE_ONCE(*bar, y);
+// // Begin addr dep 7: address dependency within the same function - for breaking the begin annotation
+// static noinline int doitlk_rw_addr_dep_begin_7(void)
+// {
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
 
-	// Begin address dependency
-	xp = READ_ONCE(foo);
+// 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 	if (&xp[0])
+// 		bar = &xp[42];
 
-	barLocal = &xp[42];
+// 	// End address dependency
+// 	WRITE_ONCE(*bar, y);
 
-	// copy bar and return it
-	return barLocal;
-}
+// 	return 0;
+// }
 
-static int noinline doitlk_rw_addr_dep_end_10(void)
-{
-	volatile int *barLocal;
+// // End addr dep 7: address dependency within the same function - for breaking the end annotation
+// static noinline int doitlk_rw_addr_dep_end_7(void)
+// {
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
 
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
+// 	if (&xp[0])
+// 		bar = &xp[42];
 
-	barLocal = rw_end_10_helper(xp);
+// 	// End address dependency
+// 	WRITE_ONCE(*bar, y);
 
-	// End address dependency
-	// y == x[42] == 0
-	WRITE_ONCE(*barLocal, z);
+// 	return 0;
+// }
 
-	return 0;
-}
+// // Begin addr dep 8: two address dependencies with same beginning within the same function - for breaking the begin annotation
+// static noinline int doitlk_rw_addr_dep_begin_8(void)
+// {
+// 	volatile int *barLocal;
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
 
-static volatile int *noinline doitlk_rw_addr_dep_begin_11_helper1()
-{
-	xp = READ_ONCE(foo);
+// 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 	bar = &xp[42];
+// 	barLocal = &xp[21];
 
-	bar = &xp[42];
+// 	// End address dependency
+// 	// y == x[42] == 0
+// 	WRITE_ONCE(*bar, y);
+// 	WRITE_ONCE(*barLocal, y);
 
-	return bar;
-}
+// 	return 0;
+// }
 
-static void noinline rw_begin_11_helper2(volatile int *local_bar)
-{
-	WRITE_ONCE(*local_bar, 42);
-}
+// // End addr dep 8: two address dependencies with same beginning within the same function - for breaking the end annotation
+// static noinline int doitlk_rw_addr_dep_end_8(void)
+// {
+// 	volatile int *barLocal;
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
 
-static int noinline rw_addr_dep_begin_11(void)
-{
-	volatile int *local_bar;
+// 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 	bar = &xp[42];
+// 	barLocal = &xp[21];
 
-	local_bar = doitlk_rw_addr_dep_begin_11_helper1();
+// 	// End address dependency
+// 	// y == x[42] == 0
+// 	WRITE_ONCE(*bar, y);
+// 	WRITE_ONCE(*barLocal, y);
 
-	rw_begin_11_helper2(local_bar);
+// 	return 0;
+// }
 
-	return 0;
-}
+// static noinline void rw_begin_9_helper1(volatile int *r11)
+// {
+// 	// End address dependency
+// 	WRITE_ONCE(*r11, y);
+// }
 
-static volatile int *noinline rw_end_11_helper1()
-{
-	xp = READ_ONCE(foo);
+// static noinline void rw_begin_9_helper2(volatile int *r12)
+// {
+// 	// End address dependency
+// 	WRITE_ONCE(*r12, z);
+// }
 
-	bar = &xp[42];
+// // Begin addr dep 9: two address dependencies with same beginning within the same function - for breaking the begin annotation
+// static noinline int doitlk_rw_addr_dep_begin_9(void)
+// {
+// 	volatile int *barLocal1, *barLocal2;
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
 
-	return bar;
-}
+// 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 	barLocal1 = &xp[42];
+// 	barLocal2 = &xp[21];
 
-static void noinline doitlk_rw_addr_dep_end_11_helper2(volatile int *local_bar)
-{
-	WRITE_ONCE(*local_bar, 42);
-}
+// 	rw_begin_9_helper1(barLocal1);
+// 	rw_begin_9_helper2(barLocal2);
 
-static int noinline rw_addr_dep_end_11(void)
-{
-	volatile int *local_bar;
+// 	return 0;
+// }
 
-	local_bar = rw_end_11_helper1();
+// // End addr dep 9: two address dependencies with same beginning within the same function - for breaking the end annotation
+// static noinline void doitlk_rw_addr_dep_end_9_helper1(volatile int *r11)
+// {
+// 	// End address dependency
+// 	WRITE_ONCE(*r11, y);
+// }
 
-	doitlk_rw_addr_dep_end_11_helper2(local_bar);
+// static noinline void doitlk_rw_addr_dep_end_9_helper2(volatile int *r12)
+// {
+// 	// End address dependency
+// 	WRITE_ONCE(*r12, z);
+// }
 
-	return 0;
-}
+// // Begin addr dep 9: two address dependencies with same beginning within the same function - for breaking the begin annotation
+// static noinline int rw_addr_dep_end_9(void)
+// {
+// 	volatile int *barLocal1, *barLocal2;
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
 
-// Begin ctrl dep 1: memory-barriers.txt case 1, control dependency within the same function - dependent - for breaking the begin annotation
-static int noinline doitlk_ctrl_dep_begin_1(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
-
-	if (xp) {
-		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-		bar = &xp[42];
-
-		// End address dependency
-		// y == x[42] == 0
-		WRITE_ONCE(y, *bar);
-	}
-	return 0;
-}
+// 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 	barLocal1 = &xp[42];
+// 	barLocal2 = &xp[21];
 
-// End ctrl dep 1: control dependency within the same function - dependent condition - for breaking the end annotation
-static int noinline doitlk_ctrl_dep_end_1(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
-
-	if (xp) {
-		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-		bar = &xp[42];
-
-		// End address dependency
-		// y == x[42] == 0
-		WRITE_ONCE(y, *bar);
-	}
-	return 0;
-}
+// 	doitlk_rw_addr_dep_end_9_helper1(barLocal1);
+// 	doitlk_rw_addr_dep_end_9_helper2(barLocal2);
 
-// Begin ctrl dep 2: control dependency within the same function - dependent condition - for breaking the begin annotation
-static int noinline doitlk_ctrl_dep_begin_2(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
-
-	if (foo) {
-		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-		bar = &xp[42];
-
-		// End address dependency
-		// y == x[42] == 0
-		WRITE_ONCE(y, *bar);
-	}
-	return 0;
-}
+// 	return 0;
+// }
 
-// End ctrl dep 2: control dependency within the same function - dependent condition - for breaking the end annotation
-static int noinline doitlk_ctrl_dep_end_2(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
-
-	if (foo) {
-		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-		bar = &xp[42];
-
-		// End address dependency
-		// y == x[42] == 0
-		WRITE_ONCE(y, *bar);
-	}
-	return 0;
-}
+// // Begin addr dep 10: address dependencies through function call, but different chains
+// static volatile int *noinline rw_begin_10_helper(volatile int *xpLocal)
+// {
+// 	volatile int *barLocal;
 
-// Begin ctrl dep 3: control dependency with dead branch within the same function -  for breaking the begin annotation
-static int noinline doitlk_ctrl_dep_begin_3(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
-
-	if (0) {
-		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-		bar = &xp[42];
-
-		// End address dependency
-		// y == x[42] == 0
-		WRITE_ONCE(y, *bar);
-	}
-	return 0;
-}
+// 	bar = &xpLocal[42];
 
-// End ctrl dep 3: control dependency with dead branch within the same function -  for breaking the begin annotation
-static int noinline doitlk_ctrl_dep_end_3(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
-
-	if (0) {
-		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-		bar = &xp[42];
-
-		// End address dependency
-		// y == x[42] == 0
-		WRITE_ONCE(y, *bar);
-	}
-	return 0;
-}
+// 	// End address dependency
+// 	WRITE_ONCE(*bar, y);
 
-// Begin ctrl dep 4: control dependency with dead branch within the same function -  for breaking the begin annotation
-static int noinline doitlk_ctrl_dep_begin_4(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	if ((xp = READ_ONCE(foo))) {
-		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-		bar = &xp[42];
-
-		// End address dependency
-		// y == x[42] == 0
-		WRITE_ONCE(y, *bar);
-	}
-	return 0;
-}
+// 	// Begin address dependency
+// 	xp = READ_ONCE(foo);
 
-// End ctrl dep 4: control dependency with dead branch within the same function -  for breaking the begin annotation
-static int noinline doitlk_ctrl_dep_end_4(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	if ((xp = READ_ONCE(foo))) {
-		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-		bar = &xp[42];
-
-		// End address dependency
-		// y == x[42] == 0
-		WRITE_ONCE(y, *bar);
-	}
-	return 0;
-}
+// 	barLocal = &xp[42];
 
-// Begin ctrl dep 5: control dependency with end in for loop -  for breaking the begin annotation
-static int noinline doitlk_ctrl_dep_begin_5(void)
-{
-	int i = 0;
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
-
-	for (; i < 42; ++i) {
-		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-		bar = &xp[i];
-
-		// End address dependency
-		// y == x[42] == 0
-		WRITE_ONCE(y, *bar);
-	}
-	return 0;
-}
-// TODO syntactic dep?
-// End ctrl dep 5: control dependency with end in for loop -  for breaking the begin annotation
-static int noinline doitlk_ctrl_dep_end_5(void)
-{
-	int i = 0;
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
-
-	for (; i < 42; ++i) {
-		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-		bar = &xp[i];
-
-		// End address dependency
-		// y == x[42] == 0
-		WRITE_ONCE(y, *bar);
-	}
-	return 0;
-}
+// 	// copy bar and return it
+// 	return barLocal;
+// }
 
-// Begin ctrl dep 6: memory-barriers.txt case 2, constant dependent condition
-static int noinline doitlk_ctrl_dep_begin_6(void)
-{
-	x = READ_ONCE(*foo);
-	if (x % MAX == 0) {
-		WRITE_ONCE(*bar, y);
-	}
-	return 0;
-}
+// static noinline int doitlk_rw_addr_dep_begin_10(void)
+// {
+// 	volatile int *barLocal;
 
-// End ctrl dep 6: memory-barriers.txt case 2, constant dependent condition
-static int noinline doitlk_ctrl_dep_end_6(void)
-{
-	x = READ_ONCE(*foo);
-	if (x % MAX == 0) {
-		WRITE_ONCE(*bar, y);
-	}
-	return 0;
-}
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
 
-// Begin ctrl dep 7: memory-barriers.txt case 3, constant dependent condition
-static int noinline doitlk_ctrl_dep_begin_7(void)
-{
-	x = READ_ONCE(*foo);
-	if (x || 1 > 0)
-		WRITE_ONCE(y, 1);
-	return 0;
-}
+// 	barLocal = rw_begin_10_helper(xp);
 
-// End ctrl dep 7: memory-barriers.txt case 3, constant dependent condition
-static int noinline doitlk_ctrl_dep_end_7(void)
-{
-	x = READ_ONCE(*foo);
-	if (x || 1 > 0)
-		WRITE_ONCE(y, 1);
-	return 0;
-}
+// 	WRITE_ONCE(*barLocal, z);
 
-// Begin ctrl dep 8: constant dependent condition
-static int noinline doitlk_ctrl_dep_begin_8(void)
-{
-	x = READ_ONCE(*foo);
-	if (x > 0) {
-		if (x > 42)
-			WRITE_ONCE(y, 42);
-		else
-			WRITE_ONCE(y, 0);
-	}
-	return 0;
-}
+// 	return 0;
+// }
 
-// End ctrl dep 8: constant dependent condition
-static int noinline doitlk_ctrl_dep_end_8(void)
-{
-	x = READ_ONCE(*foo);
-	if (x > 0) {
-		if (x > 42)
-			WRITE_ONCE(y, 42);
-		else
-			WRITE_ONCE(y, 0);
-	}
-	return 0;
-}
+// // End addr dep 10: address dependencies through function call, but different chains
+// static volatile int *noinline rw_end_10_helper(volatile int *xpLocal)
+// {
+// 	volatile int *barLocal;
 
-// Begin ctrl dep 9: two dep chains in condition
-static int noinline doitlk_ctrl_dep_begin_9(void)
-{
-	x = READ_ONCE(*foo);
-	y = READ_ONCE(*bar);
-	if (x > y)
-		WRITE_ONCE(z, 1);
-	return 0;
-}
+// 	bar = &xpLocal[42];
 
-// End ctrl dep 9: two dep chains in condition
-static int noinline doitlk_ctrl_dep_end_9(void)
-{
-	x = READ_ONCE(*foo);
-	y = READ_ONCE(*bar);
-	if (x > y)
-		WRITE_ONCE(z, 1);
-	return 0;
-}
+// 	// End address dependency
+// 	WRITE_ONCE(*bar, y);
 
-// Begin ctrl dep 10: three dep chains in condition
-static int noinline doitlk_ctrl_dep_begin_10(void)
-{
-	x = READ_ONCE(*foo);
-	y = READ_ONCE(*bar);
-	z = READ_ONCE(*xp);
-	if (x > y || z < y)
-		WRITE_ONCE(*foo, 1);
-	return 0;
-}
+// 	// Begin address dependency
+// 	xp = READ_ONCE(foo);
 
-// End ctrl dep 10: three dep chains in condition
-static int noinline doitlk_ctrl_dep_end_10(void)
-{
-	x = READ_ONCE(*foo);
-	y = READ_ONCE(*bar);
-	z = READ_ONCE(*xp);
-	if (x > y || z < y)
-		WRITE_ONCE(*foo, 1);
-	return 0;
-}
+// 	barLocal = &xp[42];
 
-// Begin ctrl dep 11: nested if
-static int noinline doitlk_ctrl_dep_begin_11(void)
-{
-	x = READ_ONCE(*foo);
-	if (x) {
-		y = READ_ONCE(*bar);
-		if (y)
-			WRITE_ONCE(*foo, 1);
-	}
-	return 0;
-}
+// 	// copy bar and return it
+// 	return barLocal;
+// }
 
-// End ctrl dep 11: nested if
-static int noinline doitlk_ctrl_dep_end_11(void)
-{
-	x = READ_ONCE(*foo);
-	if (x) {
-		y = READ_ONCE(*bar);
-		if (y)
-			WRITE_ONCE(*foo, 1);
-	}
-	return 0;
-}
+// static noinline int doitlk_rw_addr_dep_end_10(void)
+// {
+// 	volatile int *barLocal;
 
-// Begin ctrl dep 12: conditional return
-static int noinline ctrl_dep_12_begin_helper(void)
-{
-	x = READ_ONCE(*foo);
-	if (x)
-		return 21;
-	else
-		return 42;
-}
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
 
-static int noinline doitlk_ctrl_dep_begin_12(void)
-{
-	WRITE_ONCE(*foo, ctrl_dep_12_begin_helper());
-	return 0;
-}
+// 	barLocal = rw_end_10_helper(xp);
 
-// End ctrl dep 11: nested if
-static int noinline ctrl_dep_12_end_helper(void)
-{
-	x = READ_ONCE(*foo);
-	if (x)
-		return 21;
-	else
-		return 42;
-}
+// 	// End address dependency
+// 	// y == x[42] == 0
+// 	WRITE_ONCE(*barLocal, z);
 
-static int noinline doitlk_ctrl_dep_end_12(void)
-{
-	WRITE_ONCE(*foo, ctrl_dep_12_end_helper());
-	return 0;
-}
+// 	return 0;
+// }
 
-static volatile int *noinline ctrl_dep_begin_13_helper(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
-
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xp[42];
-
-	// copy bar and return it
-	return bar;
-}
+// static volatile int *noinline doitlk_rw_addr_dep_begin_11_helper1()
+// {
+// 	xp = READ_ONCE(foo);
 
-static volatile int *noinline ctrl_dep_end_13_helper(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
-
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xp[42];
-
-	// copy bar and return it
-	return bar;
-}
+// 	bar = &xp[42];
 
-static int noinline doitlk_ctrl_dep_begin_13(void)
-{
-	foo = ctrl_dep_begin_13_helper();
-	if (foo)
-		WRITE_ONCE(*foo, 1);
-	return 0;
-}
+// 	return bar;
+// }
 
-static int noinline doitlk_ctrl_dep_end_13(void)
-{
-	foo = ctrl_dep_end_13_helper();
-	if (foo)
-		WRITE_ONCE(*foo, 1);
-	return 0;
-}
+// static noinline void rw_begin_11_helper2(volatile int *r1)
+// {
+// 	WRITE_ONCE(*r1, 42);
+// }
 
-static volatile int *noinline ctrl_dep_begin_14_helper1(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
-
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xp[42];
-
-	// copy bar and return it
-	return bar;
-}
+// static noinline int rw_addr_dep_begin_11(void)
+// {
+// 	volatile int *r1;
 
-static volatile int *noinline ctrl_dep_end_14_helper1(void)
-{
-	// Begin address dependency
-	// xp == foo && *x == foo[0] after assignment
-	xp = READ_ONCE(foo);
-
-	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-	bar = &xp[42];
-
-	// copy bar and return it
-	return bar;
-}
+// 	r1 = doitlk_rw_addr_dep_begin_11_helper1();
 
-static void noinline ctrl_dep_begin_14_helper2(volatile int *local_bar)
-{
-	WRITE_ONCE(*local_bar, y);
-}
+// 	rw_begin_11_helper2(r1);
 
-static void noinline ctrl_dep_end_14_helper2(volatile int *local_bar)
-{
-	WRITE_ONCE(*local_bar, y);
-}
+// 	return 0;
+// }
 
-static int noinline doitlk_ctrl_dep_begin_14(void)
-{
-	foo = ctrl_dep_begin_14_helper1();
-	if (foo)
-		ctrl_dep_begin_14_helper2(foo);
-	return 0;
-}
+// static volatile int *noinline rw_end_11_helper1()
+// {
+// 	xp = READ_ONCE(foo);
 
-static int noinline doitlk_ctrl_dep_end_14(void)
-{
-	foo = ctrl_dep_end_14_helper1();
-	if (foo)
-		ctrl_dep_end_14_helper2(foo);
-	return 0;
-}
+// 	bar = &xp[42];
 
-static void noinline ctrl_dep_begin_15_helper(volatile int *local_bar)
-{
-	WRITE_ONCE(*local_bar, y);
-}
+// 	return bar;
+// }
 
-static void noinline ctrl_dep_end_15_helper(volatile int *local_bar)
-{
-	WRITE_ONCE(*local_bar, y);
-}
+// static noinline void doitlk_rw_addr_dep_end_11_helper2(volatile int *r1)
+// {
+// 	WRITE_ONCE(*r1, 42);
+// }
 
-static int noinline doitlk_ctrl_dep_begin_15(void)
-{
-	foo = READ_ONCE(bar);
-	if (foo)
-		ctrl_dep_begin_15_helper(foo);
-	return 0;
-}
+// static noinline int rw_addr_dep_end_11(void)
+// {
+// 	volatile int *r1;
 
-static int noinline doitlk_ctrl_dep_end_15(void)
-{
-	foo = READ_ONCE(bar);
-	if (foo)
-		ctrl_dep_end_15_helper(foo);
-	return 0;
-}
+// 	r1 = rw_end_11_helper1();
 
-static int noinline doitlk_ctrl_dep_begin_16(void)
-{
-loop:
-	foo = READ_ONCE(bar);
-	if (foo)
-		goto end;
-
-	// do something with x
-	x++;
-	goto loop;
-
-end:
-	WRITE_ONCE(*foo, *bar);
-	return x;
-}
+// 	doitlk_rw_addr_dep_end_11_helper2(r1);
 
-static int noinline doitlk_ctrl_dep_end_16(void)
-{
-loop:
-	foo = READ_ONCE(bar);
-	if (*foo == x)
-		goto end;
-
-	// do something with x
-	x++;
-	goto loop;
-
-end:
-	WRITE_ONCE(*foo, *bar);
-	return x;
-}
+// 	return 0;
+// }
 
-static int noinline doitlk_ctrl_dep_begin_17(void)
-{
-loop:
-	foo = READ_ONCE(bar);
-	if (*foo == x) {
-		WRITE_ONCE(*foo, *bar);
-		return x;
-	}
-
-	// do something with x
-	x++;
-	goto loop;
-}
+// // Begin ctrl dep 1: memory-barriers.txt case 1, control dependency within the same function - dependent - for breaking the begin annotation
+// static noinline int doitlk_ctrl_dep_begin_1(void)
+// {
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
 
-static int noinline doitlk_ctrl_dep_end_17(void)
-{
-loop:
-	foo = READ_ONCE(bar);
-	if (*foo == x) {
-		WRITE_ONCE(*foo, *bar);
-		return x;
-	}
-
-	// do something with x
-	x++;
-	goto loop;
-}
+// 	if (xp) {
+// 		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 		bar = &xp[42];
 
-// Begin ctrl dep 18: memory-barriers.txt case 2, constant dependent condition
-static int noinline doitlk_ctrl_dep_begin_18(void)
-{
-	xUnsigned = READ_ONCE(*foo);
-	if (xUnsigned % MAX == 0) {
-		WRITE_ONCE(*bar, y);
-	}
-	return 0;
-}
+// 		// End address dependency
+// 		// y == x[42] == 0
+// 		WRITE_ONCE(y, *bar);
+// 	}
+// 	return 0;
+// }
 
-// End ctrl dep 18: memory-barriers.txt case 2, constant dependent condition
-static int noinline doitlk_ctrl_dep_end_18(void)
-{
-	xUnsigned = READ_ONCE(*fooUnsigned);
-	if (xUnsigned % MAX == 0) {
-		WRITE_ONCE(*bar, y);
-	}
-	return 0;
-}
+// // End ctrl dep 1: control dependency within the same function - dependent condition - for breaking the end annotation
+// static noinline int doitlk_ctrl_dep_end_1(void)
+// {
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
+
+// 	if (xp) {
+// 		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 		bar = &xp[42];
+
+// 		// End address dependency
+// 		// y == x[42] == 0
+// 		WRITE_ONCE(y, *bar);
+// 	}
+// 	return 0;
+// }
+
+// // Begin ctrl dep 2: control dependency within the same function - dependent condition - for breaking the begin annotation
+// static noinline int doitlk_ctrl_dep_begin_2(void)
+// {
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
+
+// 	if (foo) {
+// 		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 		bar = &xp[42];
+
+// 		// End address dependency
+// 		// y == x[42] == 0
+// 		WRITE_ONCE(y, *bar);
+// 	}
+// 	return 0;
+// }
+
+// // End ctrl dep 2: control dependency within the same function - dependent condition - for breaking the end annotation
+// static noinline int doitlk_ctrl_dep_end_2(void)
+// {
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
+
+// 	if (foo) {
+// 		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 		bar = &xp[42];
+
+// 		// End address dependency
+// 		// y == x[42] == 0
+// 		WRITE_ONCE(y, *bar);
+// 	}
+// 	return 0;
+// }
+
+// // Begin ctrl dep 3: control dependency with dead branch within the same function -  for breaking the begin annotation
+// static noinline int doitlk_ctrl_dep_begin_3(void)
+// {
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
+
+// 	if (0) {
+// 		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 		bar = &xp[42];
+
+// 		// End address dependency
+// 		// y == x[42] == 0
+// 		WRITE_ONCE(y, *bar);
+// 	}
+// 	return 0;
+// }
+
+// // End ctrl dep 3: control dependency with dead branch within the same function -  for breaking the begin annotation
+// static noinline int doitlk_ctrl_dep_end_3(void)
+// {
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
+
+// 	if (0) {
+// 		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 		bar = &xp[42];
+
+// 		// End address dependency
+// 		// y == x[42] == 0
+// 		WRITE_ONCE(y, *bar);
+// 	}
+// 	return 0;
+// }
+
+// // Begin ctrl dep 4: control dependency with dead branch within the same function -  for breaking the begin annotation
+// static noinline int doitlk_ctrl_dep_begin_4(void)
+// {
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
+// 	if (xp) {
+// 		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 		bar = &xp[42];
+
+// 		// End address dependency
+// 		// y == x[42] == 0
+// 		WRITE_ONCE(y, *bar);
+// 	}
+// 	return 0;
+// }
+
+// // End ctrl dep 4: control dependency with dead branch within the same function -  for breaking the begin annotation
+// static noinline int doitlk_ctrl_dep_end_4(void)
+// {
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
+// 	if (xp) {
+// 		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 		bar = &xp[42];
+
+// 		// End address dependency
+// 		// y == x[42] == 0
+// 		WRITE_ONCE(y, *bar);
+// 	}
+// 	return 0;
+// }
+
+// // Begin ctrl dep 5: control dependency with end in for loop -  for breaking the begin annotation
+// static noinline int doitlk_ctrl_dep_begin_5(void)
+// {
+// 	int i = 0;
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
+
+// 	for (; i < 42; ++i) {
+// 		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 		bar = &xp[i];
+
+// 		// End address dependency
+// 		// y == x[42] == 0
+// 		WRITE_ONCE(y, *bar);
+// 	}
+// 	return 0;
+// }
+// // TODO syntactic dep?
+// // End ctrl dep 5: control dependency with end in for loop -  for breaking the begin annotation
+// static noinline int doitlk_ctrl_dep_end_5(void)
+// {
+// 	int i = 0;
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
+
+// 	for (; i < 42; ++i) {
+// 		// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 		bar = &xp[i];
+
+// 		// End address dependency
+// 		// y == x[42] == 0
+// 		WRITE_ONCE(y, *bar);
+// 	}
+// 	return 0;
+// }
+
+// // Begin ctrl dep 6: memory-barriers.txt case 2, constant dependent condition
+// static noinline int doitlk_ctrl_dep_begin_6(void)
+// {
+// 	x = READ_ONCE(*foo);
+// 	if (x % MAX == 0)
+// 		WRITE_ONCE(*bar, y);
+// 	return 0;
+// }
+
+// // End ctrl dep 6: memory-barriers.txt case 2, constant dependent condition
+// static noinline int doitlk_ctrl_dep_end_6(void)
+// {
+// 	x = READ_ONCE(*foo);
+// 	if (x % MAX == 0)
+// 		WRITE_ONCE(*bar, y);
+// 	return 0;
+// }
+
+// // Begin ctrl dep 7: memory-barriers.txt case 3, constant dependent condition
+// static noinline int doitlk_ctrl_dep_begin_7(void)
+// {
+// 	x = READ_ONCE(*foo);
+// 	if (x || 1 > 0)
+// 		WRITE_ONCE(y, 1);
+// 	return 0;
+// }
+
+// // End ctrl dep 7: memory-barriers.txt case 3, constant dependent condition
+// static noinline int doitlk_ctrl_dep_end_7(void)
+// {
+// 	x = READ_ONCE(*foo);
+// 	if (x || 1 > 0)
+// 		WRITE_ONCE(y, 1);
+// 	return 0;
+// }
+
+// // Begin ctrl dep 8: constant dependent condition
+// static noinline int doitlk_ctrl_dep_begin_8(void)
+// {
+// 	x = READ_ONCE(*foo);
+// 	if (x > 0) {
+// 		if (x > 42)
+// 			WRITE_ONCE(y, 42);
+// 		else
+// 			WRITE_ONCE(y, 0);
+// 	}
+// 	return 0;
+// }
+
+// // End ctrl dep 8: constant dependent condition
+// static noinline int doitlk_ctrl_dep_end_8(void)
+// {
+// 	x = READ_ONCE(*foo);
+// 	if (x > 0) {
+// 		if (x > 42)
+// 			WRITE_ONCE(y, 42);
+// 		else
+// 			WRITE_ONCE(y, 0);
+// 	}
+// 	return 0;
+// }
+
+// // Begin ctrl dep 9: two dep chains in condition
+// static noinline int doitlk_ctrl_dep_begin_9(void)
+// {
+// 	x = READ_ONCE(*foo);
+// 	y = READ_ONCE(*bar);
+// 	if (x > y)
+// 		WRITE_ONCE(z, 1);
+// 	return 0;
+// }
+
+// // End ctrl dep 9: two dep chains in condition
+// static noinline int doitlk_ctrl_dep_end_9(void)
+// {
+// 	x = READ_ONCE(*foo);
+// 	y = READ_ONCE(*bar);
+// 	if (x > y)
+// 		WRITE_ONCE(z, 1);
+// 	return 0;
+// }
+
+// // Begin ctrl dep 10: three dep chains in condition
+// static noinline int doitlk_ctrl_dep_begin_10(void)
+// {
+// 	x = READ_ONCE(*foo);
+// 	y = READ_ONCE(*bar);
+// 	z = READ_ONCE(*xp);
+// 	if (x > y || z < y)
+// 		WRITE_ONCE(*foo, 1);
+// 	return 0;
+// }
+
+// // End ctrl dep 10: three dep chains in condition
+// static noinline int doitlk_ctrl_dep_end_10(void)
+// {
+// 	x = READ_ONCE(*foo);
+// 	y = READ_ONCE(*bar);
+// 	z = READ_ONCE(*xp);
+// 	if (x > y || z < y)
+// 		WRITE_ONCE(*foo, 1);
+// 	return 0;
+// }
+
+// // Begin ctrl dep 11: nested if
+// static noinline int doitlk_ctrl_dep_begin_11(void)
+// {
+// 	x = READ_ONCE(*foo);
+// 	if (x) {
+// 		y = READ_ONCE(*bar);
+// 		if (y)
+// 			WRITE_ONCE(*foo, 1);
+// 	}
+// 	return 0;
+// }
+
+// // End ctrl dep 11: nested if
+// static noinline int doitlk_ctrl_dep_end_11(void)
+// {
+// 	x = READ_ONCE(*foo);
+// 	if (x) {
+// 		y = READ_ONCE(*bar);
+// 		if (y)
+// 			WRITE_ONCE(*foo, 1);
+// 	}
+// 	return 0;
+// }
+
+// // Begin ctrl dep 12: conditional return
+// static noinline int ctrl_dep_12_begin_helper(void)
+// {
+// 	x = READ_ONCE(*foo);
+// 	if (x)
+// 		return 21;
+// 	else
+// 		return 42;
+// }
+
+// static noinline int doitlk_ctrl_dep_begin_12(void)
+// {
+// 	WRITE_ONCE(*foo, ctrl_dep_12_begin_helper());
+// 	return 0;
+// }
+
+// // End ctrl dep 11: nested if
+// static noinline int ctrl_dep_12_end_helper(void)
+// {
+// 	x = READ_ONCE(*foo);
+// 	if (x)
+// 		return 21;
+// 	else
+// 		return 42;
+// }
+
+// static noinline int doitlk_ctrl_dep_end_12(void)
+// {
+// 	WRITE_ONCE(*foo, ctrl_dep_12_end_helper());
+// 	return 0;
+// }
+
+// static volatile int *noinline ctrl_dep_begin_13_helper(void)
+// {
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
+
+// 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 	bar = &xp[42];
+
+// 	// copy bar and return it
+// 	return bar;
+// }
+
+// static volatile int *noinline ctrl_dep_end_13_helper(void)
+// {
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
+
+// 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 	bar = &xp[42];
+
+// 	// copy bar and return it
+// 	return bar;
+// }
+
+// static noinline int doitlk_ctrl_dep_begin_13(void)
+// {
+// 	foo = ctrl_dep_begin_13_helper();
+// 	if (foo)
+// 		WRITE_ONCE(*foo, 1);
+// 	return 0;
+// }
+
+// static noinline int doitlk_ctrl_dep_end_13(void)
+// {
+// 	foo = ctrl_dep_end_13_helper();
+// 	if (foo)
+// 		WRITE_ONCE(*foo, 1);
+// 	return 0;
+// }
+
+// static volatile int *noinline ctrl_dep_begin_14_helper1(void)
+// {
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
+
+// 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 	bar = &xp[42];
+
+// 	// copy bar and return it
+// 	return bar;
+// }
+
+// static volatile int *noinline ctrl_dep_end_14_helper1(void)
+// {
+// 	// Begin address dependency
+// 	// xp == foo && *x == foo[0] after assignment
+// 	xp = READ_ONCE(foo);
+
+// 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
+// 	bar = &xp[42];
+
+// 	// copy bar and return it
+// 	return bar;
+// }
+
+// static noinline void ctrl_dep_begin_14_helper2(volatile int *r1)
+// {
+// 	WRITE_ONCE(*r1, y);
+// }
+
+// static noinline void ctrl_dep_end_14_helper2(volatile int *r1)
+// {
+// 	WRITE_ONCE(*r1, y);
+// }
+
+// static noinline int doitlk_ctrl_dep_begin_14(void)
+// {
+// 	foo = ctrl_dep_begin_14_helper1();
+// 	if (foo)
+// 		ctrl_dep_begin_14_helper2(foo);
+// 	return 0;
+// }
+
+// static noinline int doitlk_ctrl_dep_end_14(void)
+// {
+// 	foo = ctrl_dep_end_14_helper1();
+// 	if (foo)
+// 		ctrl_dep_end_14_helper2(foo);
+// 	return 0;
+// }
+
+// static noinline void ctrl_dep_begin_15_helper(volatile int *r1)
+// {
+// 	WRITE_ONCE(*r1, y);
+// }
+
+// static noinline void ctrl_dep_end_15_helper(volatile int *r1)
+// {
+// 	WRITE_ONCE(*r1, y);
+// }
+
+// static noinline int doitlk_ctrl_dep_begin_15(void)
+// {
+// 	foo = READ_ONCE(bar);
+// 	if (foo)
+// 		ctrl_dep_begin_15_helper(foo);
+// 	return 0;
+// }
+
+// static noinline int doitlk_ctrl_dep_end_15(void)
+// {
+// 	foo = READ_ONCE(bar);
+// 	if (foo)
+// 		ctrl_dep_end_15_helper(foo);
+// 	return 0;
+// }
+
+// static noinline int doitlk_ctrl_dep_begin_16(void)
+// {
+// loop:
+// 	foo = READ_ONCE(bar);
+// 	if (foo)
+// 		goto end;
+
+// 	// do something with x
+// 	x++;
+// 	goto loop;
+
+// end:
+// 	WRITE_ONCE(*foo, *bar);
+// 	return x;
+// }
+
+// static noinline int doitlk_ctrl_dep_end_16(void)
+// {
+// loop:
+// 	foo = READ_ONCE(bar);
+// 	if (*foo == x)
+// 		goto end;
+
+// 	// do something with x
+// 	x++;
+// 	goto loop;
+
+// end:
+// 	WRITE_ONCE(*foo, *bar);
+// 	return x;
+// }
+
+// static noinline int doitlk_ctrl_dep_begin_17(void)
+// {
+// loop:
+// 	foo = READ_ONCE(bar);
+// 	if (*foo == x) {
+// 		WRITE_ONCE(*foo, *bar);
+// 		return x;
+// 	}
+
+// 	// do something with x
+// 	x++;
+// 	goto loop;
+// }
+
+// static noinline int doitlk_ctrl_dep_end_17(void)
+// {
+// loop:
+// 	foo = READ_ONCE(bar);
+// 	if (*foo == x) {
+// 		WRITE_ONCE(*foo, *bar);
+// 		return x;
+// 	}
+
+// 	// do something with x
+// 	x++;
+// 	goto loop;
+// }
+
+// // Begin ctrl dep 18: memory-barriers.txt case 2, constant dependent condition
+// static noinline int doitlk_ctrl_dep_begin_18(void)
+// {
+// 	xUnsigned = READ_ONCE(*foo);
+// 	if (xUnsigned % MAX == 0)
+// 		WRITE_ONCE(*bar, y);
+// 	return 0;
+// }
+
+// // End ctrl dep 18: memory-barriers.txt case 2, constant dependent condition
+// static noinline int doitlk_ctrl_dep_end_18(void)
+// {
+// 	xUnsigned = READ_ONCE(*fooUnsigned);
+// 	if (xUnsigned % MAX == 0)
+// 		WRITE_ONCE(*bar, y);
+// 	return 0;
+// }
 
 static int lkm_init(void)
 {
-	static struct clocksource dummy_clock = {
-		.read = dummy_clock_read,
-	};
+	// 	static struct clocksource dummy_clock = {
+	// 		.read = dummy_clock_read,
+	// 	};
 
-#define FAST_TK_INIT                                                 \
-	{                                                            \
-		.clock = &dummy_clock, .mask = CLOCKSOURCE_MASK(64), \
-		.mult = 1, .shift = 0,                               \
-	}
+	// #define FAST_TK_INIT                                                 \
+// 	{                                                            \
+// 		.clock = &dummy_clock, .mask = CLOCKSOURCE_MASK(64), \
+// 		.mult = 1, .shift = 0,                               \
+// 	}
 
-	static struct tk_fast tk_fast_raw ____cacheline_aligned = {
-		.seq = SEQCNT_LATCH_ZERO(tk_fast_raw.seq),
-		.base[0] = FAST_TK_INIT,
-		.base[1] = FAST_TK_INIT,
-	};
+	// static struct tk_fast tk_fast_raw ____cacheline_aligned = {
+	// 	.seq = SEQCNT_LATCH_ZERO(tk_fast_raw.seq),
+	// 	.base[0] = FAST_TK_INIT,
+	// 	.base[1] = FAST_TK_INIT,
+	// };
 
 	// rr addr deps
 	// simple case
 	doitlk_rr_addr_dep_begin_1();
 	doitlk_rr_addr_dep_end_1();
 	// in via function parameter
-	doitlk_rr_addr_dep_begin_2();
-	rr_addr_dep_end_2();
-	// out via function return
-	rr_addr_dep_begin_3();
-	doitlk_rr_addr_dep_end_3();
-	// in and out same chain
-	doitlk_rr_addr_dep_begin_4();
-	doitlk_rr_addr_dep_end_4();
-	// simple case, end in if condition
-	doitlk_rr_addr_dep_begin_5();
-	doitlk_rr_addr_dep_end_5();
-	// Simple Case - Chain Through If-Else
-	doitlk_rr_addr_dep_begin_6();
-	doitlk_rr_addr_dep_end_6();
-	// Simple Case - Chain Through If
-	doitlk_rr_addr_dep_begin_7();
-	doitlk_rr_addr_dep_end_7();
-	// simple case, fan out
-	doitlk_rr_addr_dep_begin_8();
-	doitlk_rr_addr_dep_end_8();
-	// dep chain fanning out
-	doitlk_rr_addr_dep_begin_9();
-	rr_addr_dep_end_9();
-	// in and out, but different chains
-	doitlk_rr_addr_dep_begin_10();
-	doitlk_rr_addr_dep_end_10();
-	rr_addr_dep_begin_11();
-	rr_addr_dep_end_11();
-	rr_addr_dep_begin_12();
-	rr_addr_dep_end_12();
-	// chain fanning in not relevant
-	// doitlk example
-	doitlk_ktime(&tk_fast_raw);
+	// doitlk_rr_addr_dep_begin_2();
+	// rr_addr_dep_end_2();
+	// // out via function return
+	// rr_addr_dep_begin_3();
+	// doitlk_rr_addr_dep_end_3();
+	// // in and out same chain
+	// doitlk_rr_addr_dep_begin_4();
+	// doitlk_rr_addr_dep_end_4();
+	// // simple case, end in if condition
+	// doitlk_rr_addr_dep_begin_5();
+	// doitlk_rr_addr_dep_end_5();
+	// // Simple Case - Chain Through If-Else
+	// doitlk_rr_addr_dep_begin_6();
+	// doitlk_rr_addr_dep_end_6();
+	// // Simple Case - Chain Through If
+	// doitlk_rr_addr_dep_begin_7();
+	// doitlk_rr_addr_dep_end_7();
+	// // simple case, fan out
+	// doitlk_rr_addr_dep_begin_8();
+	// doitlk_rr_addr_dep_end_8();
+	// // dep chain fanning out
+	// doitlk_rr_addr_dep_begin_9();
+	// rr_addr_dep_end_9();
+	// // in and out, but different chains
+	// doitlk_rr_addr_dep_begin_10();
+	// doitlk_rr_addr_dep_end_10();
+	// rr_addr_dep_begin_11();
+	// rr_addr_dep_end_11();
+	// rr_addr_dep_begin_12();
+	// rr_addr_dep_end_12();
+	// // chain fanning in not relevant
+	// // doitlk example
+	// doitlk_ktime(&tk_fast_raw);
 
-	// rw addr deps
-	// simple case
-	doitlk_rw_addr_dep_begin_1();
-	doitlk_rw_addr_dep_end_1();
-	// in via function parameter
-	doitlk_rw_addr_dep_begin_2();
-	rw_addr_dep_end_2();
-	// out via function return
-	rw_addr_dep_begin_3();
-	doitlk_rw_addr_dep_end_3();
-	// in and out same chain
-	doitlk_rw_addr_dep_begin_4();
-	doitlk_rw_addr_dep_end_4();
-	// dep 5 ommitted since we can't use WRITE_ONCE() as if condition
-	// Simple Case - Chain Through If-Else
-	doitlk_rw_addr_dep_begin_6();
-	doitlk_rw_addr_dep_end_6();
-	// Simple Case - Chain Through If
-	doitlk_rw_addr_dep_begin_7();
-	doitlk_rw_addr_dep_end_7();
-	// simple case, fan out
-	doitlk_rw_addr_dep_begin_8();
-	doitlk_rw_addr_dep_end_8();
-	// dep chain fanning out
-	doitlk_rw_addr_dep_begin_9();
-	rw_addr_dep_end_9();
-	// in and out, but different chains
-	doitlk_rw_addr_dep_begin_10();
-	doitlk_rw_addr_dep_end_10();
-	rw_addr_dep_begin_11();
-	rw_addr_dep_end_11();
+	// // rw addr deps
+	// // simple case
+	// doitlk_rw_addr_dep_begin_1();
+	// doitlk_rw_addr_dep_end_1();
+	// // in via function parameter
+	// doitlk_rw_addr_dep_begin_2();
+	// rw_addr_dep_end_2();
+	// // out via function return
+	// rw_addr_dep_begin_3();
+	// doitlk_rw_addr_dep_end_3();
+	// // in and out same chain
+	// doitlk_rw_addr_dep_begin_4();
+	// doitlk_rw_addr_dep_end_4();
+	// // dep 5 ommitted since we can't use WRITE_ONCE() as if condition
+	// // Simple Case - Chain Through If-Else
+	// doitlk_rw_addr_dep_begin_6();
+	// doitlk_rw_addr_dep_end_6();
+	// // Simple Case - Chain Through If
+	// doitlk_rw_addr_dep_begin_7();
+	// doitlk_rw_addr_dep_end_7();
+	// // simple case, fan out
+	// doitlk_rw_addr_dep_begin_8();
+	// doitlk_rw_addr_dep_end_8();
+	// // dep chain fanning out
+	// doitlk_rw_addr_dep_begin_9();
+	// rw_addr_dep_end_9();
+	// // in and out, but different chains
+	// doitlk_rw_addr_dep_begin_10();
+	// doitlk_rw_addr_dep_end_10();
+	// rw_addr_dep_begin_11();
+	// rw_addr_dep_end_11();
 
-	// ctrl deps
-	doitlk_ctrl_dep_begin_1();
-	doitlk_ctrl_dep_end_1();
-	doitlk_ctrl_dep_begin_2();
-	doitlk_ctrl_dep_end_2();
-	doitlk_ctrl_dep_begin_3();
-	doitlk_ctrl_dep_end_3();
-	doitlk_ctrl_dep_begin_4();
-	doitlk_ctrl_dep_end_4();
-	doitlk_ctrl_dep_begin_5();
-	doitlk_ctrl_dep_end_5();
-	doitlk_ctrl_dep_begin_6();
-	doitlk_ctrl_dep_end_6();
-	doitlk_ctrl_dep_begin_7();
-	doitlk_ctrl_dep_end_7();
-	doitlk_ctrl_dep_begin_8();
-	doitlk_ctrl_dep_end_8();
-	doitlk_ctrl_dep_begin_9();
-	doitlk_ctrl_dep_end_9();
-	doitlk_ctrl_dep_begin_10();
-	doitlk_ctrl_dep_end_10();
-	doitlk_ctrl_dep_begin_11();
-	doitlk_ctrl_dep_end_11();
-	doitlk_ctrl_dep_begin_12();
-	doitlk_ctrl_dep_end_12();
-	doitlk_ctrl_dep_begin_13();
-	doitlk_ctrl_dep_end_13();
-	doitlk_ctrl_dep_begin_14();
-	doitlk_ctrl_dep_end_14();
-	doitlk_ctrl_dep_begin_15();
-	doitlk_ctrl_dep_end_15();
-	doitlk_ctrl_dep_begin_16();
-	doitlk_ctrl_dep_end_16();
-	doitlk_ctrl_dep_begin_17();
-	doitlk_ctrl_dep_end_17();
-	doitlk_ctrl_dep_begin_18();
-	doitlk_ctrl_dep_end_18();
+	// // ctrl deps
+	// doitlk_ctrl_dep_begin_1();
+	// doitlk_ctrl_dep_end_1();
+	// doitlk_ctrl_dep_begin_2();
+	// doitlk_ctrl_dep_end_2();
+	// doitlk_ctrl_dep_begin_3();
+	// doitlk_ctrl_dep_end_3();
+	// doitlk_ctrl_dep_begin_4();
+	// doitlk_ctrl_dep_end_4();
+	// doitlk_ctrl_dep_begin_5();
+	// doitlk_ctrl_dep_end_5();
+	// doitlk_ctrl_dep_begin_6();
+	// doitlk_ctrl_dep_end_6();
+	// doitlk_ctrl_dep_begin_7();
+	// doitlk_ctrl_dep_end_7();
+	// doitlk_ctrl_dep_begin_8();
+	// doitlk_ctrl_dep_end_8();
+	// doitlk_ctrl_dep_begin_9();
+	// doitlk_ctrl_dep_end_9();
+	// doitlk_ctrl_dep_begin_10();
+	// doitlk_ctrl_dep_end_10();
+	// doitlk_ctrl_dep_begin_11();
+	// doitlk_ctrl_dep_end_11();
+	// doitlk_ctrl_dep_begin_12();
+	// doitlk_ctrl_dep_end_12();
+	// doitlk_ctrl_dep_begin_13();
+	// doitlk_ctrl_dep_end_13();
+	// doitlk_ctrl_dep_begin_14();
+	// doitlk_ctrl_dep_end_14();
+	// doitlk_ctrl_dep_begin_15();
+	// doitlk_ctrl_dep_end_15();
+	// doitlk_ctrl_dep_begin_16();
+	// doitlk_ctrl_dep_end_16();
+	// doitlk_ctrl_dep_begin_17();
+	// doitlk_ctrl_dep_end_17();
+	// doitlk_ctrl_dep_begin_18();
+	// doitlk_ctrl_dep_end_18();
 	// TODO all cases from above?
 
 	return 0;
