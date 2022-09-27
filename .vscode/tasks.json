@@ -52,6 +52,15 @@
       "problemMatcher": []
     },
     {
+      "label": "Run tests",
+      "type": "shell",
+      "command": "./doitlk-linux-build.py",
+      "args": [
+        "tests"
+      ],
+      "problemMatcher": []
+    },
+    {
       "label": "Debug",
       "type": "shell",
       "command": "./doitlk-linux-build.py",
