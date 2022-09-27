@@ -7,9 +7,12 @@ import re
 
 _arm64_CROSS = ["ARCH=arm64", "CROSS_COMPILE=aarch64-unknown-linux-gnu-"]
 
-_ENABLE_DEP_CHEKER = ["KCFLAGS=-fsanitize=lkmm-dep-checker"]
+_DOITLK_FLAGS = ["KCFLAGS=-fsanitize=lkmm-dep-checker"]
+_DOITLK_TESTS = [
+    "KCFLAGS=-fsanitize=lkmm-dep-checker -mllvm -lkmm-enable-tests"]
 
-_MAKEFLAGS = ["CC=clang"] + _arm64_CROSS + _ENABLE_DEP_CHEKER
+_MAKEFLAGS = ["CC=clang"] + _arm64_CROSS + _DOITLK_FLAGS
+_MAKEFLAGS_TESTS = ["CC=clang"] + _arm64_CROSS + _DOITLK_TESTS
 
 
 def update_config():
@@ -37,14 +40,17 @@ def configure_kernel(config):
     update_config()
 
 
-def build_kernel(threads=os.getenv("NIX_BUILD_CORES", "128"), ModulePath=""):
+def build_kernel(
+        threads=os.getenv("NIX_BUILD_CORES", "128"),
+        ModulePath="", tests=False):
     JStr = "-j" + threads
-    print("JStr: " + JStr)
     with open("build_output.ll", "w+") as f:
         if ModulePath:
             subprocess.run(["rm"] + [ModulePath], stderr=f)
-            subprocess.run(["make"] + _MAKEFLAGS + [JStr] +
-                           [ModulePath], stderr=f)
+            subprocess.run(
+                ["make"] + (_MAKEFLAGS_TESTS if tests else _MAKEFLAGS) + [JStr] +
+                [ModulePath],
+                stderr=f)
         else:
             subprocess.run(["make"] + _MAKEFLAGS + [JStr], stderr=f)
 
@@ -109,7 +115,7 @@ if __name__ == "__main__":
         case "precise":
             build_kernel("1")
         case "tests":
-            build_kernel("1", "lib/modules/dep_chain_tests.o")
+            build_kernel("1", "DoitLk/dep_chain_tests.o", True)
         case "debug":
             debug_kernel(sys.argv[2])
         case _:
