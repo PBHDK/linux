@@ -9,18 +9,20 @@ MODULE_DESCRIPTION(
 MODULE_AUTHOR("Paul Heidekruger");
 MODULE_LICENSE("GPL");
 
-// TODO: Ensure that helper functions are not visited before the functions calling them - reorder?
+/**
+ * Naming scheme: doitlk_(rr|rw)_(addr|ctrl)_(begin|end)_${test_name}
+ */
 
-/* Test Cases:
+/**
+ * Test Cases:
  * Address Dependency:
  *	Test cases:
  *	Inside ctrl dep
  * Control Dependency:
  */
 
-// Begin addr dep 1: address dependency within the same function - for breaking the begin annotation
 /* BUGs: 1 */
-static noinline int doitlk_rr_addr_dep_begin_1(void)
+static noinline int doitlk_rr_addr_dep_begin_simple(void)
 {
 	volatile int *r1;
 	volatile int *r2;
@@ -35,9 +37,8 @@ static noinline int doitlk_rr_addr_dep_begin_1(void)
 	return r3;
 }
 
-// End addr dep 1: address dependency within the same function - for breaking the end annotation
 /* BUGs: 1 */
-static noinline int doitlk_rr_addr_dep_end_1(void)
+static noinline int doitlk_rr_addr_dep_end_simple(void)
 {
 	volatile int *r1;
 	volatile int *r2;
@@ -1547,8 +1548,8 @@ static int lkm_init(void)
 
 	// rr addr deps
 	// simple case
-	doitlk_rr_addr_dep_begin_1();
-	doitlk_rr_addr_dep_end_1();
+	doitlk_rr_addr_dep_begin_simple();
+	doitlk_rr_addr_dep_end_simple();
 	// in via function parameter
 	// doitlk_rr_addr_dep_begin_2();
 	// rr_addr_dep_end_2();
