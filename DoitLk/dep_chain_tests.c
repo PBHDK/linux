@@ -438,68 +438,30 @@ static noinline int rr_addr_dep_end_beg_and_end_in_calls(void)
 	return 0;
 }
 
-// static volatile int *noinline
-// doitlk_rr_addr_dep_begin_12_helper(volatile int *foo)
-// {
-// 	xp = READ_ONCE(foo);
+// Example from original DoitLk talk at LPC 2020
+struct tk_fast {
+	seqcount_latch_t seq;
+	struct tk_read_base base[2];
+};
 
-// 	xp += 42;
+static __always_inline u64 doitlk_ktime(struct tk_fast *tkf)
+{
+	struct tk_read_base *tkr;
+	unsigned int seq;
+	u64 now;
 
-// 	return xp;
-// }
+	do {
+		seq = raw_read_seqcount_latch(&tkf->seq);
+		tkr = tkf->base + (seq & 0x01);
+		now = ktime_to_ns(READ_ONCE(tkr->base));
 
-// static noinline int rr_addr_dep_begin_12(void)
-// {
-// 	volatile int *r1;
+		now += timekeeping_delta_to_ns(
+			tkr, clocksource_delta(tk_clock_read(tkr),
+					       tkr->cycle_last, tkr->mask));
+	} while (read_seqcount_latch_retry(&tkf->seq, seq));
 
-// 	r1 = doitlk_rr_addr_dep_begin_12_helper(foo);
-
-// 	return *doitlk_rr_addr_dep_begin_12_helper(r1);
-// }
-
-// //FIXME LLVM currently looses the annotation metadata here after the bug was inserted
-// static volatile int *noinline doitlk_rr_addr_dep_end_12_helper(volatile int *foo)
-// {
-// 	xp = READ_ONCE(foo);
-
-// 	xp += 42;
-
-// 	return xp;
-// }
-
-// static noinline int rr_addr_dep_end_12(void)
-// {
-// 	volatile int *r1;
-
-// 	r1 = doitlk_rr_addr_dep_end_12_helper(foo);
-
-// 	return *doitlk_rr_addr_dep_end_12_helper(r1);
-// }
-
-// // Example from original DoitLk talk at LPC 2020
-// struct tk_fast {
-// 	seqcount_latch_t seq;
-// 	struct tk_read_base base[2];
-// };
-
-// static __always_inline u64 doitlk_ktime(struct tk_fast *tkf)
-// {
-// 	struct tk_read_base *tkr;
-// 	unsigned int seq;
-// 	u64 now;
-
-// 	do {
-// 		seq = raw_read_seqcount_latch(&tkf->seq);
-// 		tkr = tkf->base + (seq & 0x01);
-// 		now = ktime_to_ns(READ_ONCE(tkr->base));
-
-// 		now += timekeeping_delta_to_ns(
-// 			tkr, clocksource_delta(tk_clock_read(tkr),
-// 					       tkr->cycle_last, tkr->mask));
-// 	} while (read_seqcount_latch_retry(&tkf->seq, seq));
-
-// 	return now;
-// }
+	return now;
+}
 
 // //
 // // ====
@@ -1489,21 +1451,23 @@ static noinline int rr_addr_dep_end_beg_and_end_in_calls(void)
 
 static int lkm_init(void)
 {
-	// 	static struct clocksource dummy_clock = {
-	// 		.read = dummy_clock_read,
-	// 	};
+	static struct clocksource dummy_clock = {
+		.read = dummy_clock_read,
+	};
 
-	// #define FAST_TK_INIT                                                 \
-// 	{                                                            \
-// 		.clock = &dummy_clock, .mask = CLOCKSOURCE_MASK(64), \
-// 		.mult = 1, .shift = 0,                               \
-// 	}
+#define FAST_TK_INIT                                                 \
+	{                                                            \
+		.clock = &dummy_clock, .mask = CLOCKSOURCE_MASK(64), \
+		.mult = 1, .shift = 0,                               \
+	}
 
-	// static struct tk_fast tk_fast_raw ____cacheline_aligned = {
-	// 	.seq = SEQCNT_LATCH_ZERO(tk_fast_raw.seq),
-	// 	.base[0] = FAST_TK_INIT,
-	// 	.base[1] = FAST_TK_INIT,
-	// };
+	static struct tk_fast tk_fast_raw ____cacheline_aligned = {
+		.seq = SEQCNT_LATCH_ZERO(tk_fast_raw.seq),
+		.base[0] = FAST_TK_INIT,
+		.base[1] = FAST_TK_INIT,
+	};
+
+	doitlk_ktime(&tk_fast_raw);
 
 	doitlk_rr_addr_dep_begin_simple();
 	doitlk_rr_addr_dep_end_simple();
@@ -1531,11 +1495,6 @@ static int lkm_init(void)
 
 	rr_addr_dep_begin_beg_and_end_in_calls();
 	rr_addr_dep_end_beg_and_end_in_calls();
-	// rr_addr_dep_begin_12();
-	// rr_addr_dep_end_12();
-	// // chain fanning in not relevant
-	// // doitlk example
-	// doitlk_ktime(&tk_fast_raw);
 
 	// // rw addr deps
 	// // simple case
