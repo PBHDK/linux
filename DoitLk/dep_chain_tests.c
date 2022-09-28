@@ -146,49 +146,57 @@ static noinline int doitlk_rr_addr_dep_end_call_beginning(void)
 	return 0;
 }
 
-// // Begin addr dep 4: address dependency accross two function. Dep begins in first functions, runs through second function and ends in first function
-// static volatile int *noinline begin_4_helper(int *r1)
-// {
-// 	y = &r1[42];
+static volatile int *noinline
+rr_addr_dep_begin_call_dep_chain_helper(volatile int *r2)
+{
+	volatile int *r3;
 
-// 	return y; /* Copy y and return it */
-// }
+	r3 = &r2[42];
 
-// static noinline int doitlk_rr_addr_dep_begin_4(void)
-// {
-// 	// Begin address dependency
-// 	x = READ_ONCE(*foo);
+	return r3;
+}
 
-// 	y = begin_4_helper(x);
+/* BUGs: 1 */
+static noinline int doitlk_rr_addr_dep_begin_call_dep_chain(void)
+{
+	volatile int *r1;
+	volatile int *r4;
+	volatile int r5;
 
-// 	// End address dependency
-// 	z = READ_ONCE(*y);
+	r1 = READ_ONCE(*foo);
 
-// 	return 0;
-// }
+	r4 = rr_addr_dep_begin_call_dep_chain_helper(r1);
 
-// // End addr dep 4: address dependency accross two function. Dep begins in first functions, runs through second function and ends in first function
-// static noinline volatile int *end_4_helper(volatile int *r1)
-// {
-// 	volatile int *r2;
+	r5 = READ_ONCE(*r4);
 
-// 	r2 = &r1[42];
+	return 0;
+}
 
-// 	return r2;
-// }
+static noinline volatile int *
+rr_addr_dep_end_call_dep_chain_helper(volatile int *r2)
+{
+	volatile int *r3;
 
-// static noinline int doitlk_rr_addr_dep_end_4(void)
-// {
-// 	// Begin address dependency
-// 	x = READ_ONCE(*foo);
+	r3 = &r2[42];
 
-// 	y = end_4_helper(x);
+	return r3;
+}
 
-// 	// End address dependency
-// 	z = READ_ONCE(*y);
+/* BUGs: 1 */
+static noinline int doitlk_rr_addr_dep_end_call_dep_chain(void)
+{
+	volatile int *r1;
+	volatile int *r4;
+	volatile int r5;
 
-// 	return 0;
-// }
+	r1 = READ_ONCE(*foo);
+
+	r4 = rr_addr_dep_end_call_dep_chain_helper(r1);
+
+	r5 = READ_ONCE(*r4);
+
+	return 0;
+}
 
 // // Begin addr dep 6: address dependency within the same function - for breaking the begin annotation
 // static noinline int doitlk_rr_addr_dep_begin_6(void)
@@ -1551,9 +1559,9 @@ static int lkm_init(void)
 
 	rr_addr_dep_begin_call_beginning();
 	doitlk_rr_addr_dep_end_call_beginning();
-	// // in and out same chain
-	// doitlk_rr_addr_dep_begin_4();
-	// doitlk_rr_addr_dep_end_4();
+
+	doitlk_rr_addr_dep_begin_call_dep_chain();
+	doitlk_rr_addr_dep_end_call_dep_chain();
 	// // simple case, end in if condition
 	// doitlk_rr_addr_dep_begin_5();
 	// doitlk_rr_addr_dep_end_5();
