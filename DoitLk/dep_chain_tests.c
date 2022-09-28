@@ -198,40 +198,49 @@ static noinline int doitlk_rr_addr_dep_end_call_dep_chain(void)
 	return 0;
 }
 
-// // Begin addr dep 6: address dependency within the same function - for breaking the begin annotation
-// static noinline int doitlk_rr_addr_dep_begin_6(void)
-// {
-// 	// Begin address dependency
-// 	// xp == foo && *x == foo[0] after assignment
-// 	x = READ_ONCE(foo);
+/* BUGs: 1 */
 
-// 	if (*bar)
-// 		y = &x[21];
-// 	else
-// 		y = &x[42];
+/*
+ * There is only one dependency here beacuse whatever way control flow takes,
+ * the IDs will be the same.
+ * This of course applies to the 'end' case as well.
+ */
+static noinline int doitlk_rr_addr_dep_begin_cond_dep_chain_full(void)
+{
+	volatile int *r1;
+	volatile int *r2;
+	volatile int r3;
 
-// 	// End address dependency
-// 	z = READ_ONCE(*y);
+	r1 = READ_ONCE(*foo);
 
-// 	return 0;
-// }
+	if (*bar)
+		r2 = &r1[21];
+	else
+		r2 = &r1[42];
 
-// // End addr dep 6: address dependency within the same function - for breaking the end annotation
-// static noinline int doitlk_rr_addr_dep_end_6(void)
-// {
-// 	// Begin address dependency
-// 	x = READ_ONCE(*foo);
+	r3 = READ_ONCE(*r2);
 
-// 	if (*bar)
-// 		y = &x[21];
-// 	else
-// 		y = &x[42];
+	return 0;
+}
 
-// 	// End address dependency
-// 	z = READ_ONCE(*y);
+/* BUGs: 1 */
+static noinline int doitlk_rr_addr_dep_end_cond_dep_chain_full(void)
+{
+	volatile int *r1;
+	volatile int *r2;
+	volatile int r3;
 
-// 	return 0;
-// }
+	r1 = READ_ONCE(*foo);
+
+	if (*bar)
+		r2 = &r1[21];
+	else
+		r2 = &r1[42];
+
+	r3 = READ_ONCE(*r2);
+
+	return 0;
+}
 
 // // Begin addr dep 7: address dependency within the same function - for breaking the begin annotation
 // static noinline int doitlk_rr_addr_dep_begin_7(void)
@@ -1562,12 +1571,9 @@ static int lkm_init(void)
 
 	doitlk_rr_addr_dep_begin_call_dep_chain();
 	doitlk_rr_addr_dep_end_call_dep_chain();
-	// // simple case, end in if condition
-	// doitlk_rr_addr_dep_begin_5();
-	// doitlk_rr_addr_dep_end_5();
-	// // Simple Case - Chain Through If-Else
-	// doitlk_rr_addr_dep_begin_6();
-	// doitlk_rr_addr_dep_end_6();
+
+	doitlk_rr_addr_dep_begin_cond_dep_chain_full();
+	doitlk_rr_addr_dep_end_cond_dep_chain_full();
 	// // Simple Case - Chain Through If
 	// doitlk_rr_addr_dep_begin_7();
 	// doitlk_rr_addr_dep_end_7();
