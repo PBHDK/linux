@@ -13,13 +13,7 @@ MODULE_LICENSE("GPL");
  * Naming scheme: doitlk_(rr|rw)_(addr|ctrl)_(begin|end)_${test_name}
  */
 
-/**
- * Test Cases:
- * Address Dependency:
- *	Test cases:
- *	Inside ctrl dep
- * Control Dependency:
- */
+/* Total amount of bugs: 15 */
 
 /* BUGs: 1 */
 static noinline int doitlk_rr_addr_dep_begin_simple(void)
