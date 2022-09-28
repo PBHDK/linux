@@ -97,54 +97,54 @@ static noinline int rr_addr_dep_end_call_ending(void)
 	return 0;
 }
 
-// // Begin addr dep 3: address dependency accross two function. Dep begins in second function - for breaking beginn annotation
-// static volatile int *noinline doitlk_rr_addr_dep_begin_3_helper(void)
-// {
-// 	// Begin address dependency
-// 	// xp == foo && *x == foo[0] after assignment
-// 	x = READ_ONCE(*foo);
+static volatile noinline int *
+doitlk_rr_addr_dep_begin_call_beginning_helper(void)
+{
+	volatile int *r1;
+	volatile int *r2;
 
-// 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-// 	y = &x[42];
+	r1 = READ_ONCE(*foo);
 
-// 	// copy bar and return it
-// 	return y;
-// }
+	r2 = &r1[42];
 
-// static noinline int rr_addr_dep_begin_3(void)
-// {
-// 	// End address dependency
-// 	// y == x[42] == 0
-// 	z = READ_ONCE(*doitlk_rr_addr_dep_begin_3_helper());
+	return r2;
+}
 
-// 	// alternative
-// 	// const volatile int* yLocal = dep_2_begin_second_helper();
-// 	// y = READ_ONCE(yLocal);
+/* BUGs: 1 */
+static noinline int rr_addr_dep_begin_call_beginning(void)
+{
+	volatile int *r3;
+	volatile int r4;
 
-// 	return 0;
-// }
+	r3 = doitlk_rr_addr_dep_begin_call_beginning_helper();
+	r4 = READ_ONCE(*r3);
 
-// // End addr dep 3: address dependency accross two function. Dep begins in second function - for breaking end annotation
-// static volatile int *noinline end_3_helper(void)
-// {
-// 	// Begin address dependency
-// 	// xp == foo && *x == foo[0] after assignment
-// 	x = READ_ONCE(*foo);
+	return 0;
+}
 
-// 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-// 	y = &x[42];
+/* BUGs: 1 */
+static volatile noinline int *rr_addr_dep_end_call_beginning_helper(void)
+{
+	volatile int *r1;
+	volatile int *r2;
 
-// 	// copy bar and return it
-// 	return y;
-// }
+	r1 = READ_ONCE(*foo);
 
-// static noinline int doitlk_rr_addr_dep_end_3(void)
-// {
-// 	// End address dependency
-// 	z = READ_ONCE(*end_3_helper());
+	r2 = &r1[42];
 
-// 	return 0;
-// }
+	return r2;
+}
+
+static noinline int doitlk_rr_addr_dep_end_call_beginning(void)
+{
+	volatile int *r3;
+	volatile int r4;
+
+	r3 = rr_addr_dep_end_call_beginning_helper();
+	r4 = READ_ONCE(*r3);
+
+	return 0;
+}
 
 // // Begin addr dep 4: address dependency accross two function. Dep begins in first functions, runs through second function and ends in first function
 // static volatile int *noinline begin_4_helper(int *r1)
@@ -1545,11 +1545,12 @@ static int lkm_init(void)
 
 	doitlk_rr_addr_dep_begin_simple();
 	doitlk_rr_addr_dep_end_simple();
+
 	doitlk_rr_addr_dep_begin_call_ending();
 	rr_addr_dep_end_call_ending();
-	// // out via function return
-	// rr_addr_dep_begin_3();
-	// doitlk_rr_addr_dep_end_3();
+
+	rr_addr_dep_begin_call_beginning();
+	doitlk_rr_addr_dep_end_call_beginning();
 	// // in and out same chain
 	// doitlk_rr_addr_dep_begin_4();
 	// doitlk_rr_addr_dep_end_4();
