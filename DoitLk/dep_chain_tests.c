@@ -276,45 +276,51 @@ static noinline int doitlk_rr_addr_dep_end_cond_dep_chain_partial(void)
 	return 0;
 }
 
-// // Begin addr dep 8: two address dependencies with same beginning within the same function - for breaking the begin annotation
-// static noinline int doitlk_rr_addr_dep_begin_8(void)
-// {
-// 	volatile int *r1, *r2;
+/* BUGs: 2 */
+static noinline int doitlk_rr_addr_dep_begin_two_endings_dimple(void)
+{
+	volatile int *r1;
+	volatile int *r2;
+	volatile int *r3;
+	volatile int r4;
+	volatile int r5;
 
-// 	// Begin address dependency
-// 	x = READ_ONCE(foo);
+	r1 = READ_ONCE(*foo);
 
-// 	r1 = &x[42];
-// 	r2 = &x[21];
+	r2 = &r1[42];
+	r3 = &r1[21];
 
-// 	// End address dependency
-// 	y = READ_ONCE(*r1);
+	r4 = READ_ONCE(*r2);
 
-// 	// End address dependency
-// 	z = READ_ONCE(*r2);
+	r5 = READ_ONCE(*r3);
 
-// 	return 0;
-// }
+	return 0;
+}
 
-// // End addr dep 8: two address dependencies with same beginning within the same function - for breaking the end annotation
-// static noinline int doitlk_rr_addr_dep_end_8(void)
-// {
-// 	volatile int *r1, *r2;
+/* BUGs: 1 */
 
-// 	// Begin address dependency
-// 	x = READ_ONCE(foo);
+/*
+ * There is only one bug here because only one of the endings will be broken.
+ */
+static noinline int doitlk_rr_addr_dep_end_two_endings_dimple(void)
+{
+	volatile int *r1;
+	volatile int *r2;
+	volatile int *r3;
+	volatile int r4;
+	volatile int r5;
 
-// 	r1 = &xp[42];
-// 	r2 = &xp[21];
+	r1 = READ_ONCE(*foo);
 
-// 	// End address dependency
-// 	y = READ_ONCE(*r1);
+	r2 = &r1[42];
+	r3 = &r1[21];
 
-// 	// End address dependency
-// 	z = READ_ONCE(*r2);
+	r4 = READ_ONCE(*r2);
 
-// 	return 0;
-// }
+	r5 = READ_ONCE(*r3);
+
+	return 0;
+}
 
 // static noinline void rr_begin_9_helper1(volatile int *r1)
 // {
@@ -1579,9 +1585,9 @@ static int lkm_init(void)
 
 	doitlk_rr_addr_dep_begin_cond_dep_chain_partial();
 	doitlk_rr_addr_dep_end_cond_dep_chain_partial();
-	// // simple case, fan out
-	// doitlk_rr_addr_dep_begin_8();
-	// doitlk_rr_addr_dep_end_8();
+
+	doitlk_rr_addr_dep_begin_two_endings_dimple();
+	doitlk_rr_addr_dep_end_two_endings_dimple();
 	// // dep chain fanning out
 	// doitlk_rr_addr_dep_begin_9();
 	// rr_addr_dep_end_9();
