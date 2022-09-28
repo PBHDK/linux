@@ -242,37 +242,39 @@ static noinline int doitlk_rr_addr_dep_end_cond_dep_chain_full(void)
 	return 0;
 }
 
-// // Begin addr dep 7: address dependency within the same function - for breaking the begin annotation
-// static noinline int doitlk_rr_addr_dep_begin_7(void)
-// {
-// 	// Begin address dependency
-// 	x = READ_ONCE(foo);
+/* BUGs: 1 */
+static noinline int doitlk_rr_addr_dep_begin_cond_dep_chain_partial(void)
+{
+	volatile int *r1;
+	volatile int *r2 = *bar;
+	volatile int r3;
 
-// 	// bar == x + 42 && bar == foo + 42 && *bar == x[42] == 0
-// 	if (*bar)
-// 		y = &x[42];
+	r1 = READ_ONCE(*foo);
 
-// 	// End address dependency
-// 	z = READ_ONCE(*y);
+	if (!*bar)
+		r2 = &r1[42];
 
-// 	return 0;
-// }
+	r3 = READ_ONCE(*r2);
 
-// // End addr dep 7: address dependency within the same function - for breaking the end annotation
-// static noinline int doitlk_rr_addr_dep_end_7(void)
-// {
-// 	// Begin address dependency
-// 	// xp == foo && *x == foo[0] after assignment
-// 	x = READ_ONCE(foo);
+	return 0;
+}
 
-// 	if (*bar)
-// 		y = &x[42];
+/* BUGs: 1 */
+static noinline int doitlk_rr_addr_dep_end_cond_dep_chain_partial(void)
+{
+	volatile int *r1;
+	volatile int *r2 = *bar;
+	volatile int r3;
 
-// 	// End address dependency
-// 	z = READ_ONCE(*y);
+	r1 = READ_ONCE(*foo);
 
-// 	return 0;
-// }
+	if (!*bar)
+		r2 = &r1[42];
+
+	r3 = READ_ONCE(*r2);
+
+	return 0;
+}
 
 // // Begin addr dep 8: two address dependencies with same beginning within the same function - for breaking the begin annotation
 // static noinline int doitlk_rr_addr_dep_begin_8(void)
@@ -1574,9 +1576,9 @@ static int lkm_init(void)
 
 	doitlk_rr_addr_dep_begin_cond_dep_chain_full();
 	doitlk_rr_addr_dep_end_cond_dep_chain_full();
-	// // Simple Case - Chain Through If
-	// doitlk_rr_addr_dep_begin_7();
-	// doitlk_rr_addr_dep_end_7();
+
+	doitlk_rr_addr_dep_begin_cond_dep_chain_partial();
+	doitlk_rr_addr_dep_end_cond_dep_chain_partial();
 	// // simple case, fan out
 	// doitlk_rr_addr_dep_begin_8();
 	// doitlk_rr_addr_dep_end_8();
