@@ -13,7 +13,7 @@ MODULE_LICENSE("GPL");
  * Naming scheme: doitlk_(rr|rw)_(addr|ctrl)_(begin|end)_${test_name}
  */
 
-/* Total amount of bugs: 15 */
+/* Total amount of bugs: 19 */
 
 /* BUGs: 1 */
 static noinline int doitlk_rr_addr_dep_begin_simple(void)
@@ -316,64 +316,66 @@ static noinline int doitlk_rr_addr_dep_end_two_endings_dimple(void)
 	return 0;
 }
 
-// static noinline void rr_begin_9_helper1(volatile int *r1)
-// {
-// 	// End address dependency
-// 	x = READ_ONCE(*r1);
-// }
+static noinline void
+rr_addr_dep_begin_two_endings_in_calls_helper1(volatile int *r2)
+{
+	*x = READ_ONCE(*r2);
+}
 
-// static noinline void rr_begin_9_helper2(volatile int *r1)
-// {
-// 	// End address dependency
-// 	z = READ_ONCE(*r1);
-// }
+static noinline void
+rr_addr_dep_begin_two_endings_in_calls_helper2(volatile int *r3)
+{
+	*x = READ_ONCE(*r3);
+}
 
-// // Begin addr dep 9: two address dependencies with same beginning within the same function - for breaking the begin annotation
-// static noinline int doitlk_rr_addr_dep_begin_9(void)
-// {
-// 	volatile int *r1, *r2;
+/* BUGs: 2 */
+static noinline int doitlk_rr_addr_dep_begin_two_endings_in_calls(void)
+{
+	volatile int *r1;
+	volatile int *r2;
+	volatile int *r3;
 
-// 	// Begin address dependency
-// 	x = READ_ONCE(foo);
+	r1 = READ_ONCE(*foo);
 
-// 	r1 = &x[42];
-// 	r2 = &x[21];
+	r2 = &r1[42];
+	r3 = &r1[21];
 
-// 	rr_begin_9_helper1(r1);
-// 	rr_begin_9_helper2(r2);
+	rr_addr_dep_begin_two_endings_in_calls_helper1(r2);
+	rr_addr_dep_begin_two_endings_in_calls_helper2(r3);
 
-// 	return 0;
-// }
+	return 0;
+}
 
-// // End addr dep 9: two address dependencies with same beginning within the same function - for breaking the end annotation
-// static noinline void doitlk_rr_addr_dep_end_9_helper1(volatile int *r1)
-// {
-// 	// End address dependency
-// 	y = READ_ONCE(*r1);
-// }
+/* BUGs: 1 */
+static noinline void
+doitlk_rr_addr_dep_end_two_endings_in_calls_helper1(volatile int *r2)
+{
+	*x = READ_ONCE(*r2);
+}
 
-// static noinline void doitlk_rr_addr_dep_end_9_helper2(volatile int *r1)
-// {
-// 	// End address dependency
-// 	z = READ_ONCE(*r1);
-// }
+/* BUGs: 1 */
+static noinline void
+doitlk_rr_addr_dep_end_two_endings_in_calls_helper2(volatile int *r3)
+{
+	*x = READ_ONCE(*r3);
+}
 
-// // Begin addr dep 9: two address dependencies with same beginning within the same function - for breaking the begin annotation
-// static noinline int rr_addr_dep_end_9(void)
-// {
-// 	volatile int *r1, *r2;
+static noinline int rr_addr_dep_end_two_endings_in_calls(void)
+{
+	volatile int *r1;
+	volatile int *r2;
+	volatile int *r3;
 
-// 	// Begin address dependency
-// 	x = READ_ONCE(foo);
+	r1 = READ_ONCE(*foo);
 
-// 	r1 = &x[42];
-// 	r2 = &x[21];
+	r2 = &r1[42];
+	r3 = &r1[21];
 
-// 	doitlk_rr_addr_dep_end_9_helper1(r1);
-// 	doitlk_rr_addr_dep_end_9_helper2(r2);
+	doitlk_rr_addr_dep_end_two_endings_in_calls_helper1(r2);
+	doitlk_rr_addr_dep_end_two_endings_in_calls_helper2(r3);
 
-// 	return 0;
-// }
+	return 0;
+}
 
 // // Begin addr dep 10: address dependencies through function call, but different chains
 // static volatile int *noinline begin_10_helper(volatile int *r1)
@@ -1582,9 +1584,9 @@ static int lkm_init(void)
 
 	doitlk_rr_addr_dep_begin_two_endings_dimple();
 	doitlk_rr_addr_dep_end_two_endings_dimple();
-	// // dep chain fanning out
-	// doitlk_rr_addr_dep_begin_9();
-	// rr_addr_dep_end_9();
+
+	doitlk_rr_addr_dep_begin_two_endings_in_calls();
+	rr_addr_dep_end_two_endings_in_calls();
 	// // in and out, but different chains
 	// doitlk_rr_addr_dep_begin_10();
 	// doitlk_rr_addr_dep_end_10();
