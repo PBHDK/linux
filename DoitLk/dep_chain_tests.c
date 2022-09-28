@@ -13,7 +13,7 @@ MODULE_LICENSE("GPL");
  * Naming scheme: doitlk_(rr|rw)_(addr|ctrl)_(begin|end)_${test_name}
  */
 
-/* Total amount of bugs: 19 */
+/* Total amount of bugs: 21 */
 
 /* BUGs: 1 */
 static noinline int doitlk_rr_addr_dep_begin_simple(void)
@@ -377,125 +377,66 @@ static noinline int rr_addr_dep_end_two_endings_in_calls(void)
 	return 0;
 }
 
-// // Begin addr dep 10: address dependencies through function call, but different chains
-// static volatile int *noinline begin_10_helper(volatile int *r1)
-// {
-// 	volatile int *r1, *r2, *r3;
+/* BUGs: 1 */
+static volatile int *noinline
+doitlk_rr_addr_dep_begin_beg_and_end_in_calls_helper1(void)
+{
+	volatile int *r1;
 
-// 	x = &r1[42];
+	r1 = READ_ONCE(*foo);
 
-// 	// End address dependency
-// 	r1 = READ_ONCE(*x);
+	return r1;
+}
 
-// 	// Begin address dependency
-// 	r2 = READ_ONCE(*x);
+static noinline void
+rr_addr_dep_begin_beg_and_end_in_calls_helper2(volatile int *r3)
+{
+	*x = READ_ONCE(*r3);
+}
 
-// 	r3 = &r2[42];
+static noinline int rr_addr_dep_begin_beg_and_end_in_calls(void)
+{
+	volatile int *r2;
+	volatile int *r3;
 
-// 	// copy bar and return it
-// 	return r3;
-// }
+	r2 = doitlk_rr_addr_dep_begin_beg_and_end_in_calls_helper1();
 
-// static noinline int doitlk_rr_addr_dep_begin_10(void)
-// {
-// 	volatile int *barLocal;
+	r3 = &r2[42];
 
-// 	// Begin address dependency
-// 	// xp == foo && *x == foo[0] after assignment
-// 	x = READ_ONCE(foo);
+	rr_addr_dep_begin_beg_and_end_in_calls_helper2(r3);
 
-// 	y = begin_10_helper(x);
+	return 0;
+}
 
-// 	z = READ_ONCE(*y);
+static volatile int *noinline rr_addr_dep_end_beg_and_end_in_calls_helper1(void)
+{
+	volatile int *r1;
 
-// 	return 0;
-// }
+	r1 = READ_ONCE(*foo);
 
-// // End addr dep 10: address dependencies through function call, but different chains
-// static volatile int *noinline end_10_helper(volatile int *xpLocal)
-// {
-// 	volatile int *barLocal;
+	return r1;
+}
 
-// 	bar = &xpLocal[42];
+/* BUGs: 1 */
+static noinline void
+doitlk_rr_addr_dep_end_beg_and_end_in_calls_helper2(volatile int *r3)
+{
+	*x = READ_ONCE(*r3);
+}
 
-// 	// End address dependency
-// 	y = READ_ONCE(*bar);
+static noinline int rr_addr_dep_end_beg_and_end_in_calls(void)
+{
+	volatile int *r2;
+	volatile int *r3;
 
-// 	// Begin address dependency
-// 	xp = READ_ONCE(foo);
+	r2 = rr_addr_dep_end_beg_and_end_in_calls_helper1();
 
-// 	barLocal = &xp[42];
+	r3 = &r2[42];
 
-// 	// copy bar and return it
-// 	return barLocal;
-// }
+	doitlk_rr_addr_dep_end_beg_and_end_in_calls_helper2(r3);
 
-// static noinline int doitlk_rr_addr_dep_end_10(void)
-// {
-// 	volatile int *barLocal;
-
-// 	// Begin address dependency
-// 	// xp == foo && *x == foo[0] after assignment
-// 	xp = READ_ONCE(foo);
-
-// 	barLocal = end_10_helper(xp);
-
-// 	// End address dependency
-// 	// y == x[42] == 0
-// 	z = READ_ONCE(*barLocal);
-
-// 	return 0;
-// }
-
-// static volatile int *noinline doitlk_rr_addr_dep_begin_11_helper1()
-// {
-// 	xp = READ_ONCE(foo);
-
-// 	bar = &xp[42];
-
-// 	return bar;
-// }
-
-// static noinline void begin_11_helper2(volatile int *r1)
-// {
-// 	y = READ_ONCE(*r1);
-// }
-
-// static noinline int rr_addr_dep_begin_11(void)
-// {
-// 	volatile int *r1;
-
-// 	r1 = doitlk_rr_addr_dep_begin_11_helper1();
-
-// 	begin_11_helper2(r1);
-
-// 	return 0;
-// }
-
-// static volatile int *noinline end_11_helper1()
-// {
-// 	xp = READ_ONCE(foo);
-
-// 	bar = &xp[42];
-
-// 	return bar;
-// }
-
-// static noinline void doitlk_rr_addr_dep_end_11_helper2(volatile int *r1)
-// {
-// 	y = READ_ONCE(*r1);
-// }
-
-// static noinline int rr_addr_dep_end_11(void)
-// {
-// 	volatile int *r1;
-
-// 	r1 = end_11_helper1();
-
-// 	doitlk_rr_addr_dep_end_11_helper2(r1);
-
-// 	return 0;
-// }
+	return 0;
+}
 
 // static volatile int *noinline
 // doitlk_rr_addr_dep_begin_12_helper(volatile int *foo)
@@ -1587,11 +1528,9 @@ static int lkm_init(void)
 
 	doitlk_rr_addr_dep_begin_two_endings_in_calls();
 	rr_addr_dep_end_two_endings_in_calls();
-	// // in and out, but different chains
-	// doitlk_rr_addr_dep_begin_10();
-	// doitlk_rr_addr_dep_end_10();
-	// rr_addr_dep_begin_11();
-	// rr_addr_dep_end_11();
+
+	rr_addr_dep_begin_beg_and_end_in_calls();
+	rr_addr_dep_end_beg_and_end_in_calls();
 	// rr_addr_dep_begin_12();
 	// rr_addr_dep_end_12();
 	// // chain fanning in not relevant
