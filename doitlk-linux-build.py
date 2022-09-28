@@ -11,8 +11,8 @@ _DOITLK_FLAGS = ["KCFLAGS=-fsanitize=lkmm-dep-checker"]
 _DOITLK_TESTS = [
     "KCFLAGS=-fsanitize=lkmm-dep-checker -mllvm -lkmm-enable-tests"]
 
-_MAKEFLAGS = ["CC=clang"] + _arm64_CROSS + _DOITLK_FLAGS
-_MAKEFLAGS_TESTS = ["CC=clang"] + _arm64_CROSS + _DOITLK_TESTS
+_MAKEFLAGS = ["HOSTCC=gcc", "CC=clang"] + _arm64_CROSS + _DOITLK_FLAGS
+_MAKEFLAGS_TESTS = ["HOSTCC=gcc", "CC=clang"] + _arm64_CROSS + _DOITLK_TESTS
 
 
 def update_config():
