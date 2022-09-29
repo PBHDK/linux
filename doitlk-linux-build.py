@@ -44,7 +44,7 @@ def build_kernel(
         threads=os.getenv("NIX_BUILD_CORES", "128"),
         ModulePath="", tests=False):
     JStr = "-j" + threads
-    with open("build_output.ll", "w+") as f:
+    with open("test_output.ll" if tests else "build_output.ll", "w+") as f:
         if ModulePath:
             subprocess.run(["rm"] + [ModulePath], stderr=f)
             subprocess.run(
