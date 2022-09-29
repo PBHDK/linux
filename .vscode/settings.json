@@ -6,21 +6,7 @@
   "[plaintext]": {
     "vim.textwidth": 72
   },
-  "spellright.language": [
-    "en"
-  ],
-  "spellright.documentTypes": [
-    "markdown",
-    "latex",
-    "plaintext",
-    "git-commit",
-    "diff"
-  ],
-  "spellright.parserByClass": {
-    "diff": {
-      "parser": "plain"
-    }
-  },
+  
   "files.associations": {
     "*.rmd": "markdown",
     "vector": "cpp",
