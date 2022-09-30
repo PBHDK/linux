@@ -302,7 +302,7 @@ static noinline int doitlk_rr_addr_dep_begin_two_endings_dimple(void)
 }
 
 /* BUGs: 1 */
-
+/* FIXME: Currently not being caught because artificially broken dep runs through "call void @llvm.lifetime.end.p0", i.e. an intrinsic. */
 /*
  * There is only one bug here because only one of the endings will be broken.
  * This of course applies to the corresponding 'end' and 'rw' cases too.
