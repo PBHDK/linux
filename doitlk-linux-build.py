@@ -42,13 +42,17 @@ def configure_kernel(config):
 
 def build_kernel(
         threads=os.getenv("NIX_BUILD_CORES", "128"),
-        ModulePath="", tests=False):
+        ModulePath="", output_file="build_output.ll"):
     JStr = "-j" + threads
-    with open("test_output.ll" if tests else "build_output.ll", "w+") as f:
+    with open(output_file, "w+") as f:
         if ModulePath:
-            subprocess.run(["rm"] + [ModulePath], stderr=f)
+            if(os.path.exists(ModulePath)):
+                subprocess.run(["rm"] + [ModulePath], stderr=f)
+
             subprocess.run(
-                ["make"] + (_MAKEFLAGS_TESTS if tests else _MAKEFLAGS) + [JStr] +
+                ["make"] +
+                (_MAKEFLAGS_TESTS
+                 if output_file == "test_output.ll" else _MAKEFLAGS) + [JStr] +
                 [ModulePath],
                 stderr=f)
         else:
@@ -60,7 +64,11 @@ def build_kernel(
 
 def debug_kernel(ModulePath: str):
     # Build required module to obtain compile command
-    build_kernel("1", ModulePath)
+    if ModulePath == "DoitLk/dep_chain_tests.o":
+        build_kernel("1", "DoitLk/dep_chain_tests.o", "test_output.ll")
+    else:
+        build_kernel("1", ModulePath, "module_output.ll")
+
     ModulePathPartition = ModulePath.rpartition("/")
 
     # Get path to compile commands for module
@@ -111,11 +119,11 @@ if __name__ == "__main__":
         case "fast":
             build_kernel()
         case "module":
-            build_kernel("1", sys.argv[2])
+            build_kernel("1", sys.argv[2], "module_output.ll")
         case "precise":
             build_kernel("1")
         case "tests":
-            build_kernel("1", "DoitLk/dep_chain_tests.o", True)
+            debug_kernel("DoitLk/dep_chain_tests.o")
         case "debug":
             debug_kernel(sys.argv[2])
         case _:
