@@ -32,27 +32,7 @@
       "problemMatcher": []
     },
     {
-      "label": "Module",
-      "type": "shell",
-      "command": "./doitlk-linux-build.py",
-      "args": [
-        "module",
-        "${input:module}"
-      ],
-      "problemMatcher": []
-    },
-    {
-      "label": "Build tests",
-      "type": "shell",
-      "command": "./doitlk-linux-build.py",
-      "args": [
-        "module",
-        "DoitLk/dep_chain_tests.o"
-      ],
-      "problemMatcher": []
-    },
-    {
-      "label": "Run tests",
+      "label": "Run Tests",
       "type": "shell",
       "command": "./doitlk-linux-build.py",
       "args": [
@@ -61,7 +41,7 @@
       "problemMatcher": []
     },
     {
-      "label": "Debug",
+      "label": "Debug Module",
       "type": "shell",
       "command": "./doitlk-linux-build.py",
       "args": [
@@ -69,17 +49,7 @@
         "${input:module}"
       ],
       "problemMatcher": []
-    },
-    {
-      "label": "Debug tests",
-      "type": "shell",
-      "command": "./doitlk-linux-build.py",
-      "args": [
-        "debug",
-        "DoitLk/dep_chain_tests.o"
-      ],
-      "problemMatcher": []
-    },
+    }
   ],
   "inputs": [
     {
