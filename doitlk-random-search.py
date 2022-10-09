@@ -10,7 +10,7 @@ _CROSS = ["ARCH=arm64", "CROSS_COMPILE=aarch64-unknown-linux-gnu-"]
 _ENABLE_DEP_CHEKER = ["KCFLAGS=-fsanitize=lkmm-dep-checker"]
 _RANDOM = ["randconfig"]
 
-_MAKEFLAGS = ["make", "CC=clang"] + _CROSS + _ENABLE_DEP_CHEKER
+_MAKEFLAGS = ["make", "HOSTCC=gcc", "CC=clang"] + _CROSS + _ENABLE_DEP_CHEKER
 _MAKEFLAGS_RANDOM_CONFIG = _MAKEFLAGS + _RANDOM
 _MAKEFLAGS_BUILD = _MAKEFLAGS + ["-j128", "-s"]
 
@@ -27,8 +27,6 @@ brokenIDMatcher = re.compile(_BROKEN_DEP_ID_PATTERN, re.MULTILINE)
 
 # Set of IDs of broken deps for faster access
 setOfBrokenIDs = set()
-
-# Store previously discovered broken deps into set
 
 
 def restoreBrokenDeps():
