@@ -49,6 +49,15 @@
         "${input:module}"
       ],
       "problemMatcher": []
+    },
+    {
+      "label": "Random Search",
+      "type": "shell",
+      "command": "./doitlk-random-search.py",
+      "args": [
+        "${input:runs}"
+      ],
+      "problemMatcher": []
     }
   ],
   "inputs": [
@@ -56,6 +65,12 @@
       "id": "module",
       "description": "Relative path to the module we want to debug",
       "type": "promptString"
+    },
+    {
+      "id": "runs",
+      "description": "Number of runs for random search",
+      "type": "promptString",
+      "default": "1"
     }
   ]
 }
