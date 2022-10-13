@@ -84,8 +84,10 @@ def debug_kernel(ModulePath: str):
             exit(-1)
         CompileCmd: str = R.group()
 
-    # Make compile command emit LLVM IR
-    CompileCmd = CompileCmd.replace("-c -o", "-emit-llvm -o - -S")
+    # Make compile command emit LLVM IR after verifier
+    # FIXME: Doesn't work as intended because LKMM passes are module passes.
+    CompileCmd = CompileCmd.replace(
+        "-c -o", "-emit-llvm -mllvm -print-after=lkmm-verify-deps -o - -S")
 
     # Compile with -O2
     with open(ModulePathPartition[2] + "2.ll", "w+") as f:
@@ -96,6 +98,10 @@ def debug_kernel(ModulePath: str):
 
     # Update compile command to use -O0
     CompileCmd = CompileCmd.replace("-O2", "-O0", 1)
+
+    # Print IR after annotator
+    CompileCmd = CompileCmd.replace(
+        "-print-after=lkmm-verify-deps", "-print-after=lkmm-annotate-deps", 1)
 
     # Compile with -O0
     with open(ModulePathPartition[2] + "0.ll", "w+") as f:
