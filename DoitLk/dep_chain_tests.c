@@ -127,6 +127,7 @@ static noinline int rr_addr_dep_begin_call_beginning(void)
 }
 
 /* BUGs: 1 */
+/* FIXME: LLVM optimises return value away and makes function void */
 static volatile noinline int *rr_addr_dep_end_call_beginning_helper(void)
 {
 	volatile int *r1;
@@ -281,7 +282,7 @@ static noinline int doitlk_rr_addr_dep_end_cond_dep_chain_partial(void)
 }
 
 /* BUGs: 2 */
-static noinline int doitlk_rr_addr_dep_begin_two_endings_dimple(void)
+static noinline int doitlk_rr_addr_dep_begin_two_endings_simple(void)
 {
 	volatile int *r1;
 	volatile int *r2;
@@ -307,7 +308,7 @@ static noinline int doitlk_rr_addr_dep_begin_two_endings_dimple(void)
  * There is only one bug here because only one of the endings will be broken.
  * This of course applies to the corresponding 'end' and 'rw' cases too.
  */
-static noinline int doitlk_rr_addr_dep_end_two_endings_dimple(void)
+static noinline int doitlk_rr_addr_dep_end_two_endings_simple(void)
 {
 	volatile int *r1;
 	volatile int *r2;
@@ -447,31 +448,6 @@ static noinline int rr_addr_dep_end_beg_and_end_in_calls(void)
 	doitlk_rr_addr_dep_end_beg_and_end_in_calls_helper2(r3);
 
 	return 0;
-}
-
-// Example from original DoitLk talk at LPC 2020
-struct tk_fast {
-	seqcount_latch_t seq;
-	struct tk_read_base base[2];
-};
-
-static __always_inline u64 doitlk_ktime(struct tk_fast *tkf)
-{
-	struct tk_read_base *tkr;
-	unsigned int seq;
-	u64 now;
-
-	do {
-		seq = raw_read_seqcount_latch(&tkf->seq);
-		tkr = tkf->base + (seq & 0x01);
-		now = ktime_to_ns(READ_ONCE(tkr->base));
-
-		now += timekeeping_delta_to_ns(
-			tkr, clocksource_delta(tk_clock_read(tkr),
-					       tkr->cycle_last, tkr->mask));
-	} while (read_seqcount_latch_retry(&tkf->seq, seq));
-
-	return now;
 }
 
 /* FIXME: have all of the previous rr cases as rw cases? What does this prove?
@@ -716,7 +692,7 @@ static noinline int doitlk_rw_addr_dep_end_cond_dep_chain_partial(void)
 }
 
 /* BUGs: 2 */
-static noinline int doitlk_rw_addr_dep_begin_two_endings_dimple(void)
+static noinline int doitlk_rw_addr_dep_begin_two_endings_simple(void)
 {
 	volatile int *r1;
 	volatile int *r2;
@@ -735,7 +711,7 @@ static noinline int doitlk_rw_addr_dep_begin_two_endings_dimple(void)
 }
 
 /* BUGs: 1 */
-static noinline int doitlk_rw_addr_dep_end_two_endings_dimple(void)
+static noinline int doitlk_rw_addr_dep_end_two_endings_simple(void)
 {
 	volatile int *r1;
 	volatile int *r2;
@@ -883,24 +859,6 @@ static noinline int rw_addr_dep_end_beg_and_end_in_calls(void)
 
 static int lkm_init(void)
 {
-	static struct clocksource dummy_clock = {
-		.read = dummy_clock_read,
-	};
-
-#define FAST_TK_INIT                                                 \
-	{                                                            \
-		.clock = &dummy_clock, .mask = CLOCKSOURCE_MASK(64), \
-		.mult = 1, .shift = 0,                               \
-	}
-
-	static struct tk_fast tk_fast_raw ____cacheline_aligned = {
-		.seq = SEQCNT_LATCH_ZERO(tk_fast_raw.seq),
-		.base[0] = FAST_TK_INIT,
-		.base[1] = FAST_TK_INIT,
-	};
-
-	doitlk_ktime(&tk_fast_raw);
-
 	/* rr_addr_dep cases */
 	doitlk_rr_addr_dep_begin_simple();
 	doitlk_rr_addr_dep_end_simple();
@@ -920,8 +878,8 @@ static int lkm_init(void)
 	doitlk_rr_addr_dep_begin_cond_dep_chain_partial();
 	doitlk_rr_addr_dep_end_cond_dep_chain_partial();
 
-	doitlk_rr_addr_dep_begin_two_endings_dimple();
-	doitlk_rr_addr_dep_end_two_endings_dimple();
+	doitlk_rr_addr_dep_begin_two_endings_simple();
+	doitlk_rr_addr_dep_end_two_endings_simple();
 
 	doitlk_rr_addr_dep_begin_two_endings_in_calls();
 	rr_addr_dep_end_two_endings_in_calls();
@@ -948,8 +906,8 @@ static int lkm_init(void)
 	doitlk_rw_addr_dep_begin_cond_dep_chain_partial();
 	doitlk_rw_addr_dep_end_cond_dep_chain_partial();
 
-	doitlk_rw_addr_dep_begin_two_endings_dimple();
-	doitlk_rw_addr_dep_end_two_endings_dimple();
+	doitlk_rw_addr_dep_begin_two_endings_simple();
+	doitlk_rw_addr_dep_end_two_endings_simple();
 
 	doitlk_rw_addr_dep_begin_two_endings_in_calls();
 	rw_addr_dep_end_two_endings_in_calls();
