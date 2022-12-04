@@ -19,6 +19,9 @@ MODULE_LICENSE("GPL");
  * Total amount of rw_addr_dep bugs: 21
  */
 
+// TODO: PTR-PTE test cases where dep chain value is overwritten in a function
+// call one level or several levels deep
+
 /*
  * =============================================================================
  * READ_ONCE() -> READ_ONCE() Address Dependencies
