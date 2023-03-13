@@ -46,7 +46,7 @@ def build_kernel(
     JStr = "-j" + threads
     with open(output_file, "w+") as f:
         if ModulePath:
-            if(os.path.exists(ModulePath)):
+            if (os.path.exists(ModulePath)):
                 subprocess.run(["rm"] + [ModulePath], stderr=f)
 
             subprocess.run(
@@ -62,16 +62,16 @@ def build_kernel(
     subprocess.run(["./scripts/clang-tools/gen_compile_commands.py"])
 
 
-def debug_kernel(ModulePath: str):
-    # Build required module to obtain compile command
-    if ModulePath == "DoitLk/dep_chain_tests.o":
+def debug_kernel(ObjPath: str):
+    # Build required object to obtain compile command
+    if ObjPath == "DoitLk/dep_chain_tests.o":
         build_kernel("1", "DoitLk/dep_chain_tests.o", "test_output.ll")
     else:
-        build_kernel("1", ModulePath, "module_output.ll")
+        build_kernel("1", ObjPath, "obj_output.ll")
 
-    ModulePathPartition = ModulePath.rpartition("/")
+    ModulePathPartition = ObjPath.rpartition("/")
 
-    # Get path to compile commands for module
+    # Get path to compile commands for object
     CompileCmdsPath = ModulePathPartition[0] + \
         ModulePathPartition[1] + "." + ModulePathPartition[2] + ".cmd"
 
@@ -124,8 +124,8 @@ if __name__ == "__main__":
                 print("Config argument missing")
         case "fast":
             build_kernel()
-        case "module":
-            build_kernel("1", sys.argv[2], "module_output.ll")
+        case "object":
+            build_kernel("1", sys.argv[2], "obj_output.ll")
         case "precise":
             build_kernel("1")
         case "tests":
