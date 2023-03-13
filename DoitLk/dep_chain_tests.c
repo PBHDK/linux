@@ -130,7 +130,6 @@ static noinline int rr_addr_dep_begin_call_beginning(void)
 }
 
 /* BUGs: 1 */
-/* FIXME: LLVM optimises return value away and makes function void */
 static volatile noinline int *rr_addr_dep_end_call_beginning_helper(void)
 {
 	volatile int *r1;
