@@ -41,12 +41,12 @@
       "problemMatcher": []
     },
     {
-      "label": "Debug Module",
+      "label": "Debug Object",
       "type": "shell",
       "command": "./doitlk-linux-build.py",
       "args": [
         "debug",
-        "${input:module}"
+        "${input:object}"
       ],
       "problemMatcher": []
     },
@@ -62,8 +62,8 @@
   ],
   "inputs": [
     {
-      "id": "module",
-      "description": "Relative path to the module we want to debug",
+      "id": "object",
+      "description": "Relative path to the object we want to debug",
       "type": "promptString"
     },
     {
