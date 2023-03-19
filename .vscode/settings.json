@@ -6,7 +6,6 @@
   "[plaintext]": {
     "vim.textwidth": 72
   },
-  
   "files.associations": {
     "*.rmd": "markdown",
     "vector": "cpp",
@@ -95,5 +94,6 @@
     "compiler_types.h": "c"
   },
   "cquery.cacheDirectory": "${workspaceFolder}/.vscode/cquery_cached_index/",
-  "clangd.path": "${env:PATH_TO_CLANGD}"
+  "clangd.path": "${env:PATH_TO_CLANGD}",
+  "git.ignoreLimitWarning": true
 }
