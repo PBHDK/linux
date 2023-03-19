@@ -2,7 +2,6 @@
 { pkgs ? import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/b38db2c901b30a37d345751f4f6418d416e7e46e.tar.gz") { } }:
 with pkgs;
 let
-  myPython = aarch64.buildPackages.python310.withPackages (ps: with ps; [ autopep8 ]);
   aarch64 = pkgsCross.aarch64-multiplatform;
   clangPath = toString ../llvm-project/build;
   myclang = aarch64.buildPackages.wrapCCWith {
