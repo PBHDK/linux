@@ -15,10 +15,11 @@ _MAKEFLAGS = ["HOSTCC=gcc", "CC=clang"] + _arm64_CROSS + _DOITLK_FLAGS
 _MAKEFLAGS_TESTS = ["HOSTCC=gcc", "CC=clang"] + _arm64_CROSS + _DOITLK_TESTS
 
 
-def run(args, stderr=None, stdout=None, shell=False):
+def run(args, stderr=None, stdout=None, shell=False, executable=None):
     print("[ " + " ".join(args) + " ]\n")
 
-    subprocess.run(args=args, stderr=stderr, stdout=stdout, shell=shell)
+    subprocess.run(args=args, stderr=stderr, stdout=stdout,
+                   shell=shell, executable=executable)
 
 
 def update_config():
@@ -55,10 +56,11 @@ def build_kernel(
             if (os.path.exists(ModulePath)):
                 run(["rm"] + [ModulePath], stderr=f)
 
-            run(["make"] + (_MAKEFLAGS_TESTS if output_file == "test_output.ll"
-                            else _MAKEFLAGS) + [JStr] + [ModulePath], stderr=f)
+            run(["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] + (_MAKEFLAGS_TESTS if output_file == "test_output.ll"
+                                                                        else _MAKEFLAGS) + [JStr] + [ModulePath], stderr=f)
         else:
-            run(["make"] + _MAKEFLAGS + [JStr], stderr=f)
+            run(["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] +
+                _MAKEFLAGS + [JStr], stderr=f)
 
     print("\nGenerating compilation database:\n")
     run(["./scripts/clang-tools/gen_compile_commands.py"])
