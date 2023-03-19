@@ -15,28 +15,35 @@ _MAKEFLAGS = ["HOSTCC=gcc", "CC=clang"] + _arm64_CROSS + _DOITLK_FLAGS
 _MAKEFLAGS_TESTS = ["HOSTCC=gcc", "CC=clang"] + _arm64_CROSS + _DOITLK_TESTS
 
 
+def run(args, stderr=None, stdout=None, shell=False, executable=None):
+    print("[ " + " ".join(args) + " ]\n")
+
+    subprocess.run(args=args, stderr=stderr, stdout=stdout,
+                   shell=shell, executable=executable)
+
+
 def update_config():
-    print("Updating config for dep checker support")
-    subprocess.run(["./scripts/config", "--disable", "CONFIG_DEBUG_INFO_NONE"])
-    subprocess.run(["./scripts/config", "--enable", "CONFIG_DEBUG_INFO"])
-    subprocess.run(["./scripts/config", "--enable",
-                   "CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT"])
-    subprocess.run(["./scripts/config", "--enable", "CONFIG_LTO_NONE"])
-    subprocess.run(["./scripts/config", "--disable",
-                   "CONFIG_DEBUG_INFO_REDUCED"])
-    subprocess.run(["./scripts/config", "--disable",
-                   "CONFIG_DEBUG_INFO_SPLIT"])
-    subprocess.run(["./scripts/config", "--disable", "CONFIG_DEBUG_INFO_BTF"])
-    subprocess.run(["./scripts/config", "--enable",
-                   "CONFIG_PAHOLE_HAS_SPLIT_BTF"])
-    subprocess.run(["./scripts/config", "--enable",
-                   "CONFIG_PAHOLE_HAS_BTF_TAG"])
-    subprocess.run(["./scripts/config", "--disable", "CONFIG_GDB_SCRIPTS"])
-    subprocess.run(["./scripts/config", "--disable", "CONFIG_DEBUG_EFI"])
+    print("\nUpdating config for dep checker support:\n")
+    run(["./scripts/config", "--disable", "CONFIG_DEBUG_INFO_NONE"])
+    run(["./scripts/config", "--enable", "CONFIG_DEBUG_INFO"])
+    run(["./scripts/config", "--enable",
+         "CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT"])
+    run(["./scripts/config", "--enable", "CONFIG_LTO_NONE"])
+    run(["./scripts/config", "--disable",
+         "CONFIG_DEBUG_INFO_REDUCED"])
+    run(["./scripts/config", "--disable",
+         "CONFIG_DEBUG_INFO_SPLIT"])
+    run(["./scripts/config", "--disable", "CONFIG_DEBUG_INFO_BTF"])
+    run(["./scripts/config", "--enable",
+         "CONFIG_PAHOLE_HAS_SPLIT_BTF"])
+    run(["./scripts/config", "--enable",
+         "CONFIG_PAHOLE_HAS_BTF_TAG"])
+    run(["./scripts/config", "--disable", "CONFIG_GDB_SCRIPTS"])
+    run(["./scripts/config", "--disable", "CONFIG_DEBUG_EFI"])
 
 
 def configure_kernel(config):
-    subprocess.run(["make"] + _MAKEFLAGS + [config], check=True)
+    run(["make"] + _MAKEFLAGS + [config])
     update_config()
 
 
@@ -47,19 +54,16 @@ def build_kernel(
     with open(output_file, "w+") as f:
         if ModulePath:
             if (os.path.exists(ModulePath)):
-                subprocess.run(["rm"] + [ModulePath], stderr=f)
+                run(["rm"] + [ModulePath], stderr=f)
 
-            subprocess.run(
-                ["make"] +
-                (_MAKEFLAGS_TESTS
-                 if output_file == "test_output.ll" else _MAKEFLAGS) + [JStr] +
-                [ModulePath],
-                stderr=f)
+            run(["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] + (_MAKEFLAGS_TESTS if output_file == "test_output.ll"
+                                                                        else _MAKEFLAGS) + [JStr] + [ModulePath], stderr=f)
         else:
-            subprocess.run(["make"] + _MAKEFLAGS + [JStr], stderr=f)
+            run(["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] +
+                _MAKEFLAGS + [JStr], stderr=f)
 
-    print("Generating compilation database")
-    subprocess.run(["./scripts/clang-tools/gen_compile_commands.py"])
+    print("\nGenerating compilation database:\n")
+    run(["./scripts/clang-tools/gen_compile_commands.py"])
 
 
 def debug_kernel(ObjPath: str):
@@ -80,7 +84,7 @@ def debug_kernel(ObjPath: str):
         CompileCmdsStr = f.readline()
         R = re.search(r'(?<=:=)[\s\S]*', CompileCmdsStr)
         if not R:
-            print("Couldn't find compile command in " + CompileCmdsStr)
+            print("\nCouldn't find compile command in " + CompileCmdsStr + "\n")
             exit(-1)
         CompileCmd: str = R.group()
 
@@ -91,10 +95,8 @@ def debug_kernel(ObjPath: str):
 
     # Compile with -O2
     with open(ModulePathPartition[2] + "2.ll", "w+") as f:
-        print("Generating IR -O2")
-        # subprocess.run(CompileCmd.split(), stdout=f, check=True)
-        subprocess.run(CompileCmd, stdout=f,
-                       stderr=subprocess.DEVNULL, shell=True, check=True)
+        print("\nGenerating IR -O2:\n")
+        run(CompileCmd.split(), stdout=f, stderr=subprocess.DEVNULL, shell=True)
 
     # Update compile command to use -O0
     CompileCmd = CompileCmd.replace("-O2", "-O0", 1)
@@ -105,23 +107,21 @@ def debug_kernel(ObjPath: str):
 
     # Compile with -O0
     with open(ModulePathPartition[2] + "0.ll", "w+") as f:
-        print("Generating IR -O0")
-        # subprocess.run(CompileCmd.split(" "), stdout=f, check=True)
-        subprocess.run(CompileCmd, stdout=f,
-                       stderr=subprocess.DEVNULL, shell=True, check=True)
+        print("\nGenerating IR -O0:\n")
+        run(CompileCmd.split(), stdout=f, stderr=subprocess.DEVNULL, shell=True)
 
 
 if __name__ == "__main__":
     match sys.argv[1]:
         case "mrproper":
-            subprocess.run(["make", "mrproper"], check=True)
+            run(["make", "mrproper"])
         case "clean":
-            subprocess.run(["make", "clean"], check=True)
+            run(["make", "clean"])
         case "config":
             if sys.argv[2]:
                 configure_kernel(sys.argv[2])
             else:
-                print("Config argument missing")
+                print("\nConfig argument missing\n")
         case "fast":
             build_kernel()
         case "object":
