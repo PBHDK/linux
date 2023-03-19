@@ -31,6 +31,7 @@ in
   depsBuildBuild = with aarch64.buildPackages; [ python3.pkgs.autopep8 ncurses stdenv.cc openssl ];
   buildInputs = [
     aarch64.zlib
+    aarch64.openssl
   ];
   #NIX_CFLAGS_COMPILE = "-isystem ${clangPath}/build/tools/clang/lib/Headers";
   NIX_LDFLAGS = "-L${aarch64.buildPackages.targetPackages.llvmPackages_13.libraries.libcxxabi}/lib";
