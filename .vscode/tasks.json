@@ -6,7 +6,7 @@
     {
       "label": "Configure AARCH64 defconfig",
       "type": "shell",
-      "command": "./doitlk-linux-build.py",
+      "command": "./proj_bdo/linux_build.py",
       "args": [
         "config",
         "defconfig"
@@ -16,7 +16,7 @@
     {
       "label": "Build fast",
       "type": "shell",
-      "command": "./doitlk-linux-build.py",
+      "command": "./proj_bdo/linux_build.py",
       "args": [
         "fast"
       ],
@@ -25,7 +25,7 @@
     {
       "label": "Build precise",
       "type": "shell",
-      "command": "./doitlk-linux-build.py",
+      "command": "./proj_bdo/linux_build.py",
       "args": [
         "precise"
       ],
@@ -34,7 +34,7 @@
     {
       "label": "Run Tests",
       "type": "shell",
-      "command": "./doitlk-linux-build.py",
+      "command": "./proj_bdo/linux_build.py",
       "args": [
         "tests"
       ],
@@ -43,7 +43,7 @@
     {
       "label": "Debug Object",
       "type": "shell",
-      "command": "./doitlk-linux-build.py",
+      "command": "./proj_bdo/linux_build.py",
       "args": [
         "debug",
         "${input:object}"
@@ -53,7 +53,7 @@
     {
       "label": "Random Search",
       "type": "shell",
-      "command": "./doitlk-random-search.py",
+      "command": "./proj_bdo/random_search.py",
       "args": [
         "${input:runs}"
       ],
