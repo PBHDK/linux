@@ -7,12 +7,12 @@ import re
 
 _arm64_CROSS = ["ARCH=arm64", "CROSS_COMPILE=aarch64-unknown-linux-gnu-"]
 
-_DOITLK_FLAGS = ["KCFLAGS=-fsanitize=lkmm-dep-checker"]
-_DOITLK_TESTS = [
+_PROJ_BDO_FLAGS = ["KCFLAGS=-fsanitize=lkmm-dep-checker"]
+_PROJ_BDO_TESTS = [
     "KCFLAGS=-fsanitize=lkmm-dep-checker -mllvm -lkmm-enable-tests"]
 
-_MAKEFLAGS = ["HOSTCC=gcc", "CC=clang"] + _arm64_CROSS + _DOITLK_FLAGS
-_MAKEFLAGS_TESTS = ["HOSTCC=gcc", "CC=clang"] + _arm64_CROSS + _DOITLK_TESTS
+_MAKEFLAGS = ["HOSTCC=gcc", "CC=clang"] + _arm64_CROSS + _PROJ_BDO_FLAGS
+_MAKEFLAGS_TESTS = ["HOSTCC=gcc", "CC=clang"] + _arm64_CROSS + _PROJ_BDO_TESTS
 
 
 def run(args, stderr=None, stdout=None, shell=False, executable=None):
@@ -68,8 +68,8 @@ def build_kernel(
 
 def debug_kernel(ObjPath: str):
     # Build required object to obtain compile command
-    if ObjPath == "DoitLk/dep_chain_tests.o":
-        build_kernel("1", "DoitLk/dep_chain_tests.o", "test_output.ll")
+    if ObjPath == "proj_bdo/dep_chain_tests.o":
+        build_kernel("1", "proj_bdo/dep_chain_tests.o", "test_output.ll")
     else:
         build_kernel("1", ObjPath, "obj_output.ll")
 
@@ -129,7 +129,7 @@ if __name__ == "__main__":
         case "precise":
             build_kernel("1")
         case "tests":
-            debug_kernel("DoitLk/dep_chain_tests.o")
+            debug_kernel("proj_bdo/dep_chain_tests.o")
         case "debug":
             debug_kernel(sys.argv[2])
         case _:
