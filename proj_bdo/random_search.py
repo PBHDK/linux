@@ -3,6 +3,7 @@
 import subprocess
 import sys
 import re
+import argparse
 
 _BROKEN_DEPS_FILE_PATH = "/scratch/paul/src/broken_deps/broken_deps"
 
@@ -67,7 +68,7 @@ def updateConfig():
     subprocess.run(["./scripts/config", "--disable", "CONFIG_DEBUG_EFI"])
 
 
-def main(runs=1):
+def main(runs):
     print("Restoring broken deps ...")
 
     restoreBrokenDeps()
@@ -132,7 +133,8 @@ def main(runs=1):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) == 2:
-        main(int(sys.argv[1]))
-    else:
-        main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-r", "--runs", type=int, default=1)
+    parser.parse_args()
+
+    main(runs=parser.runs)
