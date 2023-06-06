@@ -1,4 +1,4 @@
-obj-m += dep_chain_tests.o
+obj-y += dep_chain_tests.o
 
 kbuild:
 	make M=`pwd`

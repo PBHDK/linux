@@ -9,6 +9,9 @@ MODULE_DESCRIPTION(
 MODULE_AUTHOR("Paul Heidekruger");
 MODULE_LICENSE("GPL");
 
+#ifndef _PROJ_BDO_DEP_CHAIN_TESTS
+#define _PROJ_BDO_DEP_CHAIN_TESTS
+
 /**
  * Naming scheme: proj_bdo_(rr|rw)_(addr|ctrl)_(begin|end)_${test_name}
  */
@@ -861,7 +864,7 @@ static noinline int rw_addr_dep_end_beg_and_end_in_calls(void)
  * =============================================================================
  */
 
-static int lkm_init(void)
+int proj_bdo_run_tests(void)
 {
 	/* rr_addr_dep cases */
 	proj_bdo_rr_addr_dep_begin_simple();
@@ -922,6 +925,11 @@ static int lkm_init(void)
 	return 0;
 }
 
+static int lkm_init(void)
+{
+	return proj_bdo_run_tests();
+}
+
 static void lkm_exit(void)
 {
 	pr_debug("Bye\n");
@@ -929,3 +937,5 @@ static void lkm_exit(void)
 
 module_init(lkm_init);
 module_exit(lkm_exit);
+
+#endif /* _PROJ_BDO_DEP_CHAIN_TESTS */
