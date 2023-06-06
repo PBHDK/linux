@@ -27,7 +27,13 @@ in
 (aarch64.buildPackages.overrideCC aarch64.stdenv myclang).mkDerivation {
   name = "env";
   nativeBuildInputs = aarch64.linux.nativeBuildInputs;
-  depsBuildBuild = with aarch64.buildPackages; [ python3.pkgs.autopep8 ncurses stdenv.cc openssl ];
+  depsBuildBuild = with aarch64.buildPackages; [
+    python3.pkgs.autopep8
+    ncurses
+    stdenv.cc
+    openssl
+    gdb
+  ];
   buildInputs = [
     aarch64.zlib
     aarch64.openssl
