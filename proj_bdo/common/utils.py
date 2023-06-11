@@ -114,11 +114,13 @@ def add_dep_checker_support_to_current_config():
 def add_syzkaller_support_to_config():
     # Suggested by:
     # https://docs.kernel.org/dev-tools/gdb-kernel-debugging.html
+    print("\nBuilding GDB Scripts:\n")
     run(["./scripts/config", "--enable", "CONFIG_GDB_SCRIPTS"])
     build_clang_arm64_kernel(ModulePath="scripts_gdb", output_file="/dev/null")
 
     # Suggested by:
     # https://github.com/google/syzkaller/blob/master/docs/linux/setup_linux-host_qemu-vm_arm64-kernel.md
+    print("\nUpdating config for syzkaller support:\n")
     run(["./scripts/config", "--enable", "CONFIG_KCOV"])
     run(["./scripts/config", "--enable", "CONFIG_KASAN"])
     run(["./scripts/config", "--enable", "CONFIG_DEBUG_INFO"])
