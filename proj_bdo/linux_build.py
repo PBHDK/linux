@@ -75,6 +75,8 @@ if __name__ == "__main__":
         case "config":
             if sys.argv[2]:
                 utils.configure_kernel(config=sys.argv[2], add_args=add_args)
+                if sys.argv[3] == "syzkaller":
+                    add_syzkaller_support_to_config()
             else:
                 print("\nConfig argument missing\n")
         case "fast":
