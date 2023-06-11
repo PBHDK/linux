@@ -38,9 +38,6 @@ in
     aarch64.zlib
     aarch64.openssl
   ];
-  #NIX_CFLAGS_COMPILE = "-isystem ${clangPath}/build/tools/clang/lib/Headers";
   NIX_LDFLAGS = "-L${aarch64.buildPackages.targetPackages.llvmPackages_13.libraries.libcxxabi}/lib";
   hardeningDisable = [ "all" ];
-  PATH_TO_CLANG = "${myclang.cc}/bin/clang";
-  PATH_TO_CLANGD = "${myclang.cc}/bin/clangd";
 }
