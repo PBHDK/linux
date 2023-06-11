@@ -71,6 +71,7 @@ def build_kernel(
         threads=os.getenv("NIX_BUILD_CORES", "128"),
         ModulePath="", output_file="build_output.ll"):
     JStr = "-j" + threads
+    # FIXME: make this readable
     with open(output_file, "w+") as f:
         if ModulePath:
             if (os.path.exists(ModulePath)):
