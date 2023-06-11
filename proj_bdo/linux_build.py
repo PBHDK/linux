@@ -45,10 +45,12 @@ def add_syzkaller_support_to_config():
     # Suggested by:
     # https://github.com/google/syzkaller/blob/master/docs/linux/setup_linux-host_qemu-vm_arm64-kernel.md
     print("\nUpdating config for syzkaller support:\n")
+    # FIXME: why is KCOV making builds fail?
+    # run(["./scripts/config", "--enable", "CONFIG_KCOV"])
     run(["./scripts/config", "--enable", "CONFIG_KASAN"])
     run(["./scripts/config", "--enable", "CONFIG_DEBUG_INFO"])
     run(["./scripts/config", "--set-str", "CONFIG_CMDLINE", "console=ttyAMA0"])
-    run(["./scripts/config", "--enable", "CONFIG_KCOV_INSTRUMENT_ALL"])
+    # run(["./scripts/config", "--enable", "CONFIG_KCOV_INSTRUMENT_ALL"])
     run(["./scripts/config", "--enable", "CONFIG_DEBUG_FS"])
     run(["./scripts/config", "--enable", "CONFIG_NET_9P"])
     run(["./scripts/config", "--enable", "CONFIG_NET_9P_VIRTIO"])
