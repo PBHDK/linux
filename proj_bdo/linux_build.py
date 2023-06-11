@@ -22,7 +22,7 @@ def run(args, stderr=None, stdout=None, shell=False, executable=None):
                    shell=shell, executable=executable)
 
 
-def update_config():
+def add_dep_checker_support_to_config():
     print("\nUpdating config for dep checker support:\n")
     run(["./scripts/config", "--disable", "CONFIG_DEBUG_INFO_NONE"])
     run(["./scripts/config", "--enable", "CONFIG_DEBUG_INFO"])
@@ -44,7 +44,7 @@ def update_config():
 
 def configure_kernel(config):
     run(["make"] + _MAKEFLAGS + [config])
-    update_config()
+    add_dep_checker_support_to_config()
 
 
 def build_kernel(
