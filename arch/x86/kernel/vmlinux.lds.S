@@ -399,6 +399,22 @@ SECTIONS
 		__bss_stop = .;
 	}
 
+#ifdef CONFIG_X86_64
+	. = ALIGN(PAGE_SIZE);
+	AddrDepBeginnings : AT(ADDR(AddrDepBeginnings) - LOAD_OFFSET) {
+	        __AddrDepBeginnings_start = .;
+	        *(AddrDepBeginnings)
+	        __AddrDepBeginnings_stop = .;
+	}
+
+	. = ALIGN(PAGE_SIZE);
+	AddrDepEndings : AT(ADDR(AddrDepEndings) - LOAD_OFFSET) {
+	        __AddrDepEndings_start = .;
+	        *(AddrDepEndings)
+	        __AddrDepEndings_stop = .;
+	}
+#endif
+
 	/*
 	 * The memory occupied from _text to here, __end_of_kernel_reserve, is
 	 * automatically reserved in setup_arch(). Anything after here must be
