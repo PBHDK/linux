@@ -38,6 +38,6 @@ in
     aarch64.zlib
     aarch64.openssl
   ];
-  LD_LIBRARY_PATH = "-L${aarch64.buildPackages.targetPackages.llvmPackages_13.libraries.libcxxabi}/lib";
+  LD_LIBRARY_PATH = "-L${aarch64.buildPackages.targetPackages.llvmPackages_13.libraries.libcxxabi}/lib:${pkgs.gcc-unwrapped.lib}/lib";
   hardeningDisable = [ "all" ];
 }
