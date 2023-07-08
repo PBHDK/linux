@@ -19,26 +19,34 @@ _SEED_PATT = r"(?<=^KCONFIG_SEED=).*"
 _BRKN_DEP_PATT = r'//===-{26}Broken Dependency-{27}===//.*?//===-{70}===//$'
 # _BRKN_DEP_ID_PATT = r'(?<=^(Address|Control) dependency with ID: ).*'
 _BRKN_DEP_ID_PATT = \
-    r'(?:Address|Control) dependency with ID: (.*?)Dependency Beginning'
+    r'(?:Address|Control) dependency with ID: (.*?)\n\nDependency Beginning'
+_BRKN_DEP_SEEN_BY_PATT = r'DepChecker Version: (.*?)\nKernel Version: (.*?)\n'
 
 seed_matcher = re.compile(_SEED_PATT, re.MULTILINE)
 bd_matcher = re.compile(_BRKN_DEP_PATT, re.MULTILINE | re.DOTALL)
 bd_id_matcher = re.compile(_BRKN_DEP_ID_PATT, re.MULTILINE | re.DOTALL)
+seen_by_matcher = re.compile(_BRKN_DEP_SEEN_BY_PATT, re.MULTILINE | re.DOTALL)
 
 kv: str = utils.get_kernel_version()
 dcv: str = utils.get_dep_checker_ver()
-ver_str: str = "DepChecker Version: {}\nKernel Version: {}".format(dcv, kv)
+v_str: str = "DepChecker Version: {}\nKernel Version: {}".format(dcv, kv)
 trophy_ids: set[str] = set()
 
+# Maps trophy IDs to consisting of: (DepChecker version, Kernel version)
+seen_by: dict[str, list[tuple[str, str]]] = dict()
 
-def _pick_up_broken_deps_from_file(bdf: TextIO,
-                                   only_ids: bool = False) -> set[str]:
+
+def _has_curr_v_seen_id_before(id: str):
+    return seen_by.get(id) and \
+        dcv in seen_by.get(id)[0] and \
+        kv in seen_by.get(id)[1]
+
+
+def _pick_up_broken_deps_from_file(bdf: TextIO) -> set[str]:
     """
     Restore the state of the random search from .
 
     bdf -- broken deps file.
-    only_ids -- control whether only the ID strings or the full dependency
-                strings are contained in the returned set.
 
     returns: the set of broken deps/broken dep ids.
     """
@@ -53,16 +61,23 @@ def _pick_up_broken_deps_from_file(bdf: TextIO,
     bds: list[str] = bd_matcher.findall(bds_str)
 
     for bd in bds:
-        if only_ids:
-            bd_id: Optional[re.Match[str]] = bd_id_matcher.search(bd)
+        bd_id_match: Optional[re.Match[str]] = bd_id_matcher.search(bd)
 
-            if not bd_id:
-                print("Couldn't recover broken ID from:\n" + bd)
-                continue
+        if not bd_id_match:
+            exit("Couldn't recover broken ID from:\n" + bd)
 
-            res.add(bd_id.group(1))
-        else:
-            res.add(bd)
+        bd_id: str = bd_id_match.group(1)
+
+        res.add(bd_id)
+
+        bd_seen_by: list[(str, str)] = seen_by_matcher.findall(bd)
+
+        breakpoint()
+
+        if not bd_seen_by:
+            exit("Found a dependency that wasn't seen by anyone.")
+
+        seen_by[bd_id] = bd_seen_by
 
     print("Restored " + str(len(res)) + " broken dep(s)")
 
@@ -74,6 +89,35 @@ def _update_config():
     utils.add_dep_checker_support_to_current_config()
 
     utils.run(["./scripts/config", "--enable", "CONFIG_LTO_NONE"])
+
+
+def _dep_was_seen_by_curr_v(id: str, bdf: TextIO):
+    """
+    Adds a version string to an exisitng dependency in the trophy file,
+    meaning that the same broken dependency was seen by a different dep checker
+    version, a different kernel version or both.
+
+    id -- the ID of the dependency that was seen
+    bdf -- the already openend trophies file
+    """
+    bdf.seek(0)
+
+    c: str = bdf.read()
+
+    id_match = re.search(id, c, re.DOTALL | re.MULTILINE)
+
+    if id_match:
+        bdf.seek(id_match.start())
+
+        for i, l in enumerate(bdf.readlines()):
+            if l[:6] == "//===-":
+                bdf.seek(i-1)
+                bdf.write(v_str)
+                seen_by[id] += (dcv, kv)
+                bdf.seek(0)
+                return
+
+    exit("Couldn't find specified ID in _dep_was_seen_by()")
 
 
 def _generated_and_build_config(config_target: str,
@@ -130,7 +174,7 @@ def _generated_and_build_config(config_target: str,
     _commit_new_broken_deps(build_result.stderr, bdf, seed)
 
 
-def _commit_new_broken_deps(res: str, bd_file: TextIO,
+def _commit_new_broken_deps(res: str, bdf: TextIO,
                             seed: Optional[str] = None) -> set[str]:
     """
     Process the build results and commit broken dependencies to the broken dep
@@ -145,31 +189,38 @@ def _commit_new_broken_deps(res: str, bd_file: TextIO,
     # Gather results
     new_bds: list[str] = bd_matcher.findall(res)
     new_trophies: int = 0
+    existing_trophies: int = 0
 
     # Check if we actually found a new broken dep
     for new_bd in new_bds:
-        id_match: Optional[re.Match[str]] = bd_id_matcher.search(new_bd)
+        new_id_match: Optional[re.Match[str]] = bd_id_matcher.search(new_bd)
 
-        if not id_match:
+        if not new_id_match:
             exit("Couldn't find an ID in:\n" + new_bd)
 
-        id: str = id_match.group(1)
+        new_bd_id: str = new_id_match.group(1)
 
-        if id not in trophy_ids:
+        if new_bd_id not in trophy_ids:
             last_newline: int = new_bd.rfind("\n")
-            bd_file.write(new_bd[:last_newline])
+            bdf.write(new_bd[:last_newline])
             if (seed):
                 bdf.write("\n\nFound with seed: " + seed)
-            bdf.write(ver_str)
+            bdf.write(v_str)
             bdf.write(new_bd[last_newline:] + "\n\n")
 
-            trophy_ids.add(id)
+            trophy_ids.add(new_bd_id)
+            seen_by[new_bd_id] = [(dcv, kv)]
 
             print(new_bd + "\n\n")
 
-            ++new_trophies
+            + +new_trophies
+        else:
+            if not _has_curr_v_seen_id_before(new_bd_id):
+                _dep_was_seen_by_curr_v(new_bd_id, bdf)
+                + +existing_trophies
 
-    print("This build produced {} broken dep(s)".format(str(new_trophies)))
+    print("This build produced {} new trophies, and {} existing trophies were seen by a new DepChecker version, a new kernel version, or both."
+          .format(str(new_trophies), str(existing_trophies)))
 
 
 def _run_random_testing(num_runs: int, bd_path: str, defconfig: bool):
@@ -184,7 +235,7 @@ def _run_random_testing(num_runs: int, bd_path: str, defconfig: bool):
     bd_file_path = bd_path + "/trophies.txt"
 
     with open(bd_file_path, 'a+') as bdf, open(log_file_path, "w+") as lf:
-        trophy_ids.update(_pick_up_broken_deps_from_file(bdf, True))
+        trophy_ids.update(_pick_up_broken_deps_from_file(bdf))
 
         if defconfig:
             _generated_and_build_config("defconfig", lf, bdf)
