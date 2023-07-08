@@ -178,3 +178,6 @@ sphinx_*/
 # VS Code
 !/.vscode
 /.vscode/*.log
+
+# __pycache__
+__pycache__/
