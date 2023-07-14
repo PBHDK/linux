@@ -16,10 +16,10 @@ from common import utils
 
 _SEED_PATT = r"(?<=^KCONFIG_SEED=).*"
 
-_BRKN_DEP_PATT = r'//===-{26}Broken Dependency-{27}===//.*?//===-{70}===//$'
+_BRKN_DEP_PATT = r'//===-{26}Broken Dependency-{26}===//.*?//===-{69}===//$'
 # _BRKN_DEP_ID_PATT = r'(?<=^(Address|Control) dependency with ID: ).*'
 _BRKN_DEP_ID_PATT = \
-    r'(?:Address|Control) dependency with ID: (.*?)Dependency Beginning'
+    r'(?:Address|Control) dependency with ID: (.*?)\n\nDependency Beginning'
 
 seed_matcher = re.compile(_SEED_PATT, re.MULTILINE)
 bd_matcher = re.compile(_BRKN_DEP_PATT, re.MULTILINE | re.DOTALL)
