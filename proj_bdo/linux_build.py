@@ -2,76 +2,16 @@
 
 import sys
 import subprocess
-import os
 import re
-
-_arm64_CROSS = ["ARCH=arm64", "CROSS_COMPILE=aarch64-unknown-linux-gnu-"]
-
-_PROJ_BDO_FLAGS = ["KCFLAGS=-fsanitize=lkmm-dep-checker"]
-_PROJ_BDO_TESTS = [
-    "KCFLAGS=-fsanitize=lkmm-dep-checker -mllvm -lkmm-enable-tests"]
-
-_MAKEFLAGS = ["HOSTCC=gcc", "CC=clang"] + _arm64_CROSS + _PROJ_BDO_FLAGS
-_MAKEFLAGS_TESTS = ["HOSTCC=gcc", "CC=clang"] + _arm64_CROSS + _PROJ_BDO_TESTS
-
-
-def run(args, stderr=None, stdout=None, shell=False, executable=None):
-    print("[ " + " ".join(args) + " ]\n")
-
-    subprocess.run(args=args, stderr=stderr, stdout=stdout,
-                   shell=shell, executable=executable)
-
-
-def update_config():
-    print("\nUpdating config for dep checker support:\n")
-    run(["./scripts/config", "--disable", "CONFIG_DEBUG_INFO_NONE"])
-    run(["./scripts/config", "--enable", "CONFIG_DEBUG_INFO"])
-    run(["./scripts/config", "--enable",
-         "CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT"])
-    run(["./scripts/config", "--enable", "CONFIG_LTO_NONE"])
-    run(["./scripts/config", "--disable",
-         "CONFIG_DEBUG_INFO_REDUCED"])
-    run(["./scripts/config", "--disable",
-         "CONFIG_DEBUG_INFO_SPLIT"])
-    run(["./scripts/config", "--disable", "CONFIG_DEBUG_INFO_BTF"])
-    run(["./scripts/config", "--enable",
-         "CONFIG_PAHOLE_HAS_SPLIT_BTF"])
-    run(["./scripts/config", "--enable",
-         "CONFIG_PAHOLE_HAS_BTF_TAG"])
-    run(["./scripts/config", "--disable", "CONFIG_GDB_SCRIPTS"])
-    run(["./scripts/config", "--disable", "CONFIG_DEBUG_EFI"])
-
-
-def configure_kernel(config):
-    run(["make"] + _MAKEFLAGS + [config])
-    update_config()
-
-
-def build_kernel(
-        threads=os.getenv("NIX_BUILD_CORES", "128"),
-        ModulePath="", output_file="build_output.ll"):
-    JStr = "-j" + threads
-    with open(output_file, "w+") as f:
-        if ModulePath:
-            if (os.path.exists(ModulePath)):
-                run(["rm"] + [ModulePath], stderr=f)
-
-            run(["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] + (_MAKEFLAGS_TESTS if output_file == "test_output.ll"
-                                                                        else _MAKEFLAGS) + [JStr] + [ModulePath], stderr=f)
-        else:
-            run(["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] +
-                _MAKEFLAGS + [JStr], stderr=f)
-
-    print("\nGenerating compilation database:\n")
-    run(["./scripts/clang-tools/gen_compile_commands.py"])
+from common import utils
 
 
 def debug_kernel(ObjPath: str):
     # Build required object to obtain compile command
     if ObjPath == "proj_bdo/dep_chain_tests.o":
-        build_kernel("1", "proj_bdo/dep_chain_tests.o", "test_output.ll")
+        utils.build_kernel("1", "proj_bdo/dep_chain_tests.o", "test_output.ll")
     else:
-        build_kernel("1", ObjPath, "obj_output.ll")
+        utils.build_kernel("1", ObjPath, "obj_output.ll")
 
     ModulePathPartition = ObjPath.rpartition("/")
 
@@ -96,7 +36,8 @@ def debug_kernel(ObjPath: str):
     # Compile with -O2
     with open(ModulePathPartition[2] + "2.ll", "w+") as f:
         print("\nGenerating IR -O2:\n")
-        run(CompileCmd.split(), stdout=f, stderr=subprocess.DEVNULL, shell=True)
+        utils.run(CompileCmd.split(), stdout=f,
+                  stderr=subprocess.DEVNULL, shell=True)
 
     # Update compile command to use -O0
     CompileCmd = CompileCmd.replace("-O2", "-O0", 1)
@@ -108,26 +49,33 @@ def debug_kernel(ObjPath: str):
     # Compile with -O0
     with open(ModulePathPartition[2] + "0.ll", "w+") as f:
         print("\nGenerating IR -O0:\n")
-        run(CompileCmd.split(), stdout=f, stderr=subprocess.DEVNULL, shell=True)
+        utils.run(CompileCmd.split(), stdout=f,
+                  stderr=subprocess.DEVNULL, shell=True)
 
 
 if __name__ == "__main__":
     match sys.argv[1]:
         case "mrproper":
-            run(["make", "mrproper"])
+            utils.run(["make", "mrproper"])
         case "clean":
-            run(["make", "clean"])
+            utils.run(["make", "clean"])
         case "config":
             if sys.argv[2]:
-                configure_kernel(sys.argv[2])
+                utils.configure_kernel(sys.argv[2])
+                if sys.argv[3] == "syzkaller":
+                    add_syzkaller_support_to_config()
             else:
                 print("\nConfig argument missing\n")
         case "fast":
-            build_kernel()
+            with open("proj_bdo/build_output.ll", "w+") as f:
+                utils.build_kernel(stderr=f)
         case "object":
-            build_kernel("1", sys.argv[2], "obj_output.ll")
+            with open("proj_bdo/obj_output.ll", "w+") as f:
+                utils.build_kernel(
+                    threads="1", module_path=sys.argv[2], stderr=f)
         case "precise":
-            build_kernel("1")
+            with open("build_output.ll", "w+") as f:
+                utils.build_kernel("1", stderr=f)
         case "tests":
             debug_kernel("proj_bdo/dep_chain_tests.o")
         case "debug":
