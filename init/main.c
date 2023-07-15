@@ -113,6 +113,8 @@
 
 #include <kunit/test.h>
 
+#include <proj_bdo/dep_chain_tests.h>
+
 static int kernel_init(void *);
 
 extern void init_IRQ(void);
@@ -881,6 +883,8 @@ asmlinkage __visible void __init __no_sanitize_address __noreturn start_kernel(v
 {
 	char *command_line;
 	char *after_dashes;
+
+	proj_bdo_run_tests();
 
 	set_task_stack_end_magic(&init_task);
 	smp_setup_processor_id();

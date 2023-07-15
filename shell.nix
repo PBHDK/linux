@@ -27,14 +27,17 @@ in
 (aarch64.buildPackages.overrideCC aarch64.stdenv myclang).mkDerivation {
   name = "env";
   nativeBuildInputs = aarch64.linux.nativeBuildInputs;
-  depsBuildBuild = with aarch64.buildPackages; [ python3.pkgs.autopep8 ncurses stdenv.cc openssl ];
+  depsBuildBuild = with aarch64.buildPackages; [
+    python3.pkgs.autopep8
+    ncurses
+    stdenv.cc
+    openssl
+    gdb
+  ];
   buildInputs = [
     aarch64.zlib
     aarch64.openssl
   ];
-  #NIX_CFLAGS_COMPILE = "-isystem ${clangPath}/build/tools/clang/lib/Headers";
-  NIX_LDFLAGS = "-L${aarch64.buildPackages.targetPackages.llvmPackages_13.libraries.libcxxabi}/lib";
+  LD_LIBRARY_PATH = "-L${aarch64.buildPackages.targetPackages.llvmPackages_13.libraries.libcxxabi}/lib:${pkgs.gcc-unwrapped.lib}/lib";
   hardeningDisable = [ "all" ];
-  PATH_TO_CLANG = "${myclang.cc}/bin/clang";
-  PATH_TO_CLANGD = "${myclang.cc}/bin/clangd";
 }

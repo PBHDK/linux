@@ -1,138 +1,217 @@
 #!/usr/bin/env python3
+"""
+Script for searching for broken dependencies in randomly generated Linux
+kernel configs
+
+Collects trophies in --output-folder/trophies.txt and the most recent log in
+--output-folder/logs/<dep_checker_version.txt>
+"""
 
 import subprocess
-import sys
 import re
+import argparse
 
-_BROKEN_DEPS_FILE_PATH = "/scratch/paul/src/broken_deps/broken_deps"
+from typing import Optional, TextIO
+from common import utils
 
-_CROSS = ["ARCH=arm64", "CROSS_COMPILE=aarch64-unknown-linux-gnu-"]
-_ENABLE_DEP_CHEKER = ["KCFLAGS=-fsanitize=lkmm-dep-checker"]
-_RANDOM = ["randconfig"]
+_SEED_PATT = r"(?<=^KCONFIG_SEED=).*"
 
-_MAKEFLAGS = ["make", "HOSTCC=gcc", "CC=clang"] + _CROSS + _ENABLE_DEP_CHEKER
-_MAKEFLAGS_RANDOM_CONFIG = _MAKEFLAGS + _RANDOM
-_MAKEFLAGS_BUILD = _MAKEFLAGS + ["-j128", "-s"]
+_BRKN_DEP_PATT = r'//===-{26}Broken Dependency-{26}===//.*?//===-{69}===//$'
+# _BRKN_DEP_ID_PATT = r'(?<=^(Address|Control) dependency with ID: ).*'
+_BRKN_DEP_ID_PATT = \
+    r'(?:Address|Control) dependency with ID: (.*?)\n\nDependency Beginning'
 
-_SEED_PATTERN = r"(?<=^KCONFIG_SEED=).*"
+seed_matcher = re.compile(_SEED_PATT, re.MULTILINE)
+bd_matcher = re.compile(_BRKN_DEP_PATT, re.MULTILINE | re.DOTALL)
+bd_id_matcher = re.compile(_BRKN_DEP_ID_PATT, re.MULTILINE | re.DOTALL)
 
-_BROKEN_DEP_PATTERN = r'//===-{26}Broken Dependency-{27}===//.*?//===-{70}===//$'
-_BROKEN_DEP_ID_PATTERN = r'(?<=^(Address|Control) dependency with ID: ).*'
-
-# Matchers
-seedMatcher = re.compile(_SEED_PATTERN, re.MULTILINE)
-
-brokenDepMatcher = re.compile(_BROKEN_DEP_PATTERN, re.MULTILINE | re.DOTALL)
-brokenIDMatcher = re.compile(_BROKEN_DEP_ID_PATTERN, re.MULTILINE)
-
-# Set of IDs of broken deps for faster access
-setOfBrokenIDs = set()
+kv: str = utils.get_kernel_version()
+dcv: str = utils.get_dep_checker_ver()
+v_str: str = "DepChecker Version: {}\nKernel Version: {}".format(dcv, kv)
+trophy_ids: set[str] = set()
 
 
-def restoreBrokenDeps():
-    # Holds all of our discovered broken dependencies
-    with open(_BROKEN_DEPS_FILE_PATH) as brokenDepsFile:
-        brokenDepsStr = brokenDepsFile.read()
+def _pick_up_broken_deps_from_file(bdf: TextIO) -> set[str]:
+    """
+    Restore the state of the random search from .
 
-        prevIDedBrokenDeps = brokenDepMatcher.findall(brokenDepsStr)
+    bdf -- broken deps file.
 
-        for prevIDedBrokenDep in prevIDedBrokenDeps:
-            brokenIDMatch = brokenIDMatcher.search(prevIDedBrokenDep)
-
-            if not brokenIDMatch:
-                print("Couldn't recover broken ID from:\n" + prevIDedBrokenDep)
-                continue
-
-            setOfBrokenIDs.add(brokenIDMatch.group())
-
-        print("Restored " + str(len(prevIDedBrokenDeps)) + " broken dep(s)")
-
-
-def updateConfig():
-    subprocess.run(["./scripts/config", "--disable", "CONFIG_DEBUG_INFO_NONE"])
-    subprocess.run(["./scripts/config", "--enable", "CONFIG_DEBUG_INFO"])
-    subprocess.run(["./scripts/config", "--enable",
-                   "CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAU"])
-    subprocess.run(["./scripts/config", "--enable", "CONFIG_LTO_NONE"])
-    subprocess.run(["./scripts/config", "--disable",
-                   "CONFIG_DEBUG_INFO_REDUCED"])
-    subprocess.run(["./scripts/config", "--disable",
-                   "CONFIG_DEBUG_INFO_SPLIT"])
-    subprocess.run(["./scripts/config", "--disable", "CONFIG_DEBUG_INFO_BTF"])
-    subprocess.run(["./scripts/config", "--enable",
-                   "CONFIG_PAHOLE_HAS_SPLIT_BTF"])
-    subprocess.run(["./scripts/config", "--enable",
-                   "CONFIG_PAHOLE_HAS_BTF_TAG"])
-    subprocess.run(["./scripts/config", "--disable", "CONFIG_GDB_SCRIPTS"])
-    subprocess.run(["./scripts/config", "--disable", "CONFIG_DEBUG_EFI"])
-
-
-def main(runs=1):
+    returns: the set of broken deps/broken dep ids.
+    """
     print("Restoring broken deps ...")
+    res: set = set()
 
-    restoreBrokenDeps()
+    bdf.seek(0)
 
-    print("Starting LKMM random testing for broken dependencies")
+    # Holds all of our discovered broken dependencies
+    bds_str: str = bdf.read()
 
-    with open(_BROKEN_DEPS_FILE_PATH, 'a') as brokenDepsFile:
-        for _ in range(runs):
-            print("Cleaning ...")
-            subprocess.run(["make", "mrproper", "-s"])
+    bds: list[str] = bd_matcher.findall(bds_str)
 
-            print("Generating random config ...")
-            configResult = subprocess.run(_MAKEFLAGS_RANDOM_CONFIG,
-                                          stdout=subprocess.PIPE, text=True)
+    for bd in bds:
+        bd_id_match: Optional[re.Match[str]] = bd_id_matcher.search(bd)
 
-            # TODO save seed of config
-            seedMatch = seedMatcher.search(configResult.stdout)
-            currSeed = "42"
-            if seedMatch:
-                currSeed = seedMatch.group()
-            else:
-                print("Couldn't find seed")
+        if not bd_id_match:
+            exit("Couldn't recover broken ID from:\n" + bd)
 
-            print("Seed: " + currSeed)
+        bd_id: str = bd_id_match.group(1)
 
-            # Adapt random config to requirements of LKMM dep checker
-            # updateConfig()
+        res.add(bd_id)
 
-            # Build config
-            print("Building ...")
-            buildResult = subprocess.run(
-                _MAKEFLAGS_BUILD, stderr=subprocess.PIPE, text=True)
+    print("Restored " + str(len(res)) + " broken dep(s)")
 
-            # Gather results
-            newDeps = brokenDepMatcher.findall(buildResult.stderr)
+    return res
 
-            print("This build produced " + str(len(newDeps)) + " broken dep(s)")
-            print("Check if we have seen them before ...")
 
-            # Check if we actually found a new broken dep
-            for newDep in newDeps:
-                idMatch = brokenIDMatcher.search(newDep)
+def _update_config():
+    """Ensure the randconfig is ready for dep checker use."""
+    utils.add_dep_checker_support_to_current_config()
 
-                if not idMatch:
-                    print("Couldn't find an ID in:\n" + newDep)
-                    continue
+    utils.run(["./scripts/config", "--enable", "CONFIG_LTO_NONE"])
 
-                id = idMatch.group()
 
-                if id in setOfBrokenIDs:
-                    continue
+def _generated_and_build_config(config_target: str,
+                                lf: TextIO,
+                                bdf: TextIO):
+    """
+    Generate a config of type config target and build it.
 
-                # Add seed
-                lastNewline = newDep.rfind("\n")
-                newDep = newDep[:lastNewline] + "\n\nFound with seed: " + \
-                    currSeed + "\n" + newDep[lastNewline:]
+    config_target -- the config target passed to make
+    lf -- the log file
+    bdf -- the file containing the DepChecker's trophies
+    """
+    seed: Optional[int] = None
 
-                brokenDepsFile.write(newDep + "\n\n")
-                setOfBrokenIDs.add(id)
+    utils.mrproper_kernel()
 
-                print(newDep + "\n\n")
+    print("Generating {}".format(config_target))
+
+    try:
+        config_output = utils.run(["make"] + utils._MAKEFLAGS
+                                  + [config_target],
+                                  stdout=subprocess.PIPE)
+    except Exception:
+        lf.writelines(config_output.stderr)
+        exit("Couldn't generate config")
+
+    if config_output == "randconfig":
+        seed_match = seed_matcher.search(config_output.stdout)
+
+        if seed_match:
+            seed = seed_match.group()
+        else:
+            exit("Couldn't find seed")
+
+        print("Seed: " + seed)
+
+    utils.add_dep_checker_support_to_current_config()
+
+    # Buiid randconfig
+    print("Building ...")
+    try:
+        build_result = utils.build_kernel(stderr=subprocess.PIPE)
+    except Exception:
+        lf.writelines("## " + "Failed build\n\n" +
+                      build_result.stderr + "\n\n")
+
+    if config_output == "randconfig":
+        lf.writelines("## " + seed + "\n\n" +
+                      build_result.stderr + "\n\n")
+    else:
+        lf.writelines("## " + config_target + "\n\n" +
+                      build_result.stderr + "\n\n")
+
+    _commit_new_broken_deps(build_result.stderr, bdf, seed)
+
+
+def _commit_new_broken_deps(res: str, bdf: TextIO,
+                            seed: Optional[str] = None) -> set[str]:
+    """
+    Process the build results and commit broken dependencies to the broken dep
+    file if new ones were found.
+
+    res -- the stderr output of the build.
+    bd_file -- the broken deps file.
+    curr_seed -- the seed used for generating the randconfig.
+
+    returns: updated set of broken dep ids
+    """
+    # Gather results
+    new_bds: list[str] = bd_matcher.findall(res)
+    new_trophies: int = 0
+
+    # Check if we actually found a new broken dep
+    for new_bd in new_bds:
+        new_id_match: Optional[re.Match[str]] = bd_id_matcher.search(new_bd)
+
+        if not new_id_match:
+            exit("Couldn't find an ID in:\n" + new_bd)
+
+        new_bd_id: str = new_id_match.group(1)
+
+        if new_bd_id not in trophy_ids:
+            last_newline: int = new_bd.rfind("\n")
+            bdf.write(new_bd[:last_newline])
+            if (seed):
+                bdf.write("\n\nFound with seed: " + seed)
+            bdf.write(v_str)
+            bdf.write(new_bd[last_newline:] + "\n\n")
+
+            trophy_ids.add(new_bd_id)
+
+            print(new_bd + "\n\n")
+            ++new_trophies
+
+    print("This build produced {} new trophies.".format(str(new_trophies)))
+
+
+def _run_random_testing(num_runs: int, bd_path: str, defconfig: bool):
+    """
+    Run random testing.
+
+    num_runs -- number of random configs to test.
+    bd_path -- path to the folder where the results should be stored.
+    defconfig -- if set, will only build a defconfig and gather the results.
+    """
+    log_file_path: str = bd_path + "/logs/" + dcv + ".log"
+    bd_file_path = bd_path + "/trophies.txt"
+
+    with open(bd_file_path, 'a+') as bdf, open(log_file_path, "w+") as lf:
+        trophy_ids.update(_pick_up_broken_deps_from_file(bdf))
+
+        if defconfig:
+            _generated_and_build_config("defconfig", lf, bdf)
+        else:
+            for _ in range(num_runs):
+                _generated_and_build_config("randconfig", lf, bdf)
 
 
 if __name__ == '__main__':
-    if len(sys.argv) == 2:
-        main(int(sys.argv[1]))
-    else:
-        main()
+    parser = argparse.ArgumentParser()
+    """
+    It seemed the easiest to just provide the --defconfig argument vs having
+    to identify whether a defconfig hat already been searched for the current
+    DepChecker version.
+    """
+    parser.add_argument("--defconfig",
+                        action="store_true",
+                        help="Set this option to true if you want to run a \
+                                defconfig search for the current dep checker \
+                                version.")
+    parser.add_argument("-r",
+                        "--runs",
+                        type=int,
+                        default=1,
+                        help="The number of randconfigs to generate and build")
+    parser.add_argument("-o",
+                        "--output-folder",
+                        type=str,
+                        default="../broken_deps/random_testing/.",
+                        help="path to folder where the results should be "
+                        "stored.")
+
+    args = parser.parse_args()
+
+    _run_random_testing(num_runs=args.runs,
+                        bd_path=args.output_folder, defconfig=args.defconfig)
