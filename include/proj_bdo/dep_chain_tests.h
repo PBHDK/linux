@@ -1,9 +1,12 @@
-#define MAX 1
+#define _PROJ_BDO_MAX 1
 
-// global declarations
-static int *x, *y, *z;
 static int arr[100];
-// implicitly convert arr to int*
-static int **foo = (int **)&arr;
-static int **bar;
-static int **baz;
+static int *x = &arr[0];
+static int *y = &arr[21];
+static int *z = &arr[42];
+
+static int **foo = (int **)&x;
+static int **bar = (int **)&y;
+static int **baz = (int **)&z;
+
+int proj_bdo_run_tests(void);
