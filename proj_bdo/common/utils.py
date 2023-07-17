@@ -7,9 +7,11 @@ from typing import Optional
 _ARM64_CLANG_CROSS_FLAGS = ["HOSTCC=gcc", "CC=clang", "ARCH=arm64",
                             "CROSS_COMPILE=aarch64-unknown-linux-gnu-"]
 
-_PROJ_BDO_FLAGS = ["KCFLAGS=-fsanitize=lkmm-dep-checker"]
+_PROJ_BDO_KCFLAGS = "-fsanitize=lkmm-dep-checker"
+
+_PROJ_BDO_FLAGS = ["KCFLAGS={}".format(_PROJ_BDO_KCFLAGS)]
 _PROJ_BDO_TEST_FLAGS = [
-    "KCFLAGS=-fsanitize=lkmm-dep-checker -mllvm -lkmm-enable-tests"
+    "KCFLAGS={} -mllvm -lkmm-enable-tests".format(_PROJ_BDO_KCFLAGS)
 ]
 
 _CLANG_ENV = _ARM64_CLANG_CROSS_FLAGS + _PROJ_BDO_FLAGS
