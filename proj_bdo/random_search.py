@@ -80,8 +80,11 @@ def _generated_and_build_config(config_target: str,
     print("Generating {}".format(config_target))
 
     try:
-        config_output = utils.run(["make", config_target] + utils._CLANG_ENV,
-                                  stdout=subprocess.PIPE)
+        config_output = utils.run(
+            ["make", config_target] + utils._CLANG_ENV +
+            ["KCONFIG_ALLCONFIG=proj_bdo/random_search_all.config"],
+            stdout=subprocess.PIPE
+        )
     except Exception:
         lf.writelines(config_output.stderr)
         exit("Couldn't generate config")
