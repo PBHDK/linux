@@ -14,6 +14,13 @@ import argparse
 from typing import Optional, TextIO
 from common import utils
 
+_RAND_SEARCH_CONFIG_ARGS = [
+    "KCONFIG_ALLCONFIG=proj_bdo/random_search_all.config"
+]
+_RAND_SEARCH_BUILD_ARGS = [
+    "KCFLAGS={} -Qunused-arguments".format(utils._PROJ_BDO_KCFLAGS)
+]
+
 _SEED_PATT = r"(?<=^KCONFIG_SEED=).*"
 
 _BRKN_DEP_PATT = r'//===-{26}Broken Dependency-{26}===//.*?//===-{69}===//$'
@@ -81,8 +88,9 @@ def _generated_and_build_config(config_target: str,
 
     try:
         config_output = utils.run(
-            ["make", config_target] + utils._CLANG_ENV +
-            ["KCONFIG_ALLCONFIG=proj_bdo/random_search_all.config"],
+            args=["make", config_target] +
+            utils._CLANG_ENV +
+            _RAND_SEARCH_CONFIG_ARGS,
             stdout=subprocess.PIPE
         )
     except Exception:
@@ -102,7 +110,8 @@ def _generated_and_build_config(config_target: str,
     # Buiid randconfig
     print("Building ...")
     try:
-        build_result = utils.build_depchecker_kernel(stderr=subprocess.PIPE)
+        build_result = utils.build_depchecker_kernel(
+            add_args=_RAND_SEARCH_BUILD_ARGS, stderr=subprocess.PIPE)
     except Exception as e:
         print(e)
         exit("Couldn't build kernel.")
