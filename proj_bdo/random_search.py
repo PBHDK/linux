@@ -17,7 +17,6 @@ from common import utils
 _SEED_PATT = r"(?<=^KCONFIG_SEED=).*"
 
 _BRKN_DEP_PATT = r'//===-{26}Broken Dependency-{26}===//.*?//===-{69}===//$'
-# _BRKN_DEP_ID_PATT = r'(?<=^(Address|Control) dependency with ID: ).*'
 _BRKN_DEP_ID_PATT = \
     r'(?:Address|Control) dependency with ID: (.*?)\n\nDependency Beginning'
 
@@ -64,13 +63,6 @@ def _pick_up_broken_deps_from_file(bdf: TextIO) -> set[str]:
     return res
 
 
-def _update_config():
-    """Ensure the randconfig is ready for dep checker use."""
-    utils.add_dep_checker_support_to_current_config()
-
-    utils.run(["./scripts/config", "--enable", "CONFIG_LTO_NONE"])
-
-
 def _generated_and_build_config(config_target: str,
                                 lf: TextIO,
                                 bdf: TextIO):
@@ -88,8 +80,7 @@ def _generated_and_build_config(config_target: str,
     print("Generating {}".format(config_target))
 
     try:
-        config_output = utils.run(["make"] + utils._MAKEFLAGS
-                                  + [config_target],
+        config_output = utils.run(["make", config_target] + utils._CLANG_ENV,
                                   stdout=subprocess.PIPE)
     except Exception:
         lf.writelines(config_output.stderr)
@@ -105,15 +96,13 @@ def _generated_and_build_config(config_target: str,
 
         print("Seed: " + seed)
 
-    utils.add_dep_checker_support_to_current_config()
-
     # Buiid randconfig
     print("Building ...")
     try:
-        build_result = utils.build_kernel(stderr=subprocess.PIPE)
-    except Exception:
-        lf.writelines("## " + "Failed build\n\n" +
-                      build_result.stderr + "\n\n")
+        build_result = utils.build_depchecker_kernel(stderr=subprocess.PIPE)
+    except Exception as e:
+        print(e)
+        exit("Couldn't build kernel.")
 
     if config_output == "randconfig":
         lf.writelines("## " + seed + "\n\n" +
