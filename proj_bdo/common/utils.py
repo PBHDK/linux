@@ -4,16 +4,16 @@ import os
 
 from typing import Optional
 
-_ARM64_CROSS_FLAGS = ["ARCH=arm64", "CROSS_COMPILE=aarch64-unknown-linux-gnu-"]
+_ARM64_CLANG_CROSS_FLAGS = ["HOSTCC=gcc", "CC=clang", "ARCH=arm64",
+                            "CROSS_COMPILE=aarch64-unknown-linux-gnu-"]
 
 _PROJ_BDO_FLAGS = ["KCFLAGS=-fsanitize=lkmm-dep-checker"]
 _PROJ_BDO_TEST_FLAGS = [
     "KCFLAGS=-fsanitize=lkmm-dep-checker -mllvm -lkmm-enable-tests"
 ]
 
-_MAKEFLAGS = ["HOSTCC=gcc", "CC=clang"] + _ARM64_CROSS_FLAGS + _PROJ_BDO_FLAGS
-_MAKEFLAGS_TESTS = ["HOSTCC=gcc", "CC=clang"] + \
-    _ARM64_CROSS_FLAGS + _PROJ_BDO_TEST_FLAGS
+_CLANG_ENV = _ARM64_CLANG_CROSS_FLAGS + _PROJ_BDO_FLAGS
+_TEST_ENV = _ARM64_CLANG_CROSS_FLAGS + _PROJ_BDO_TEST_FLAGS
 
 
 def run(args: list[str],
@@ -106,16 +106,16 @@ def configure_kernel(config: str):
 
     config -- the type of config to generate.
     """
-    run(["make"] + _MAKEFLAGS + [config])
+    run(["make", config] + _CLANG_ENV)
     add_dep_checker_support_to_current_config()
 
 
-def build_kernel(add_args: list[str] = list(),
-                 threads=os.getenv("NIX_BUILD_CORES", "128"),
-                 ObjPath="",
-                 stderr="build_output.ll"):
+def build_depchecker_kernel(add_args: list[str] = list(),
+                            threads=os.getenv("NIX_BUILD_CORES", "128"),
+                            ObjPath="",
+                            stderr="build_output.ll"):
     """
-    Build a Linux kernel.
+    Build an arm64 Linux kernel with the DepChecker support enabled.
 
     add_args -- additional arguments.
     threads -- the number of threads to use.
@@ -127,10 +127,13 @@ def build_kernel(add_args: list[str] = list(),
         if (os.path.exists(ObjPath)):
             run(["rm"] + [ObjPath], stderr=stderr)
         res = run(["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] +
-                  _MAKEFLAGS + add_args + [JStr] + [ObjPath], stderr=stderr)
+                  add_args + [JStr, ObjPath] + _CLANG_ENV, stderr=stderr)
     else:
-        res = run(["/usr/bin/time", "-v", "-o", "/dev/stdout",
-                  "make"] + _MAKEFLAGS + add_args + [JStr], stderr=stderr)
+        res = run(
+            ["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] +
+            add_args + [JStr] + _CLANG_ENV,
+            stderr=stderr
+        )
 
     print("\nGenerating compilation database:\n")
     run(["./scripts/clang-tools/gen_compile_commands.py"])

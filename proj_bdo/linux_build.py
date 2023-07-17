@@ -9,9 +9,12 @@ from common import utils
 def debug_kernel(ObjPath: str):
     # Build required object to obtain compile command
     if ObjPath == "proj_bdo/dep_chain_tests.o":
-        utils.build_kernel("1", "proj_bdo/dep_chain_tests.o", "test_output.ll")
+        utils.build_depchecker_kernel(
+            threads="1", ObjPath="proj_bdo/dep_chain_tests.o",
+            stderr="test_output.ll")
     else:
-        utils.build_kernel("1", ObjPath, "obj_output.ll")
+        utils.build_depchecker_kernel(threads="1", ObjPath=ObjPath,
+                                      stderr="obj_output.ll")
 
     ModulePathPartition = ObjPath.rpartition("/")
 
@@ -62,20 +65,18 @@ if __name__ == "__main__":
         case "config":
             if sys.argv[2]:
                 utils.configure_kernel(sys.argv[2])
-                if sys.argv[3] == "syzkaller":
-                    add_syzkaller_support_to_config()
             else:
                 print("\nConfig argument missing\n")
         case "fast":
             with open("proj_bdo/build_output.ll", "w+") as f:
-                utils.build_kernel(stderr=f)
+                utils.build_depchecker_kernel(stderr=f)
         case "object":
             with open("proj_bdo/obj_output.ll", "w+") as f:
-                utils.build_kernel(
+                utils.build_depchecker_kernel(
                     threads="1", module_path=sys.argv[2], stderr=f)
         case "precise":
             with open("build_output.ll", "w+") as f:
-                utils.build_kernel("1", stderr=f)
+                utils.build_depchecker_kernel(threads="1", stderr=f)
         case "tests":
             debug_kernel("proj_bdo/dep_chain_tests.o")
         case "debug":
