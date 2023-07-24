@@ -129,11 +129,11 @@ def build_depchecker_kernel(add_args: list[str] = list(),
         if (os.path.exists(ObjPath)):
             run(["rm"] + [ObjPath], stderr=stderr)
         res = run(["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] +
-                  add_args + [JStr, ObjPath] + _CLANG_ENV, stderr=stderr)
+                  add_args + [JStr, ObjPath, "-s"] + _CLANG_ENV, stderr=stderr)
     else:
         res = run(
             ["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] +
-            add_args + [JStr] + _CLANG_ENV,
+            add_args + [JStr, "-s"] + _CLANG_ENV,
             stderr=stderr
         )
 
