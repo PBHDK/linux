@@ -79,6 +79,8 @@ def _generated_and_build_config(config_target: str,
     config_target -- the config target passed to make
     lf -- the log file
     bdf -- the file containing the DepChecker's trophies
+
+    returns: amount of new trophies.
     """
     seed: Optional[int] = None
 
@@ -123,7 +125,7 @@ def _generated_and_build_config(config_target: str,
         lf.writelines("## " + config_target + "\n\n" +
                       build_result.stderr + "\n\n")
 
-    _commit_new_broken_deps(build_result.stderr, bdf, seed)
+    return _commit_new_broken_deps(build_result.stderr, bdf, seed)
 
 
 def _commit_new_broken_deps(res: str, bdf: TextIO,
@@ -136,7 +138,7 @@ def _commit_new_broken_deps(res: str, bdf: TextIO,
     bd_file -- the broken deps file.
     curr_seed -- the seed used for generating the randconfig.
 
-    returns: updated set of broken dep ids
+    returns: amount of new trophies
     """
     # Gather results
     new_bds: list[str] = bd_matcher.findall(res)
@@ -166,6 +168,8 @@ def _commit_new_broken_deps(res: str, bdf: TextIO,
 
     print("This build produced {} new trophies.".format(str(new_trophies)))
 
+    return new_trophies
+
 
 def _run_random_testing(num_runs: int, bd_path: str, defconfig: bool):
     """
@@ -184,8 +188,10 @@ def _run_random_testing(num_runs: int, bd_path: str, defconfig: bool):
         if defconfig:
             _generated_and_build_config("defconfig", lf, bdf)
         else:
+            nts = 0
             for _ in range(num_runs):
-                _generated_and_build_config("randconfig", lf, bdf)
+                nts += _generated_and_build_config("randconfig", lf, bdf)
+            print("All runs produced {} new trophies in total.".format(nts))
 
 
 if __name__ == '__main__':
