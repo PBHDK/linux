@@ -97,7 +97,7 @@ def _generated_and_build_config(config_target: str,
         lf.writelines(config_output.stderr)
         exit("Couldn't generate config")
 
-    if config_output == "randconfig":
+    if config_target == "randconfig":
         seed_match = seed_matcher.search(config_output.stdout)
 
         if seed_match:
@@ -116,8 +116,8 @@ def _generated_and_build_config(config_target: str,
         print(e)
         exit("Couldn't build kernel.")
 
-    if config_output == "randconfig":
-        lf.writelines("## " + seed + "\n\n" +
+    if config_target == "randconfig":
+        lf.writelines("## " + str(seed) + "\n\n" +
                       build_result.stderr + "\n\n")
     else:
         lf.writelines("## " + config_target + "\n\n" +
