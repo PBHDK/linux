@@ -18,7 +18,7 @@ _RAND_SEARCH_CONFIG_ARGS = [
     "KCONFIG_ALLCONFIG=proj_bdo/random_search_all.config"
 ]
 _RAND_SEARCH_BUILD_ARGS = [
-    "KCFLAGS={} -Qunused-arguments".format(utils._PROJ_BDO_KCFLAGS)
+    "KCFLAGS={} -Qunused-arguments".format(utils.PROJ_BDO_KCFLAGS)
 ]
 
 _SEED_PATT = r"(?<=^KCONFIG_SEED=).*"
