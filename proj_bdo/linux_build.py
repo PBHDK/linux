@@ -24,7 +24,7 @@ def debug_kernel(ObjPath: str):
     # Grab compile command
     with open(CompileCmdsPath) as f:
         CompileCmdsStr = f.readline()
-        R = re.search(r'(?<=:=)[\s\S]*', CompileCmdsStr)
+        R = re.search(r'(?<=:= )[\s\S]*', CompileCmdsStr)
         if not R:
             print("\nCouldn't find compile command in " + CompileCmdsStr + "\n")
             exit(-1)
@@ -33,13 +33,12 @@ def debug_kernel(ObjPath: str):
     # Make compile command emit LLVM IR after verifier
     # FIXME: Doesn't work as intended because LKMM passes are module passes.
     CompileCmd = CompileCmd.replace(
-        "-c -o", "-emit-llvm -mllvm -print-after=lkmm-verify-deps -o - -S")
+        "-c -o ", "-Qunused-arguments -emit-llvm -mllvm -print-after=lkmm-verify-deps -o - -S ")
 
     # Compile with -O2
     with open(ModulePathPartition[2] + "2.ll", "w+") as f:
         print("\nGenerating IR -O2:\n")
-        utils.run(CompileCmd.split(), stdout=f,
-                  stderr=subprocess.DEVNULL, shell=True)
+        utils.run(CompileCmd, stdout=f, shell=True)
 
     # Update compile command to use -O0
     CompileCmd = CompileCmd.replace("-O2", "-O0", 1)
@@ -51,12 +50,11 @@ def debug_kernel(ObjPath: str):
     # Compile with -O0
     with open(ModulePathPartition[2] + "0.ll", "w+") as f:
         print("\nGenerating IR -O0:\n")
-        utils.run(CompileCmd.split(), stdout=f,
-                  stderr=subprocess.DEVNULL, shell=True)
+        utils.run(CompileCmd, stdout=f, shell=True)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) >= 2 and sys.argv[2] == "relaxed":
+    if len(sys.argv) > 2 and sys.argv[2] == "relaxed":
         utils.PROJ_BDO_KCFLAGS += "-mllvm -dep-checker-granularity=relaxed"
 
     match sys.argv[1]:
