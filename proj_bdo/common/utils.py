@@ -2,16 +2,16 @@
 import subprocess
 import os
 
-from typing import Optional
+from typing import TextIO, Optional
 
 _ARM64_CLANG_CROSS_FLAGS = ["HOSTCC=gcc", "CC=clang", "ARCH=arm64",
                             "CROSS_COMPILE=aarch64-unknown-linux-gnu-"]
 
-_PROJ_BDO_KCFLAGS = "-fsanitize=lkmm-dep-checker"
+PROJ_BDO_KCFLAGS = "-fsanitize=lkmm-dep-checker"
 
-_PROJ_BDO_FLAGS = ["KCFLAGS={}".format(_PROJ_BDO_KCFLAGS)]
+_PROJ_BDO_FLAGS = ["KCFLAGS={}".format(PROJ_BDO_KCFLAGS)]
 _PROJ_BDO_TEST_FLAGS = [
-    "KCFLAGS={} -mllvm -lkmm-enable-tests".format(_PROJ_BDO_KCFLAGS)
+    "KCFLAGS={} -mllvm -lkmm-enable-tests".format(PROJ_BDO_KCFLAGS)
 ]
 
 _CLANG_ENV = _ARM64_CLANG_CROSS_FLAGS + _PROJ_BDO_FLAGS
@@ -19,8 +19,8 @@ _TEST_ENV = _ARM64_CLANG_CROSS_FLAGS + _PROJ_BDO_TEST_FLAGS
 
 
 def run(args: list[str],
-        stderr: int = None,
-        stdout: int = None,
+        stderr: TextIO = None,
+        stdout: TextIO = None,
         shell: bool = False,
         text: bool = True,
         cwd: Optional[str] = None):
@@ -124,18 +124,21 @@ def build_depchecker_kernel(add_args: list[str] = list(),
     ObjPath -- if specified, will only build the passed object.
     stderr -- the name of the file where stderr should be captured.
     """
-    JStr = "-j" + threads
-    if ObjPath:
-        if (os.path.exists(ObjPath)):
-            run(["rm"] + [ObjPath], stderr=stderr)
-        res = run(["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] +
-                  add_args + [JStr, ObjPath, "-s"] + _CLANG_ENV, stderr=stderr)
-    else:
-        res = run(
-            ["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] +
-            add_args + [JStr, "-s"] + _CLANG_ENV,
-            stderr=stderr
-        )
+    with open(stderr, "w+") as SE:
+        JStr = "-j" + threads
+        if ObjPath:
+            if (os.path.exists(ObjPath)):
+                run(["rm"] + [ObjPath], stderr=SE)
+            res = run(
+                    ["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] +
+                    add_args + [JStr, ObjPath, "-s"] + _CLANG_ENV, stderr=SE
+            )
+        else:
+            res = run(
+                ["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] +
+                add_args + [JStr, "-s"] + _CLANG_ENV,
+                stderr=SE
+            )
 
     print("\nGenerating compilation database:\n")
     run(["./scripts/clang-tools/gen_compile_commands.py"])
