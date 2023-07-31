@@ -10,8 +10,7 @@ def debug_kernel(ObjPath: str):
     # Build required object to obtain compile command
     if ObjPath == "proj_bdo/dep_chain_tests.o":
         utils.build_depchecker_kernel(
-            threads="1", ObjPath="proj_bdo/dep_chain_tests.o",
-            stderr="test_output.ll")
+            threads="1", ObjPath=ObjPath, stderr="test_output.ll")
     else:
         utils.build_depchecker_kernel(threads="1", ObjPath=ObjPath,
                                       stderr="obj_output.ll")
@@ -57,6 +56,9 @@ def debug_kernel(ObjPath: str):
 
 
 if __name__ == "__main__":
+    if len(sys.argv) >= 2 and sys.argv[2] == "relaxed":
+        utils.PROJ_BDO_KCFLAGS += "-mllvm -dep-checker-granularity=relaxed"
+
     match sys.argv[1]:
         case "mrproper":
             utils.run(["make", "mrproper"])
