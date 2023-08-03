@@ -14,6 +14,8 @@ def debug_kernel(ObjPath: str, add_args=list[str]):
             stderr="test_output.ll",
             add_args=add_args
         )
+        with open("test_output.ll") as f:
+            bds = utils.count_str_file(s="dependency with ID", f=f)
     else:
         utils.build_clang_arm64_kernel(threads="1",
                                        ObjPath=ObjPath,
@@ -56,6 +58,9 @@ def debug_kernel(ObjPath: str, add_args=list[str]):
     with open(ModulePathPartition[2] + "0.ll", "w+") as f:
         print("\nGenerating IR -O0:\n")
         utils.run([CompileCmd], stdout=f, shell=True)
+
+    if ObjPath == "proj_bdo/dep_chain_tests.o":
+        print("{} test cases passed.".format(str(bds)))
 
 
 if __name__ == "__main__":
