@@ -10,7 +10,10 @@ def debug_kernel(ObjPath: str):
     # Build required object to obtain compile command
     if ObjPath == "proj_bdo/dep_chain_tests.o":
         utils.build_depchecker_kernel(
-            threads="1", ObjPath=ObjPath, stderr="test_output.ll")
+            threads="1",
+            ObjPath=ObjPath,
+            stderr="test_output.ll",
+        )
     else:
         utils.build_depchecker_kernel(threads="1", ObjPath=ObjPath,
                                       stderr="obj_output.ll")

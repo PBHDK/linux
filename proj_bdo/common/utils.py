@@ -129,10 +129,20 @@ def build_depchecker_kernel(add_args: list[str] = list(),
         if ObjPath:
             if (os.path.exists(ObjPath)):
                 run(["rm"] + [ObjPath], stderr=SE)
-            res = run(
-                    ["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] +
-                    add_args + [JStr, ObjPath, "-s"] + _CLANG_ENV, stderr=SE
-            )
+                if (ObjPath == "proj_bdo/dep_chain_tests.o"):
+                    res = run(
+                        ["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] +
+                        add_args +
+                        [JStr, ObjPath, "-s"] +
+                        _TEST_ENV, stderr=SE
+                    )
+                else:
+                    res = run(
+                        ["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] +
+                        add_args +
+                        [JStr, ObjPath, "-s"] +
+                        _CLANG_ENV, stderr=SE
+                    )
         else:
             res = run(
                 ["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] +
