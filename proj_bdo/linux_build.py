@@ -41,7 +41,7 @@ def debug_kernel(ObjPath: str):
     # Compile with -O2
     with open(ModulePathPartition[2] + "2.ll", "w+") as f:
         print("\nGenerating IR -O2:\n")
-        utils.run(CompileCmd, stdout=f, shell=True)
+        utils.run([CompileCmd], stdout=f, shell=True)
 
     # Update compile command to use -O0
     CompileCmd = CompileCmd.replace("-O2", "-O0", 1)
@@ -53,7 +53,7 @@ def debug_kernel(ObjPath: str):
     # Compile with -O0
     with open(ModulePathPartition[2] + "0.ll", "w+") as f:
         print("\nGenerating IR -O0:\n")
-        utils.run(CompileCmd, stdout=f, shell=True)
+        utils.run([CompileCmd], stdout=f, shell=True)
 
 
 if __name__ == "__main__":
