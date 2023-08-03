@@ -17,9 +17,7 @@ from common import utils
 _RAND_SEARCH_CONFIG_ARGS = [
     "KCONFIG_ALLCONFIG=proj_bdo/random_search_all.config"
 ]
-_RAND_SEARCH_BUILD_ARGS = [
-    "KCFLAGS={} -Qunused-arguments".format(utils.PROJ_BDO_KCFLAGS)
-]
+_RAND_SEARCH_KC_ARGS = utils.DC_FLAGS + "-Qunused-arguments"
 
 _SEED_PATT = r"(?<=^KCONFIG_SEED=).*"
 
@@ -91,7 +89,7 @@ def _generated_and_build_config(config_target: str,
     try:
         config_output = utils.run(
             args=["make", config_target] +
-            utils._CLANG_ENV +
+            utils._CLANG_ARM64_ENV + ["KCFLAGS={}".format(_RAND_SEARCH_KC_ARGS)] +
             _RAND_SEARCH_CONFIG_ARGS,
             stdout=subprocess.PIPE
         )
@@ -112,8 +110,8 @@ def _generated_and_build_config(config_target: str,
     # Buiid randconfig
     print("Building ...")
     try:
-        build_result = utils.build_depchecker_kernel(
-            add_args=_RAND_SEARCH_BUILD_ARGS, stderr=subprocess.PIPE)
+        build_result = utils.build_clang_arm64_kernel(
+            add_args=["KCFLAGS={}".format(_RAND_SEARCH_KC_ARGS)], stderr=subprocess.PIPE)
     except Exception as e:
         print(e)
         exit("Couldn't build kernel.")

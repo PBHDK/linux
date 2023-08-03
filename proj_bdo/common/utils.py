@@ -7,15 +7,11 @@ from typing import TextIO, Optional
 _ARM64_CLANG_CROSS_FLAGS = ["HOSTCC=gcc", "CC=clang", "ARCH=arm64",
                             "CROSS_COMPILE=aarch64-unknown-linux-gnu-"]
 
-PROJ_BDO_KCFLAGS = "-fsanitize=lkmm-dep-checker"
+DC_FLAGS = "-fsanitize=lkmm-dep-checker"
+TEST_FLAGS = "-mllvm -lkmm-enable-tests"
+REL_FLAGS = "-mllvm -dep-checker-granularity=Relaxed"
 
-_PROJ_BDO_FLAGS = ["KCFLAGS={}".format(PROJ_BDO_KCFLAGS)]
-_PROJ_BDO_TEST_FLAGS = [
-    "KCFLAGS={} -mllvm -lkmm-enable-tests".format(PROJ_BDO_KCFLAGS)
-]
-
-_CLANG_ENV = _ARM64_CLANG_CROSS_FLAGS + _PROJ_BDO_FLAGS
-_TEST_ENV = _ARM64_CLANG_CROSS_FLAGS + _PROJ_BDO_TEST_FLAGS
+_CLANG_ARM64_ENV = _ARM64_CLANG_CROSS_FLAGS
 
 
 def run(args: list[str],
@@ -102,20 +98,20 @@ def add_dep_checker_support_to_current_config():
     run(["./scripts/config", "--disable", "CONFIG_DEBUG_EFI"])
 
 
-def configure_kernel(config: str):
+def configure_kernel(config: str, add_args: list[str]):
     """
     Generate a kernel config.
 
     config -- the type of config to generate.
     """
-    run(["make", config] + _CLANG_ENV)
+    run(["make"] + _CLANG_ARM64_ENV + add_args + [config])
     add_dep_checker_support_to_current_config()
 
 
-def build_depchecker_kernel(add_args: list[str] = list(),
-                            threads=os.getenv("NIX_BUILD_CORES", "128"),
-                            ObjPath="",
-                            stderr="build_output.ll"):
+def build_clang_arm64_kernel(add_args: list[str] = list(),
+                             threads=os.getenv("NIX_BUILD_CORES", "128"),
+                             ObjPath="",
+                             stderr="build_output.ll"):
     """
     Build an arm64 Linux kernel with the DepChecker support enabled.
 
@@ -126,27 +122,27 @@ def build_depchecker_kernel(add_args: list[str] = list(),
     """
     with open(stderr, "w+") as SE:
         JStr = "-j" + threads
+        res = None
+
         if ObjPath:
             if (os.path.exists(ObjPath)):
                 run(["rm"] + [ObjPath], stderr=SE)
-                if (ObjPath == "proj_bdo/dep_chain_tests.o"):
-                    res = run(
-                        ["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] +
-                        add_args +
-                        [JStr, ObjPath, "-s"] +
-                        _TEST_ENV, stderr=SE
-                    )
-                else:
-                    res = run(
-                        ["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] +
-                        add_args +
-                        [JStr, ObjPath, "-s"] +
-                        _CLANG_ENV, stderr=SE
-                    )
+            if (ObjPath == "proj_bdo/dep_chain_tests.o"):
+                res = run(
+                    ["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] +
+                    _CLANG_ARM64_ENV + add_args +
+                    [JStr, ObjPath, "-s"], stderr=SE
+                )
+            else:
+                res = run(
+                    ["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] +
+                    _CLANG_ARM64_ENV + add_args +
+                    [JStr, ObjPath, "-s"], stderr=SE
+                )
         else:
             res = run(
                 ["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] +
-                add_args + [JStr, "-s"] + _CLANG_ENV,
+                add_args + [JStr, "-s"] + _CLANG_ARM64_ENV,
                 stderr=SE
             )
 
