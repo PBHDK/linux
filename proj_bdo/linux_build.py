@@ -1,22 +1,24 @@
 #!/usr/bin/env python3
 
 import sys
-import subprocess
 import re
 from common import utils
 
 
-def debug_kernel(ObjPath: str):
+def debug_kernel(ObjPath: str, add_args=list[str]):
     # Build required object to obtain compile command
     if ObjPath == "proj_bdo/dep_chain_tests.o":
-        utils.build_depchecker_kernel(
+        utils.build_clang_arm64_kernel(
             threads="1",
             ObjPath=ObjPath,
             stderr="test_output.ll",
+            add_args=add_args
         )
     else:
-        utils.build_depchecker_kernel(threads="1", ObjPath=ObjPath,
-                                      stderr="obj_output.ll")
+        utils.build_clang_arm64_kernel(threads="1",
+                                       ObjPath=ObjPath,
+                                       stderr="obj_output.ll",
+                                       add_args=add_args)
 
     ModulePathPartition = ObjPath.rpartition("/")
 
@@ -57,9 +59,7 @@ def debug_kernel(ObjPath: str):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 2 and sys.argv[2] == "relaxed":
-        utils.PROJ_BDO_KCFLAGS += "-mllvm -dep-checker-granularity=relaxed"
-
+    add_args = ["KCFLAGS={}".format(utils.DC_FLAGS)]
     match sys.argv[1]:
         case "mrproper":
             utils.run(["make", "mrproper"])
@@ -67,22 +67,30 @@ if __name__ == "__main__":
             utils.run(["make", "clean"])
         case "config":
             if sys.argv[2]:
-                utils.configure_kernel(sys.argv[2])
+                utils.configure_kernel(config=sys.argv[2], add_args=add_args)
             else:
                 print("\nConfig argument missing\n")
         case "fast":
             with open("proj_bdo/build_output.ll", "w+") as f:
-                utils.build_depchecker_kernel(stderr=f)
+                utils.build_clang_arm64_kernel(stderr=f, add_args=add_args)
         case "object":
             with open("proj_bdo/obj_output.ll", "w+") as f:
-                utils.build_depchecker_kernel(
-                    threads="1", module_path=sys.argv[2], stderr=f)
+                utils.build_clang_arm64_kernel(
+                    threads="1", module_path=sys.argv[2],
+                    stderr=f, add_args=add_args)
         case "precise":
             with open("build_output.ll", "w+") as f:
-                utils.build_depchecker_kernel(threads="1", stderr=f)
+                utils.build_clang_arm64_kernel(
+                    threads="1", stderr=f, add_args=add_args)
         case "tests":
-            debug_kernel("proj_bdo/dep_chain_tests.o")
+            add_args[0] += " {}".format(utils.TEST_FLAGS)
+            if len(sys.argv) > 2 and sys.argv[2] == "relaxed":
+                add_args[0] += " {}".format(utils.REL_FLAGS)
+                debug_kernel("proj_bdo/dep_chain_tests.o",
+                             add_args=add_args)
+            else:
+                debug_kernel("proj_bdo/dep_chain_tests.o", add_args=add_args)
         case "debug":
-            debug_kernel(sys.argv[2])
+            debug_kernel(sys.argv[2], add_args=add_args)
         case _:
             print("invalid argument")
