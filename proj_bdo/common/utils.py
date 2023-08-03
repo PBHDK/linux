@@ -14,6 +14,19 @@ REL_FLAGS = "-mllvm -dep-checker-granularity=Relaxed"
 _CLANG_ARM64_ENV = _ARM64_CLANG_CROSS_FLAGS
 
 
+def count_str_file(s: str, f: TextIO):
+    """
+    Counts how often a string occurs in a file.
+
+    s: the string to find.
+    f: the alreaddy opened file.
+
+    returns: how often the string occurs in the file.
+    """
+    fstr = f.read()
+    return fstr.count(s)
+
+
 def run(args: list[str],
         stderr: TextIO = None,
         stdout: TextIO = None,
