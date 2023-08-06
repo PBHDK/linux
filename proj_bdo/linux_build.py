@@ -43,7 +43,7 @@ def debug_kernel(ObjPath: str, add_args=list[str]):
         "-c -o ", "-Qunused-arguments -emit-llvm -mllvm -print-after=lkmm-verify-deps -o - -S ")
 
     # Compile with -O2
-    with open(ModulePathPartition[2] + "2.ll", "w+") as f:
+    with open(ModulePathPartition[2].rstrip(".o") + "2.ll", "w+") as f:
         print("\nGenerating IR -O2:\n")
         utils.run([CompileCmd], stdout=f, shell=True)
 
@@ -55,7 +55,7 @@ def debug_kernel(ObjPath: str, add_args=list[str]):
         "-print-after=lkmm-verify-deps", "-print-after=lkmm-annotate-deps", 1)
 
     # Compile with -O0
-    with open(ModulePathPartition[2] + "0.ll", "w+") as f:
+    with open(ModulePathPartition[2].rstrip(".o") + "0.ll", "w+") as f:
         print("\nGenerating IR -O0:\n")
         utils.run([CompileCmd], stdout=f, shell=True)
 
