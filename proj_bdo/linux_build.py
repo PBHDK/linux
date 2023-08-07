@@ -16,6 +16,8 @@ def debug_kernel(ObjPath: str, add_args=list[str]):
         )
         with open("test_output.err") as f:
             bds = utils.count_str_file(s="dependency with ID", f=f)
+        if (res.returncode != 0):
+            exit("Clang crashed when building the tests.")
     else:
         utils.build_clang_arm64_kernel(threads="1",
                                        ObjPath=ObjPath,
