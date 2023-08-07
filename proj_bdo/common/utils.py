@@ -124,7 +124,7 @@ def configure_kernel(config: str, add_args: list[str]):
 def build_clang_arm64_kernel(add_args: list[str] = list(),
                              threads=os.getenv("NIX_BUILD_CORES", "128"),
                              ObjPath="",
-                             stderr="build_output.ll"):
+                             stderr="build_output.err"):
     """
     Build an arm64 Linux kernel with the DepChecker support enabled.
 

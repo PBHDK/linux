@@ -8,18 +8,18 @@ from common import utils
 def debug_kernel(ObjPath: str, add_args=list[str]):
     # Build required object to obtain compile command
     if ObjPath == "proj_bdo/dep_chain_tests.o":
-        utils.build_clang_arm64_kernel(
+        res = utils.build_clang_arm64_kernel(
             threads="1",
             ObjPath=ObjPath,
-            stderr="test_output.ll",
+            stderr="test_output.err",
             add_args=add_args
         )
-        with open("test_output.ll") as f:
+        with open("test_output.err") as f:
             bds = utils.count_str_file(s="dependency with ID", f=f)
     else:
         utils.build_clang_arm64_kernel(threads="1",
                                        ObjPath=ObjPath,
-                                       stderr="obj_output.ll",
+                                       stderr="obj_output.err",
                                        add_args=add_args)
 
     ModulePathPartition = ObjPath.rpartition("/")
@@ -76,15 +76,15 @@ if __name__ == "__main__":
             else:
                 print("\nConfig argument missing\n")
         case "fast":
-            with open("proj_bdo/build_output.ll", "w+") as f:
+            with open("proj_bdo/build_output.err", "w+") as f:
                 utils.build_clang_arm64_kernel(stderr=f, add_args=add_args)
         case "object":
-            with open("proj_bdo/obj_output.ll", "w+") as f:
+            with open("proj_bdo/obj_output.err", "w+") as f:
                 utils.build_clang_arm64_kernel(
                     threads="1", module_path=sys.argv[2],
                     stderr=f, add_args=add_args)
         case "precise":
-            with open("build_output.ll", "w+") as f:
+            with open("build_output.err", "w+") as f:
                 utils.build_clang_arm64_kernel(
                     threads="1", stderr=f, add_args=add_args)
         case "tests":
