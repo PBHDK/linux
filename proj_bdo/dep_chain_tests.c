@@ -12,6 +12,14 @@ MODULE_LICENSE("GPL");
 #ifndef _PROJ_BDO_DEP_CHAIN_TESTS
 #define _PROJ_BDO_DEP_CHAIN_TESTS
 
+// TODO: Make all variables non-volatile
+// TODO: use this for conditionally defining a non-volatile READ_ONCE_end() in relaxed mode.
+// #if PROJ_BDO_DEP_CHAIN_TESTS_STRICT
+// #define READ_ONCE_end(x) READ_ONCE(x)
+// #else
+// #define READ_ONCE_end(x) (x)
+// #endif
+
 /**
  * Naming scheme: proj_bdo_(rr|rw)_(addr|ctrl)_(begin|end)_${test_name}
  */
