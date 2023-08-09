@@ -5,14 +5,15 @@ import re
 from common import utils
 
 
-def debug_kernel(ObjPath: str, add_args=list[str]):
+def debug_kernel(ObjPath: str, add_args: list[str], arch: str):
     # Build required object to obtain compile command
     if ObjPath == "proj_bdo/dep_chain_tests.o":
         res = utils.clang_build_kernel(
             threads="1",
             ObjPath=ObjPath,
             stderr="test_output.err",
-            add_args=add_args
+            add_args=add_args,
+            arch=arch
         )
         with open("test_output.err") as f:
             bds = utils.count_str_file(s="dependency with ID", f=f)
@@ -22,7 +23,7 @@ def debug_kernel(ObjPath: str, add_args=list[str]):
         utils.clang_build_kernel(threads="1",
                                  ObjPath=ObjPath,
                                  stderr="obj_output.err",
-                                 add_args=add_args)
+                                 add_args=add_args, arch=arch)
 
     ModulePathPartition = ObjPath.rpartition("/")
 
@@ -94,12 +95,14 @@ if __name__ == "__main__":
                     threads="1", stderr=f, add_args=add_args)
         case "tests":
             add_args[0] += " {}".format(utils.TEST_FLAGS)
-            if len(sys.argv) > 2 and sys.argv[2] == "relaxed":
+            arch = sys.argv[2]
+            if len(sys.argv) > 3 and sys.argv[3] == "relaxed":
                 add_args[0] += " {}".format(utils.REL_FLAGS)
                 debug_kernel("proj_bdo/dep_chain_tests.o",
-                             add_args=add_args)
+                             add_args=add_args, arch=arch)
             else:
-                debug_kernel("proj_bdo/dep_chain_tests.o", add_args=add_args)
+                debug_kernel("proj_bdo/dep_chain_tests.o",
+                             add_args=add_args, arch=arch)
         case "debug":
             debug_kernel(sys.argv[2], add_args=add_args)
         case _:
