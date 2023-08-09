@@ -4,14 +4,15 @@ import os
 
 from typing import TextIO, Optional
 
-_ARM64_CLANG_CROSS_FLAGS = ["HOSTCC=gcc", "CC=clang", "ARCH=arm64",
-                            "CROSS_COMPILE=aarch64-unknown-linux-gnu-"]
+_CLANG_FLAGS = ["HOSTCC=gcc", "CC=clang",]
 
 DC_FLAGS = "-fsanitize=lkmm-dep-checker"
 TEST_FLAGS = "-mllvm -lkmm-enable-tests"
 REL_FLAGS = "-mllvm -dep-checker-granularity=Relaxed"
 
-_CLANG_ARM64_ENV = _ARM64_CLANG_CROSS_FLAGS
+_CLANG_ARM64_ENV = _CLANG_FLAGS + \
+    ["ARCH=arm64", "CROSS_COMPILE=aarch64-unknown-linux-gnu-"]
+_CLANG_X86_ENV = _CLANG_FLAGS + ["ARCH=x86"]
 
 
 def count_str_file(s: str, f: TextIO):
@@ -111,12 +112,13 @@ def add_dep_checker_support_to_current_config():
     run(["./scripts/config", "--disable", "CONFIG_DEBUG_EFI"])
 
 
-def add_syzkaller_support_to_config():
+def add_syzkaller_support_to_config(add_args: list[str], arch: str):
     # Suggested by:
     # https://docs.kernel.org/dev-tools/gdb-kernel-debugging.html
     print("\nBuilding GDB Scripts:\n")
     run(["./scripts/config", "--enable", "CONFIG_GDB_SCRIPTS"])
-    build_clang_arm64_kernel(ModulePath="scripts_gdb", output_file="/dev/null")
+    clang_build_kernel(ObjPath="scripts_gdb",
+                       add_args=add_args, stderr="/dev/null", arch=arch)
 
     # Suggested by:
     # https://github.com/google/syzkaller/blob/master/docs/linux/setup_linux-host_qemu-vm_arm64-kernel.md
@@ -133,20 +135,26 @@ def add_syzkaller_support_to_config():
         "CONFIG_CROSS_COMPILE", "aarch64-linux-gnu-"])
 
 
-def configure_kernel(config: str, add_args: list[str]):
+def configure_kernel(config: str, add_args: list[str], arch: str = "arm64"):
     """
     Generate a kernel config.
 
     config -- the type of config to generate.
+    add_args -- additional arguments passed to the make invocation.
+    arch -- the architecture to configure. Either arm64 (default) or x86.
     """
-    run(["make"] + _CLANG_ARM64_ENV + add_args + [config])
+    env = _CLANG_ARM64_ENV
+    if arch == "x86":
+        env = _CLANG_X86_ENV
+    run(["make"] + env + add_args + [config])
     add_dep_checker_support_to_current_config()
 
 
-def build_clang_arm64_kernel(add_args: list[str] = list(),
-                             threads=os.getenv("NIX_BUILD_CORES", "128"),
-                             ObjPath="",
-                             stderr="build_output.err"):
+def clang_build_kernel(add_args: list[str] = list(),
+                       threads=os.getenv("NIX_BUILD_CORES", "128"),
+                       ObjPath="",
+                       stderr="build_output.err",
+                       arch="arm64"):
     """
     Build an arm64 Linux kernel with the DepChecker support enabled.
 
@@ -154,7 +162,12 @@ def build_clang_arm64_kernel(add_args: list[str] = list(),
     threads -- the number of threads to use.
     ObjPath -- if specified, will only build the passed object.
     stderr -- the name of the file where stderr should be captured.
+    arch -- the architecture to build for. Can be x86 or arm64
     """
+    env: list[str] = _CLANG_ARM64_ENV
+    if arch == "x86":
+        env = _CLANG_X86_ENV
+
     with open(stderr, "w+") as SE:
         JStr = "-j" + threads
         res = None
@@ -165,19 +178,19 @@ def build_clang_arm64_kernel(add_args: list[str] = list(),
             if (ObjPath == "proj_bdo/dep_chain_tests.o"):
                 res = run(
                     ["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] +
-                    _CLANG_ARM64_ENV + add_args +
+                    env + add_args +
                     [JStr, ObjPath, "-s"], stderr=SE
                 )
             else:
                 res = run(
                     ["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] +
-                    _CLANG_ARM64_ENV + add_args +
+                    env + add_args +
                     [JStr, ObjPath, "-s"], stderr=SE
                 )
         else:
             res = run(
                 ["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] +
-                add_args + [JStr, "-s"] + _CLANG_ARM64_ENV,
+                add_args + [JStr, "-s"] + env,
                 stderr=SE
             )
 

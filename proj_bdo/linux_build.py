@@ -8,7 +8,7 @@ from common import utils
 def debug_kernel(ObjPath: str, add_args=list[str]):
     # Build required object to obtain compile command
     if ObjPath == "proj_bdo/dep_chain_tests.o":
-        res = utils.build_clang_arm64_kernel(
+        res = utils.clang_build_kernel(
             threads="1",
             ObjPath=ObjPath,
             stderr="test_output.err",
@@ -19,10 +19,10 @@ def debug_kernel(ObjPath: str, add_args=list[str]):
         if (res.returncode != 0):
             exit("Clang crashed when building the tests.")
     else:
-        utils.build_clang_arm64_kernel(threads="1",
-                                       ObjPath=ObjPath,
-                                       stderr="obj_output.err",
-                                       add_args=add_args)
+        utils.clang_build_kernel(threads="1",
+                                 ObjPath=ObjPath,
+                                 stderr="obj_output.err",
+                                 add_args=add_args)
 
     ModulePathPartition = ObjPath.rpartition("/")
 
@@ -73,23 +73,24 @@ if __name__ == "__main__":
         case "clean":
             utils.run(["make", "clean"])
         case "config":
-            if sys.argv[2]:
-                utils.configure_kernel(config=sys.argv[2], add_args=add_args)
-                if len(sys.argv) > 3 and sys.argv[3] == "syzkaller":
-                    utils.add_syzkaller_support_to_config()
+            arch = sys.argv[3]
+            utils.configure_kernel(
+                config=sys.argv[2], add_args=add_args, arch=arch)
+            if len(sys.argv) > 4 and sys.argv[4] == "syzkaller":
+                utils.add_syzkaller_support_to_config(
+                    add_args=add_args, arch=arch)
             else:
                 print("\nConfig argument missing\n")
         case "fast":
-            with open("proj_bdo/build_output.err", "w+") as f:
-                utils.build_clang_arm64_kernel(stderr=f, add_args=add_args)
+            utils.clang_build_kernel(add_args=add_args, arch=sys.argv[2])
         case "object":
             with open("proj_bdo/obj_output.err", "w+") as f:
-                utils.build_clang_arm64_kernel(
+                utils.clang_build_kernel(
                     threads="1", module_path=sys.argv[2],
                     stderr=f, add_args=add_args)
         case "precise":
             with open("build_output.err", "w+") as f:
-                utils.build_clang_arm64_kernel(
+                utils.clang_build_kernel(
                     threads="1", stderr=f, add_args=add_args)
         case "tests":
             add_args[0] += " {}".format(utils.TEST_FLAGS)
