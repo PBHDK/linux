@@ -12,7 +12,7 @@ REL_FLAGS = "-mllvm -dep-checker-granularity=Relaxed"
 
 _CLANG_ARM64_ENV = _CLANG_FLAGS + \
     ["ARCH=arm64", "CROSS_COMPILE=aarch64-unknown-linux-gnu-"]
-_CLANG_X86_ENV = _CLANG_FLAGS + ["ARCH=x86"]
+_CLANG_X86_64_ENV = _CLANG_FLAGS + ["ARCH=x86_64"]
 
 
 def count_str_file(s: str, f: TextIO):
@@ -134,11 +134,11 @@ def configure_kernel(config: str, add_args: list[str], arch: str = "arm64"):
 
     config -- the type of config to generate.
     add_args -- additional arguments passed to the make invocation.
-    arch -- the architecture to configure. Either arm64 (default) or x86.
+    arch -- the architecture to configure. Either arm64 (default) or x86_64.
     """
     env = _CLANG_ARM64_ENV
-    if arch == "x86":
-        env = _CLANG_X86_ENV
+    if arch == "x86_64":
+        env = _CLANG_X86_64_ENV
     run(["make"] + env + add_args + [config])
     add_dep_checker_support_to_current_config()
 
@@ -155,11 +155,11 @@ def clang_build_kernel(add_args: list[str] = list(),
     threads -- the number of threads to use.
     ObjPath -- if specified, will only build the passed object.
     stderr -- the name of the file where stderr should be captured.
-    arch -- the architecture to build for. Can be x86 or arm64
+    arch -- the architecture to build for. Can be x86_64 or arm64
     """
     env: list[str] = _CLANG_ARM64_ENV
-    if arch == "x86":
-        env = _CLANG_X86_ENV
+    if arch == "x86_64":
+        env = _CLANG_X86_64_ENV
 
     with open(stderr, "w+") as SE:
         JStr = "-j" + threads
