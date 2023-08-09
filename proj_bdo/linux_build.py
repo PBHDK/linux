@@ -5,86 +5,7 @@ import re
 from common import utils
 
 
-<<<<<<< HEAD
 def debug_kernel(ObjPath: str, add_args=list[str]):
-=======
-def run(args, stderr=None, stdout=None, shell=False, executable=None):
-    print("[ " + " ".join(args) + " ]\n")
-
-    subprocess.run(args=args, stderr=stderr, stdout=stdout,
-                   shell=shell, executable=executable)
-
-
-def add_dep_checker_support_to_config():
-    print("\nUpdating config for dep checker support:\n")
-    run(["./scripts/config", "--disable", "CONFIG_DEBUG_INFO_NONE"])
-    run(["./scripts/config", "--enable", "CONFIG_DEBUG_INFO"])
-    run(["./scripts/config", "--enable",
-         "CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT"])
-    run(["./scripts/config", "--enable", "CONFIG_LTO_NONE"])
-    run(["./scripts/config", "--disable",
-         "CONFIG_DEBUG_INFO_REDUCED"])
-    run(["./scripts/config", "--disable",
-         "CONFIG_DEBUG_INFO_SPLIT"])
-    run(["./scripts/config", "--disable", "CONFIG_DEBUG_INFO_BTF"])
-    run(["./scripts/config", "--enable",
-         "CONFIG_PAHOLE_HAS_SPLIT_BTF"])
-    run(["./scripts/config", "--enable",
-         "CONFIG_PAHOLE_HAS_BTF_TAG"])
-    run(["./scripts/config", "--disable", "CONFIG_GDB_SCRIPTS"])
-    run(["./scripts/config", "--disable", "CONFIG_DEBUG_EFI"])
-
-
-def add_syzkaller_support_to_config():
-    # Suggested by:
-    # https://docs.kernel.org/dev-tools/gdb-kernel-debugging.html
-    print("\nBuilding GDB Scripts:\n")
-    run(["./scripts/config", "--enable", "CONFIG_GDB_SCRIPTS"])
-    build_kernel(ModulePath="scripts_gdb", output_file="/dev/null")
-
-    # Suggested by:
-    # https://github.com/google/syzkaller/blob/master/docs/linux/setup_linux-host_qemu-vm_arm64-kernel.md
-    print("\nUpdating config for syzkaller support:\n")
-    # FIXME: why is KCOV making builds fail?
-    # run(["./scripts/config", "--enable", "CONFIG_KCOV"])
-    run(["./scripts/config", "--enable", "CONFIG_KASAN"])
-    run(["./scripts/config", "--enable", "CONFIG_DEBUG_INFO"])
-    run(["./scripts/config", "--set-str", "CONFIG_CMDLINE", "console=ttyAMA0"])
-    # run(["./scripts/config", "--enable", "CONFIG_KCOV_INSTRUMENT_ALL"])
-    run(["./scripts/config", "--enable", "CONFIG_DEBUG_FS"])
-    run(["./scripts/config", "--enable", "CONFIG_NET_9P"])
-    run(["./scripts/config", "--enable", "CONFIG_NET_9P_VIRTIO"])
-    run(["./scripts/config", "--set-str",
-        "CONFIG_CROSS_COMPILE", "aarch64-linux-gnu-"])
-
-
-def configure_kernel(config):
-    run(["make"] + _MAKEFLAGS + [config])
-    add_dep_checker_support_to_config()
-
-
-def build_kernel(
-        threads=os.getenv("NIX_BUILD_CORES", "128"),
-        ModulePath="", output_file="build_output.ll"):
-    JStr = "-j" + threads
-    # FIXME: make this readable
-    with open(output_file, "w+") as f:
-        if ModulePath:
-            if (os.path.exists(ModulePath)):
-                run(["rm"] + [ModulePath], stderr=f)
-
-            run(["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] + (_MAKEFLAGS_TESTS if output_file == "test_output.ll"
-                                                                        else _MAKEFLAGS) + [JStr] + [ModulePath], stderr=f)
-        else:
-            run(["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] +
-                _MAKEFLAGS + [JStr], stderr=f)
-
-    print("\nGenerating compilation database:\n")
-    run(["./scripts/clang-tools/gen_compile_commands.py"])
-
-
-def debug_kernel(ObjPath: str):
->>>>>>> ac969125b8e3 (build: add output for add_syzkaller_support_to_config())
     # Build required object to obtain compile command
     if ObjPath == "proj_bdo/dep_chain_tests.o":
         res = utils.build_clang_arm64_kernel(
@@ -154,8 +75,8 @@ if __name__ == "__main__":
         case "config":
             if sys.argv[2]:
                 utils.configure_kernel(config=sys.argv[2], add_args=add_args)
-                if sys.argv[3] == "syzkaller":
-                    add_syzkaller_support_to_config()
+                if len(sys.argv) > 3 and sys.argv[3] == "syzkaller":
+                    utils.add_syzkaller_support_to_config()
             else:
                 print("\nConfig argument missing\n")
         case "fast":
