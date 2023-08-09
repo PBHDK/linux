@@ -94,22 +94,14 @@ def get_dep_checker_ver() -> str:
 
 def add_dep_checker_support_to_current_config():
     """Set all options the dep checker requires in a kernel config."""
-    run(["./scripts/config", "--disable", "CONFIG_DEBUG_INFO_NONE"])
     run(["./scripts/config", "--enable", "CONFIG_DEBUG_INFO"])
-    run([
-        "./scripts/config", "--enable",
-        "CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT"
-    ])
+    run(["./scripts/config", "--enable",
+         "CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT"])
     run(["./scripts/config", "--disable", "CONFIG_DEBUG_INFO_REDUCED"])
+    run(["./scripts/config", "--enable", "DEBUG_INFO_COMPRESSED_NONE"])
+    run(["./scripts/config", "--disable", "DEBUG_INFO_COMPRESSED_ZLIB"])
     run(["./scripts/config", "--disable", "CONFIG_DEBUG_INFO_SPLIT"])
-    run(["./scripts/config", "--disable", "CONFIG_DEBUG_INFO_BTF"])
-
-    run(["./scripts/config", "--enable", "CONFIG_PAHOLE_HAS_SPLIT_BTF"])
-    run(["./scripts/config", "--enable", "CONFIG_PAHOLE_HAS_BTF_TAG"])
-
-    run(["./scripts/config", "--disable", "CONFIG_GDB_SCRIPTS"])
-
-    run(["./scripts/config", "--disable", "CONFIG_DEBUG_EFI"])
+    run(["./scripts/config", "--enable", "CONFIG_GDB_SCRIPTS"])
 
 
 def add_syzkaller_support_to_config(add_args: list[str], arch: str):
