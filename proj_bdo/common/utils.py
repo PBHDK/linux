@@ -113,6 +113,7 @@ def add_dep_checker_support_to_current_config():
 
 
 def add_syzkaller_support_to_config(add_args: list[str], arch: str):
+    return
     # Suggested by:
     # https://docs.kernel.org/dev-tools/gdb-kernel-debugging.html
     print("\nBuilding GDB Scripts:\n")
