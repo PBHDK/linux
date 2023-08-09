@@ -80,8 +80,6 @@ if __name__ == "__main__":
             if len(sys.argv) > 4 and sys.argv[4] == "syzkaller":
                 utils.add_syzkaller_support_to_config(
                     add_args=add_args, arch=arch)
-            else:
-                print("\nConfig argument missing\n")
         case "fast":
             utils.clang_build_kernel(add_args=add_args, arch=sys.argv[2])
         case "object":
