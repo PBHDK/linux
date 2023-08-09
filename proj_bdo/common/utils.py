@@ -191,7 +191,7 @@ def clang_build_kernel(add_args: list[str] = list(),
         else:
             res = run(
                 ["/usr/bin/time", "-v", "-o", "/dev/stdout", "make"] +
-                add_args + [JStr, "-s"] + env,
+                env + add_args + [JStr, "-s"],
                 stderr=SE
             )
 
