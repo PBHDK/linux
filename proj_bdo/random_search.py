@@ -110,7 +110,7 @@ def _generated_and_build_config(config_target: str,
     # Buiid randconfig
     print("Building ...")
     try:
-        build_result = utils.build_clang_arm64_kernel(
+        build_result = utils.clang_build_kernel(
             add_args=["KCFLAGS={}".format(_RAND_SEARCH_KC_ARGS)], stderr=subprocess.PIPE)
     except Exception as e:
         print(e)
