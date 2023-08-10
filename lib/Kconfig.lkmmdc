@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+config HAVE_ARCH_LKMMDC
+	bool
+
+config HAVE_LKMMDC_COMPILER
+	def_bool (CC_IS_CLANG && $(cc-option,-fsanitize=lkmm-dep-checker))
+	help
+	  Currently only the version of clang found at:
+	  https://github.com/PBHDK/llvm-project supports the LKMM Dependency
+	  Checker.
+
+menuconfig LKMMDC
+	bool "LKMMDC: LKMM Dependency Checker"
+	depends on HAVE_ARCH_LKMMDC && HAVE_LKMMDC_COMPILER
+	depends on DEBUG_KERNEL
+	help
+	  The LKMM Dependency Checker identifies LKMM dependency orderings and
+	  informs users if they were broken during the compilation of the
+	  kernel.
+
+if LKMMDC 
+
+config LKMMDC_TEST
+	bool "LKMM DepChecker tests"
+	default n
+	help
+	  Artificially break the dependency orderings in
+	  proj_bdo/dep_chain_tests.c
+
+endif # LKMMDC 
