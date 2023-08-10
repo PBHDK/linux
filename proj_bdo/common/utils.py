@@ -6,10 +6,6 @@ from typing import TextIO, Optional
 
 _CLANG_FLAGS = ["HOSTCC=gcc", "CC=clang",]
 
-DC_FLAGS = "-fsanitize=lkmm-dep-checker"
-TEST_FLAGS = "-mllvm -lkmm-enable-tests"
-REL_FLAGS = "-mllvm -dep-checker-granularity=Relaxed"
-
 _CLANG_ARM64_ENV = _CLANG_FLAGS + \
     ["ARCH=arm64", "CROSS_COMPILE=aarch64-unknown-linux-gnu-"]
 _CLANG_X86_64_ENV = _CLANG_FLAGS + ["ARCH=x86_64"]
@@ -102,6 +98,9 @@ def add_dep_checker_support_to_current_config():
     run(["./scripts/config", "--disable", "DEBUG_INFO_COMPRESSED_ZLIB"])
     run(["./scripts/config", "--disable", "CONFIG_DEBUG_INFO_SPLIT"])
     run(["./scripts/config", "--enable", "CONFIG_GDB_SCRIPTS"])
+    run(["./scripts/config", "--enable", "DEBUG_KERNEL"])
+    run(["./scripts/config", "--enable", "LKMMDC"])
+    run(["./scripts/config", "--disable", "LKMMDC_TEST"])
 
 
 def add_syzkaller_support_to_config(add_args: list[str], arch: str):
@@ -128,7 +127,7 @@ def add_syzkaller_support_to_config(add_args: list[str], arch: str):
         "CONFIG_CROSS_COMPILE", "aarch64-linux-gnu-"])
 
 
-def configure_kernel(config: str, add_args: list[str], arch: str = "arm64"):
+def configure_kernel(config: str, add_args: list[str] = [], arch: str = "arm64"):
     """
     Generate a kernel config.
 
