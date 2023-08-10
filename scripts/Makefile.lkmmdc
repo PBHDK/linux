@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: GPL-2.0
+ifdef CONFIG_LKMMDC
+lkmmdc-cflags := -fsanitize=lkmm-dep-checker
+
+ifdef CONFIG_LKMMDC_TEST
+lkmmdc-cflags += -mllvm -lkmm-enable-tests
+endif
+
+export CFLAGS_LKMMDC := $(lkmmdc-cflags)
+endif # CONFIG_LKMMDC
