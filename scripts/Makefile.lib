@@ -201,7 +201,9 @@ _c_flags += $(if $(patsubst n%,, \
 endif
 
 ifeq ($(CONFIG_LKMMDC),y)
-_c_flags += $(CFLAGS_LKMMDC)
+_c_flags += $(if $(patsubst n%,, \
+	$(KCSAN_SANITIZE)y), \
+	$(CFLAGS_LKMMDC))
 endif
 
 # $(srctree)/$(src) for including checkin headers from generated source files
