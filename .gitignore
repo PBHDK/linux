@@ -181,3 +181,8 @@ sphinx_*/
 
 # __pycache__
 __pycache__/
+
+# LKMM DepChecker
+build_output.err
+test_output.err
+obj_output.err
