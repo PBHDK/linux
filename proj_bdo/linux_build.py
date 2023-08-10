@@ -5,7 +5,7 @@ import re
 from common import utils
 
 
-def debug_kernel(ObjPath: str, add_args: list[str], arch: str):
+def debug_kernel(ObjPath: str, arch: str, add_args: list[str] = []):
     # Build required object to obtain compile command
     if ObjPath == "proj_bdo/dep_chain_tests.o":
         res = utils.clang_build_kernel(
@@ -67,7 +67,6 @@ def debug_kernel(ObjPath: str, add_args: list[str], arch: str):
 
 
 if __name__ == "__main__":
-    add_args = ["KCFLAGS={}".format(utils.DC_FLAGS)]
     match sys.argv[1]:
         case "mrproper":
             utils.run(["make", "mrproper"])
@@ -75,33 +74,31 @@ if __name__ == "__main__":
             utils.run(["make", "clean"])
         case "config":
             arch = sys.argv[3]
-            utils.configure_kernel(
-                config=sys.argv[2], add_args=add_args, arch=arch)
+            utils.configure_kernel(config=sys.argv[2], arch=arch)
             if len(sys.argv) > 4 and sys.argv[4] == "syzkaller":
-                utils.add_syzkaller_support_to_config(
-                    add_args=add_args, arch=arch)
+                utils.add_syzkaller_support_to_config(arch=arch)
         case "fast":
-            utils.clang_build_kernel(add_args=add_args, arch=sys.argv[2])
+            utils.clang_build_kernel(arch=sys.argv[2])
         case "object":
             with open("proj_bdo/obj_output.err", "w+") as f:
                 utils.clang_build_kernel(
-                    threads="1", module_path=sys.argv[2],
-                    stderr=f, add_args=add_args)
+                    threads="1", module_path=sys.argv[2], stderr=f)
         case "precise":
             with open("build_output.err", "w+") as f:
                 utils.clang_build_kernel(
-                    threads="1", stderr=f, add_args=add_args)
+                    threads="1", stderr=f)
         case "tests":
-            add_args[0] += " {}".format(utils.TEST_FLAGS)
             arch = sys.argv[2]
             if len(sys.argv) > 3 and sys.argv[3] == "relaxed":
-                add_args[0] += " {}".format(utils.REL_FLAGS)
-                debug_kernel("proj_bdo/dep_chain_tests.o",
-                             add_args=add_args, arch=arch)
+                pass
+                # TODO:
+                # utils.run(["./scripts/config", "--enable", ""])
+                # debug_kernel("proj_bdo/dep_chain_tests.o", arch=arch)
             else:
-                debug_kernel("proj_bdo/dep_chain_tests.o",
-                             add_args=add_args, arch=arch)
+                utils.run(
+                    ["./scripts/config", "--enable", "CONFIG_LKMMDC_TEST"])
+                debug_kernel("proj_bdo/dep_chain_tests.o",  arch=arch)
         case "debug":
-            debug_kernel(sys.argv[2], add_args=add_args)
+            debug_kernel(sys.argv[2])
         case _:
             print("invalid argument")
