@@ -200,6 +200,12 @@ _c_flags += $(if $(patsubst n%,, \
 	-D__KCSAN_INSTRUMENT_BARRIERS__)
 endif
 
+ifeq ($(CONFIG_LKMMDC),y)
+_c_flags += $(if $(patsubst n%,, \
+	$(KCSAN_SANITIZE)y), \
+	$(CFLAGS_LKMMDC))
+endif
+
 # $(srctree)/$(src) for including checkin headers from generated source files
 # $(objtree)/$(obj) for including generated headers from checkin source files
 ifeq ($(KBUILD_EXTMOD),)
