@@ -40,7 +40,7 @@ static noinline int proj_bdo_rr_addr_dep_begin_simple(void)
 
 	r1 = READ_ONCE(*foo);
 
-	r2 = &r1[42];
+	r2 = &r1[8];
 
 	r3 = READ_ONCE(*r2);
 
@@ -56,7 +56,7 @@ static noinline int proj_bdo_rr_addr_dep_end_simple(void)
 
 	r1 = READ_ONCE(*foo);
 
-	r2 = &r1[42];
+	r2 = &r1[8];
 
 	r3 = READ_ONCE(*r2);
 
@@ -78,7 +78,7 @@ static noinline int proj_bdo_rr_addr_dep_begin_call_ending(void)
 
 	r1 = READ_ONCE(*foo);
 
-	r2 = &r1[42];
+	r2 = &r1[8];
 
 	rr_addr_dep_begin_call_ending_helper(r2);
 
@@ -101,7 +101,7 @@ static noinline int rr_addr_dep_end_call_ending(void)
 
 	r1 = READ_ONCE(*foo);
 
-	r2 = &r1[42];
+	r2 = &r1[8];
 
 	proj_bdo_rr_addr_dep_end_call_ending_helper(r2);
 
@@ -116,7 +116,7 @@ proj_bdo_rr_addr_dep_begin_call_beginning_helper(void)
 
 	r1 = READ_ONCE(*foo);
 
-	r2 = &r1[42];
+	r2 = &r1[8];
 
 	return r2;
 }
@@ -141,7 +141,7 @@ static volatile noinline int *rr_addr_dep_end_call_beginning_helper(void)
 
 	r1 = READ_ONCE(*foo);
 
-	r2 = &r1[42];
+	r2 = &r1[8];
 
 	return r2;
 }
@@ -162,7 +162,7 @@ rr_addr_dep_begin_call_dep_chain_helper(volatile int *r2)
 {
 	volatile int *r3;
 
-	r3 = &r2[42];
+	r3 = &r2[8];
 
 	return r3;
 }
@@ -188,7 +188,7 @@ rr_addr_dep_end_call_dep_chain_helper(volatile int *r2)
 {
 	volatile int *r3;
 
-	r3 = &r2[42];
+	r3 = &r2[8];
 
 	return r3;
 }
@@ -225,9 +225,9 @@ static noinline int proj_bdo_rr_addr_dep_begin_cond_dep_chain_full(void)
 	r1 = READ_ONCE(*foo);
 
 	if (*bar)
-		r2 = &r1[21];
+		r2 = &r1[5];
 	else
-		r2 = &r1[42];
+		r2 = &r1[8];
 
 	r3 = READ_ONCE(*r2);
 
@@ -244,9 +244,9 @@ static noinline int proj_bdo_rr_addr_dep_end_cond_dep_chain_full(void)
 	r1 = READ_ONCE(*foo);
 
 	if (*bar)
-		r2 = &r1[21];
+		r2 = &r1[5];
 	else
-		r2 = &r1[42];
+		r2 = &r1[8];
 
 	r3 = READ_ONCE(*r2);
 
@@ -263,7 +263,7 @@ static noinline int proj_bdo_rr_addr_dep_begin_cond_dep_chain_partial(void)
 	r1 = READ_ONCE(*foo);
 
 	if (!*bar)
-		r2 = &r1[42];
+		r2 = &r1[8];
 
 	r3 = READ_ONCE(*r2);
 
@@ -280,7 +280,7 @@ static noinline int proj_bdo_rr_addr_dep_end_cond_dep_chain_partial(void)
 	r1 = READ_ONCE(*foo);
 
 	if (!*bar)
-		r2 = &r1[42];
+		r2 = &r1[8];
 
 	r3 = READ_ONCE(*r2);
 
@@ -298,8 +298,8 @@ static noinline int proj_bdo_rr_addr_dep_begin_two_endings_simple(void)
 
 	r1 = READ_ONCE(*foo);
 
-	r2 = &r1[42];
-	r3 = &r1[21];
+	r2 = &r1[8];
+	r3 = &r1[5];
 
 	r4 = READ_ONCE(*r2);
 
@@ -324,8 +324,8 @@ static noinline int proj_bdo_rr_addr_dep_end_two_endings_simple(void)
 
 	r1 = READ_ONCE(*foo);
 
-	r2 = &r1[42];
-	r3 = &r1[21];
+	r2 = &r1[8];
+	r3 = &r1[5];
 
 	r4 = READ_ONCE(*r2);
 
@@ -355,8 +355,8 @@ static noinline int proj_bdo_rr_addr_dep_begin_two_endings_in_calls(void)
 
 	r1 = READ_ONCE(*foo);
 
-	r2 = &r1[42];
-	r3 = &r1[21];
+	r2 = &r1[8];
+	r3 = &r1[5];
 
 	rr_addr_dep_begin_two_endings_in_calls_helper1(r2);
 	rr_addr_dep_begin_two_endings_in_calls_helper2(r3);
@@ -386,8 +386,8 @@ static noinline int rr_addr_dep_end_two_endings_in_calls(void)
 
 	r1 = READ_ONCE(*foo);
 
-	r2 = &r1[42];
-	r3 = &r1[21];
+	r2 = &r1[8];
+	r3 = &r1[5];
 
 	proj_bdo_rr_addr_dep_end_two_endings_in_calls_helper1(r2);
 	proj_bdo_rr_addr_dep_end_two_endings_in_calls_helper2(r3);
@@ -419,7 +419,7 @@ static noinline int rr_addr_dep_begin_beg_and_end_in_calls(void)
 
 	r2 = proj_bdo_rr_addr_dep_begin_beg_and_end_in_calls_helper1();
 
-	r3 = &r2[42];
+	r3 = &r2[8];
 
 	rr_addr_dep_begin_beg_and_end_in_calls_helper2(r3);
 
@@ -449,7 +449,7 @@ static noinline int rr_addr_dep_end_beg_and_end_in_calls(void)
 
 	r2 = rr_addr_dep_end_beg_and_end_in_calls_helper1();
 
-	r3 = &r2[42];
+	r3 = &r2[8];
 
 	proj_bdo_rr_addr_dep_end_beg_and_end_in_calls_helper2(r3);
 
@@ -470,9 +470,9 @@ static noinline int proj_bdo_rw_addr_dep_begin_simple(void)
 
 	r1 = READ_ONCE(*foo);
 
-	r2 = &r1[42];
+	r2 = &r1[8];
 
-	WRITE_ONCE(*r2, 42);
+	WRITE_ONCE(*r2, 0x21212121);
 
 	return 0;
 }
@@ -485,16 +485,16 @@ static noinline int proj_bdo_rw_addr_dep_end_simple(void)
 
 	r1 = READ_ONCE(*foo);
 
-	r2 = &r1[42];
+	r2 = &r1[8];
 
-	WRITE_ONCE(*r2, 42);
+	WRITE_ONCE(*r2, 0x21212121);
 
 	return 0;
 }
 
 static noinline void rw_addr_dep_begin_call_ending_helper(volatile int *r2)
 {
-	WRITE_ONCE(*r2, 42);
+	WRITE_ONCE(*r2, 0x21212121);
 }
 
 /* BUGs: 1 */
@@ -505,7 +505,7 @@ static noinline int proj_bdo_rw_addr_dep_begin_call_ending(void)
 
 	r1 = READ_ONCE(*foo);
 
-	r2 = &r1[42];
+	r2 = &r1[8];
 
 	rw_addr_dep_begin_call_ending_helper(r2);
 
@@ -516,7 +516,7 @@ static noinline int proj_bdo_rw_addr_dep_begin_call_ending(void)
 static noinline void
 proj_bdo_rw_addr_dep_end_call_ending_helper(volatile int *r2)
 {
-	WRITE_ONCE(*r2, 42);
+	WRITE_ONCE(*r2, 0x21212121);
 }
 
 static noinline int rw_addr_dep_end_call_ending(void)
@@ -526,7 +526,7 @@ static noinline int rw_addr_dep_end_call_ending(void)
 
 	r1 = READ_ONCE(*foo);
 
-	r2 = &r1[42];
+	r2 = &r1[8];
 
 	proj_bdo_rw_addr_dep_end_call_ending_helper(r2);
 
@@ -542,7 +542,7 @@ proj_bdo_rw_addr_dep_begin_call_beginning_helper(void)
 
 	r1 = READ_ONCE(*foo);
 
-	r2 = &r1[42];
+	r2 = &r1[8];
 
 	return r2;
 }
@@ -552,7 +552,7 @@ static noinline int rw_addr_dep_begin_call_beginning(void)
 	volatile int *r3;
 
 	r3 = proj_bdo_rw_addr_dep_begin_call_beginning_helper();
-	WRITE_ONCE(*r3, 42);
+	WRITE_ONCE(*r3, 0x21212121);
 
 	return 0;
 }
@@ -564,7 +564,7 @@ static volatile noinline int *rw_addr_dep_end_call_beginning_helper(void)
 
 	r1 = READ_ONCE(*foo);
 
-	r2 = &r1[42];
+	r2 = &r1[8];
 
 	return r2;
 }
@@ -575,7 +575,7 @@ static noinline int proj_bdo_rw_addr_dep_end_call_beginning(void)
 	volatile int *r3;
 
 	r3 = rw_addr_dep_end_call_beginning_helper();
-	WRITE_ONCE(*r3, 42);
+	WRITE_ONCE(*r3, 0x21212121);
 
 	return 0;
 }
@@ -585,7 +585,7 @@ rw_addr_dep_begin_call_dep_chain_helper(volatile int *r2)
 {
 	volatile int *r3;
 
-	r3 = &r2[42];
+	r3 = &r2[8];
 
 	return r3;
 }
@@ -600,7 +600,7 @@ static noinline int proj_bdo_rw_addr_dep_begin_call_dep_chain(void)
 
 	r4 = rw_addr_dep_begin_call_dep_chain_helper(r1);
 
-	WRITE_ONCE(*r4, 42);
+	WRITE_ONCE(*r4, 0x21212121);
 
 	return 0;
 }
@@ -610,7 +610,7 @@ rw_addr_dep_end_call_dep_chain_helper(volatile int *r2)
 {
 	volatile int *r3;
 
-	r3 = &r2[42];
+	r3 = &r2[8];
 
 	return r3;
 }
@@ -625,7 +625,7 @@ static noinline int proj_bdo_rw_addr_dep_end_call_dep_chain(void)
 
 	r4 = rw_addr_dep_end_call_dep_chain_helper(r1);
 
-	WRITE_ONCE(*r4, 42);
+	WRITE_ONCE(*r4, 0x21212121);
 
 	return 0;
 }
@@ -639,11 +639,11 @@ static noinline int proj_bdo_rw_addr_dep_begin_cond_dep_chain_full(void)
 	r1 = READ_ONCE(*foo);
 
 	if (*bar)
-		r2 = &r1[21];
+		r2 = &r1[5];
 	else
-		r2 = &r1[42];
+		r2 = &r1[8];
 
-	WRITE_ONCE(*r2, 42);
+	WRITE_ONCE(*r2, 0x21212121);
 
 	return 0;
 }
@@ -657,11 +657,11 @@ static noinline int proj_bdo_rw_addr_dep_end_cond_dep_chain_full(void)
 	r1 = READ_ONCE(*foo);
 
 	if (*bar)
-		r2 = &r1[21];
+		r2 = &r1[5];
 	else
-		r2 = &r1[42];
+		r2 = &r1[8];
 
-	WRITE_ONCE(*r2, 42);
+	WRITE_ONCE(*r2, 0x21212121);
 
 	return 0;
 }
@@ -675,9 +675,9 @@ static noinline int proj_bdo_rw_addr_dep_begin_cond_dep_chain_partial(void)
 	r1 = READ_ONCE(*foo);
 
 	if (!*bar)
-		r2 = &r1[42];
+		r2 = &r1[8];
 
-	WRITE_ONCE(*r2, 42);
+	WRITE_ONCE(*r2, 0x21212121);
 
 	return 0;
 }
@@ -691,9 +691,9 @@ static noinline int proj_bdo_rw_addr_dep_end_cond_dep_chain_partial(void)
 	r1 = READ_ONCE(*foo);
 
 	if (!*bar)
-		r2 = &r1[42];
+		r2 = &r1[8];
 
-	WRITE_ONCE(*r2, 42);
+	WRITE_ONCE(*r2, 0x21212121);
 
 	return 0;
 }
@@ -707,12 +707,12 @@ static noinline int proj_bdo_rw_addr_dep_begin_two_endings_simple(void)
 
 	r1 = READ_ONCE(*foo);
 
-	r2 = &r1[42];
-	r3 = &r1[21];
+	r2 = &r1[8];
+	r3 = &r1[5];
 
-	WRITE_ONCE(*r2, 24);
+	WRITE_ONCE(*r2, 0x21212120);
 
-	WRITE_ONCE(*r3, 42);
+	WRITE_ONCE(*r3, 0x21212121);
 
 	return 0;
 }
@@ -726,12 +726,12 @@ static noinline int proj_bdo_rw_addr_dep_end_two_endings_simple(void)
 
 	r1 = READ_ONCE(*foo);
 
-	r2 = &r1[42];
-	r3 = &r1[21];
+	r2 = &r1[8];
+	r3 = &r1[5];
 
-	WRITE_ONCE(*r2, 24);
+	WRITE_ONCE(*r2, 0x21212120);
 
-	WRITE_ONCE(*r3, 42);
+	WRITE_ONCE(*r3, 0x21212121);
 
 	return 0;
 }
@@ -739,13 +739,13 @@ static noinline int proj_bdo_rw_addr_dep_end_two_endings_simple(void)
 static noinline void
 rw_addr_dep_begin_two_endings_in_calls_helper1(volatile int *r2)
 {
-	WRITE_ONCE(*r2, 24);
+	WRITE_ONCE(*r2, 0x21212120);
 }
 
 static noinline void
 rw_addr_dep_begin_two_endings_in_calls_helper2(volatile int *r3)
 {
-	WRITE_ONCE(*r3, 42);
+	WRITE_ONCE(*r3, 0x21212121);
 }
 
 /* BUGs: 2 */
@@ -757,8 +757,8 @@ static noinline int proj_bdo_rw_addr_dep_begin_two_endings_in_calls(void)
 
 	r1 = READ_ONCE(*foo);
 
-	r2 = &r1[42];
-	r3 = &r2[21];
+	r2 = &r1[0x21212121];
+	r3 = &r2[0x21212120];
 
 	rw_addr_dep_begin_two_endings_in_calls_helper1(r2);
 	rw_addr_dep_begin_two_endings_in_calls_helper2(r3);
@@ -770,14 +770,14 @@ static noinline int proj_bdo_rw_addr_dep_begin_two_endings_in_calls(void)
 static noinline void
 proj_bdo_rw_addr_dep_end_two_endings_in_calls_helper1(volatile int *r2)
 {
-	WRITE_ONCE(*r2, 24);
+	WRITE_ONCE(*r2, 0x21212120);
 }
 
 /* BUGs: 1 */
 static noinline void
 proj_bdo_rw_addr_dep_end_two_endings_in_calls_helper2(volatile int *r3)
 {
-	WRITE_ONCE(*r3, 42);
+	WRITE_ONCE(*r3, 0x21212121);
 }
 
 static noinline int rw_addr_dep_end_two_endings_in_calls(void)
@@ -788,8 +788,8 @@ static noinline int rw_addr_dep_end_two_endings_in_calls(void)
 
 	r1 = READ_ONCE(*foo);
 
-	r2 = &r1[42];
-	r3 = &r1[21];
+	r2 = &r1[8];
+	r3 = &r1[5];
 
 	proj_bdo_rw_addr_dep_end_two_endings_in_calls_helper1(r2);
 	proj_bdo_rw_addr_dep_end_two_endings_in_calls_helper2(r3);
@@ -811,7 +811,7 @@ proj_bdo_rw_addr_dep_begin_beg_and_end_in_calls_helper1(void)
 static noinline void
 rw_addr_dep_begin_beg_and_end_in_calls_helper2(volatile int *r3)
 {
-	WRITE_ONCE(*r3, 42);
+	WRITE_ONCE(*r3, 0x21212121);
 }
 
 static noinline int rw_addr_dep_begin_beg_and_end_in_calls(void)
@@ -821,7 +821,7 @@ static noinline int rw_addr_dep_begin_beg_and_end_in_calls(void)
 
 	r2 = proj_bdo_rw_addr_dep_begin_beg_and_end_in_calls_helper1();
 
-	r3 = &r2[42];
+	r3 = &r2[82];
 
 	rw_addr_dep_begin_beg_and_end_in_calls_helper2(r3);
 
@@ -841,7 +841,7 @@ static volatile int *noinline rw_addr_dep_end_beg_and_end_in_calls_helper1(void)
 static noinline void
 proj_bdo_rw_addr_dep_end_beg_and_end_in_calls_helper2(volatile int *r3)
 {
-	WRITE_ONCE(*r3, 42);
+	WRITE_ONCE(*r3, 0x21212121);
 }
 
 static noinline int rw_addr_dep_end_beg_and_end_in_calls(void)
@@ -851,7 +851,7 @@ static noinline int rw_addr_dep_end_beg_and_end_in_calls(void)
 
 	r2 = rw_addr_dep_end_beg_and_end_in_calls_helper1();
 
-	r3 = &r2[42];
+	r3 = &r2[8];
 
 	proj_bdo_rw_addr_dep_end_beg_and_end_in_calls_helper2(r3);
 
@@ -867,7 +867,8 @@ static noinline int rw_addr_dep_end_beg_and_end_in_calls(void)
 int proj_bdo_run_tests(void)
 {
 	/* rr_addr_dep cases */
-	proj_bdo_rr_addr_dep_begin_simple();
+	int a = proj_bdo_rr_addr_dep_begin_simple();
+	printk("proj_bdo_rr_addr_dep_begin_simple returned %i", a);
 	proj_bdo_rr_addr_dep_end_simple();
 
 	proj_bdo_rr_addr_dep_begin_call_ending();
