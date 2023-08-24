@@ -72,9 +72,7 @@ static noinline int proj_bdo_rr_addr_dep_end_simple(void)
 
 static noinline void rr_addr_dep_begin_call_ending_helper(int *r2)
 {
-	int r3;
-
-	r3 = READ_ONCE(*r2);
+	y = READ_ONCE(*r2);
 }
 
 /* BUGs: 1 */
@@ -94,9 +92,7 @@ static noinline int proj_bdo_rr_addr_dep_begin_call_ending(void)
 
 static noinline void proj_bdo_rr_addr_dep_end_call_ending_helper(int *r2)
 {
-	int r3;
-
-	r3 = READ_ONCE(*r2);
+	y = READ_ONCE(*r2);
 }
 
 /* BUGs: 1*/
