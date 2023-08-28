@@ -747,8 +747,8 @@ static noinline int proj_bdo_rw_addr_dep_begin_two_endings_in_calls(void)
 
 	r1 = READ_ONCE(*x);
 
-	r2 = &r1[0x21212121];
-	r3 = &r2[0x21212120];
+	r2 = &r1[5];
+	r3 = &r2[8];
 
 	rw_addr_dep_begin_two_endings_in_calls_helper1(r2);
 	rw_addr_dep_begin_two_endings_in_calls_helper2(r3);
