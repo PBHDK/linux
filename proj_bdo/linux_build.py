@@ -105,9 +105,8 @@ if __name__ == "__main__":
                 # utils.run(["./scripts/config", "--enable", ""])
                 # debug_kernel("proj_bdo/dep_chain_tests.o", arch=arch)
             else:
-                utils.run(
-                    ["./scripts/config", "--enable", "CONFIG_LKMMDC_TEST"])
-                debug_kernel("proj_bdo/dep_chain_tests.o",  arch=arch)
+                utils.run(["./scripts/config", "--enable", "CONFIG_LKMMDC_TEST"])
+                debug_kernel("proj_bdo/dep_chain_tests.o", arch=arch)
                 utils.run(["./scripts/config", "--disable", "LKMMDC_TEST"])
         case "debug":
             debug_kernel(ObjPath=sys.argv[2], arch=sys.argv[3])
