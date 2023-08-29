@@ -262,7 +262,7 @@ static noinline int proj_bdo_rr_addr_dep_begin_cond_dep_chain_partial(void)
 	r1 = READ_ONCE(*x);
 
 	if (!get_random_u8())
-		r2 = x[9];
+		r2 = r1 + 9;
 
 	r3 = READ_ONCE(*r2);
 
@@ -278,8 +278,8 @@ static noinline int proj_bdo_rr_addr_dep_end_cond_dep_chain_partial(void)
 
 	r1 = READ_ONCE(*x);
 
-	if (!get_random_u8())
-		r2 = x[8];
+	if (get_random_u8())
+		r2 = r1 + 8;
 
 	r3 = READ_ONCE(*r2);
 
