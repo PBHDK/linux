@@ -1,3 +1,4 @@
+#include "linux/random.h"
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -853,6 +854,56 @@ static noinline int rw_addr_dep_end_beg_and_end_in_calls(void)
  * =============================================================================
  */
 
+/*
+ * =============================================================================
+ * DynDepChecker
+ * =============================================================================
+ */
+
+__attribute__((used, retain)) extern noinline int
+proj_bdo_ddd_max_func_external(int, int);
+
+static noinline int proj_bdo_ddd_max_func(int a, int b)
+{
+	return a > b ? a : b;
+}
+
+static noinline int proj_bdo_ddd_dep_through_extern_func(void)
+{
+	int *r1;
+	int *r2;
+	int r3;
+	int r4;
+
+	r1 = READ_ONCE(*x);
+
+	r2 = r1 + 5;
+
+	r3 = proj_bdo_ddd_max_func(*r1, *r2);
+
+	r4 = READ_ONCE(r3);
+
+	return r4;
+}
+
+static noinline int proj_bdo_ddd_dep_through_intrinsic(void)
+{
+	int *r1;
+	int *r2;
+	int r3;
+	int r4;
+
+	r1 = READ_ONCE(*x);
+
+	r2 = r1 + 5;
+
+	r3 = proj_bdo_ddd_max_func(*r1, *r2);
+
+	r4 = READ_ONCE(r3);
+
+	return r4;
+}
+
 static void noinline initialise_test_data(void)
 {
 	for (int i = 0; i < 10; ++i)
@@ -918,6 +969,13 @@ int proj_bdo_run_tests(void)
 
 	rw_addr_dep_begin_beg_and_end_in_calls();
 	rw_addr_dep_end_beg_and_end_in_calls();
+
+	/* DynDepChecker */
+	proj_bdo_ddd_dep_through_extern_func();
+	proj_bdo_ddd_dep_through_intrinsic();
+
+	if (proj_bdo_ddd_max_func_external(0, 1))
+		printk("Hello!");
 
 	return 0;
 }
