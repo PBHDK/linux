@@ -99,6 +99,7 @@ def add_dep_checker_support_to_current_config():
     run(["./scripts/config", "--disable", "CONFIG_DEBUG_INFO_SPLIT"])
     run(["./scripts/config", "--enable", "CONFIG_GDB_SCRIPTS"])
     run(["./scripts/config", "--enable", "DEBUG_KERNEL"])
+    run(["./scripts/config", "--disable", "DEBUG_INFO_BTF"])
     run(["./scripts/config", "--enable", "LKMMDC"])
     run(["./scripts/config", "--disable", "LKMMDC_TEST"])
 
