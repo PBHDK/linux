@@ -96,8 +96,7 @@ if __name__ == "__main__":
                 threads="1", ObjPath=sys.argv[2], stderr="proj_bdo/obj_output.err"
             )
         case "precise":
-            with open("build_output.err", "w+") as f:
-                utils.clang_build_kernel(threads="1", stderr=f)
+            utils.clang_build_kernel(threads="1")
         case "tests":
             arch = sys.argv[2]
             if len(sys.argv) > 3 and sys.argv[3] == "relaxed":
