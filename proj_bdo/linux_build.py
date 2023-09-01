@@ -92,8 +92,9 @@ if __name__ == "__main__":
         case "fast":
             utils.clang_build_kernel(arch=sys.argv[2])
         case "object":
-            with open("proj_bdo/obj_output.err", "w+") as f:
-                utils.clang_build_kernel(threads="1", ObjPath=sys.argv[2], stderr=f)
+            utils.clang_build_kernel(
+                threads="1", ObjPath=sys.argv[2], stderr="proj_bdo/obj_output.err"
+            )
         case "precise":
             with open("build_output.err", "w+") as f:
                 utils.clang_build_kernel(threads="1", stderr=f)
