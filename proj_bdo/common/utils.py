@@ -1,13 +1,18 @@
 """Various utiliteis required for the dep checker."""
-import subprocess
 import os
+import subprocess
+from datetime import datetime
+from typing import Optional, TextIO
 
-from typing import TextIO, Optional
+_CLANG_FLAGS = [
+    "HOSTCC=gcc",
+    "CC=clang",
+]
 
-_CLANG_FLAGS = ["HOSTCC=gcc", "CC=clang",]
-
-_CLANG_ARM64_ENV = _CLANG_FLAGS + \
-    ["ARCH=arm64", "CROSS_COMPILE=aarch64-unknown-linux-gnu-"]
+_CLANG_ARM64_ENV = _CLANG_FLAGS + [
+    "ARCH=arm64",
+    "CROSS_COMPILE=aarch64-unknown-linux-gnu-",
+]
 _CLANG_X86_64_ENV = _CLANG_FLAGS + ["ARCH=x86_64"]
 
 
@@ -160,6 +165,10 @@ def clang_build_kernel(add_args: list[str] = list(),
     env: list[str] = _CLANG_ARM64_ENV
     if arch == "x86_64":
         env = _CLANG_X86_64_ENV
+
+    dt_now = datetime.now()
+    current_time = dt_now.strftime("%H:%M:%S")
+    print("Starting build at: {}".format(current_time))
 
     with open(stderr, "w+") as SE:
         JStr = "-j" + threads
