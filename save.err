@@ -1,0 +1,691 @@
+Adding PC section
+//===--------------------------Broken Dependency--------------------------===//
+Address dependency with ID: 
+fanout_demux_rollover::1397:7
+fanout_demux_rollover::1411:8->packet_sock_flag()
+packet_sock_flag::161:9->generic_test_bit()
+generic_test_bit::128:16
+
+Dependency Beginning:	
+fanout_demux_rollover::1397:7
+
+Path to (via files) from annotation: 
+net/packet/af_packet.c::1397:7
+
+Dependnecy Ending:	
+generic_test_bit::128:16
+
+Path to (via files) from annotation: 
+net/packet/af_packet.c::1494:9  net/packet/af_packet.c::1411:8  net/packet/internal.h::161:9  ./include/asm-generic/bitops/generic-non-atomic.h::128:16
+
+Broken by breaking the dependency chain
+
+Soure-level dep chains at fanout_demux_rollover::128:16
+
+Union of all dependency chains at the ending:
+//===---------------------------------------------------------------------===//
+
+//===--------------------------Broken Dependency--------------------------===//
+Address dependency with ID: 
+packet_rcv_fanout::1461:21
+packet_rcv_fanout::1494:9->fanout_demux_rollover()
+fanout_demux_rollover::1411:8->packet_sock_flag()
+fanout_demux_rollover::1411:8<-packet_sock_flag()
+fanout_demux_rollover::1412:7->packet_rcv_has_room()
+packet_rcv_has_room::1310:8->__packet_rcv_has_room()
+__packet_rcv_has_room::1291:7->__tpacket_v3_has_room()
+__tpacket_v3_has_room::1263:8
+
+Dependency Beginning:	
+packet_rcv_fanout::1461:21
+
+Path to (via files) from annotation: 
+net/packet/af_packet.c::1461:21
+
+Dependnecy Ending:	
+__tpacket_v3_has_room::1263:8
+
+Path to (via files) from annotation: 
+net/packet/af_packet.c::1494:9  net/packet/af_packet.c::1412:7  net/packet/af_packet.c::1310:8  net/packet/af_packet.c::1291:7  net/packet/af_packet.c::1263:8
+
+Broken by breaking the dependency chain
+
+Soure-level dep chains at __packet_rcv_has_room::1263:8
+
+Union of all dependency chains at the ending:
+//===---------------------------------------------------------------------===//
+
+//===--------------------------Broken Dependency--------------------------===//
+Address dependency with ID: 
+fanout_demux_rollover::1397:7
+fanout_demux_rollover::1409:13
+
+Dependency Beginning:	
+fanout_demux_rollover::1397:7
+
+Path to (via files) from annotation: 
+net/packet/af_packet.c::1397:7
+
+Dependnecy Ending:	
+fanout_demux_rollover::1409:13
+
+Path to (via files) from annotation: 
+net/packet/af_packet.c::1494:9  net/packet/af_packet.c::1409:13
+
+Broken by breaking the dependency chain
+
+Soure-level dep chains at fanout_demux_rollover::1409:13
+
+Union of all dependency chains at the ending:
+//===---------------------------------------------------------------------===//
+
+//===--------------------------Broken Dependency--------------------------===//
+Address dependency with ID: 
+packet_rcv_fanout::1461:21
+packet_rcv_fanout::1494:9->fanout_demux_rollover()
+fanout_demux_rollover::1411:8->packet_sock_flag()
+fanout_demux_rollover::1411:8<-packet_sock_flag()
+fanout_demux_rollover::1412:7->packet_rcv_has_room()
+packet_rcv_has_room::1310:8->__packet_rcv_has_room()
+__packet_rcv_has_room::1279:24->atomic_read()
+atomic_read::28:9
+
+Dependency Beginning:	
+packet_rcv_fanout::1461:21
+
+Path to (via files) from annotation: 
+net/packet/af_packet.c::1461:21
+
+Dependnecy Ending:	
+atomic_read::28:9
+
+Path to (via files) from annotation: 
+net/packet/af_packet.c::1494:9  net/packet/af_packet.c::1412:7  net/packet/af_packet.c::1310:8  net/packet/af_packet.c::1279:24  ./include/linux/atomic/atomic-instrumented.h::28:9
+
+Broken by breaking the dependency chain
+
+Soure-level dep chains at __packet_rcv_has_room::28:9
+
+Union of all dependency chains at the ending:
+//===---------------------------------------------------------------------===//
+
+//===--------------------------Broken Dependency--------------------------===//
+Address dependency with ID: 
+packet_rcv_fanout::1461:21
+packet_rcv_fanout::1494:9->fanout_demux_rollover()
+fanout_demux_rollover::1411:8->packet_sock_flag()
+fanout_demux_rollover::1411:8<-packet_sock_flag()
+fanout_demux_rollover::1412:7->packet_rcv_has_room()
+packet_rcv_has_room::1310:8->__packet_rcv_has_room()
+__packet_rcv_has_room::1291:7->__tpacket_v3_has_room()
+__tpacket_v3_has_room::1262:8
+
+Dependency Beginning:	
+packet_rcv_fanout::1461:21
+
+Path to (via files) from annotation: 
+net/packet/af_packet.c::1461:21
+
+Dependnecy Ending:	
+__tpacket_v3_has_room::1262:8
+
+Path to (via files) from annotation: 
+net/packet/af_packet.c::1494:9  net/packet/af_packet.c::1412:7  net/packet/af_packet.c::1310:8  net/packet/af_packet.c::1291:7  net/packet/af_packet.c::1262:8
+
+Broken by breaking the dependency chain
+
+Soure-level dep chains at __packet_rcv_has_room::1262:8
+
+Union of all dependency chains at the ending:
+//===---------------------------------------------------------------------===//
+
+//===--------------------------Broken Dependency--------------------------===//
+Address dependency with ID: 
+packet_rcv_fanout::1461:21
+packet_rcv_fanout::1494:9->fanout_demux_rollover()
+fanout_demux_rollover::1409:13
+
+Dependency Beginning:	
+packet_rcv_fanout::1461:21
+
+Path to (via files) from annotation: 
+net/packet/af_packet.c::1461:21
+
+Dependnecy Ending:	
+fanout_demux_rollover::1409:13
+
+Path to (via files) from annotation: 
+net/packet/af_packet.c::1494:9  net/packet/af_packet.c::1409:13
+
+Broken by breaking the dependency chain
+
+Soure-level dep chains at fanout_demux_rollover::1409:13
+
+Union of all dependency chains at the ending:
+//===---------------------------------------------------------------------===//
+
+//===--------------------------Broken Dependency--------------------------===//
+Address dependency with ID: 
+packet_rcv_fanout::1461:21
+packet_rcv_fanout::1494:9->fanout_demux_rollover()
+fanout_demux_rollover::1411:8->packet_sock_flag()
+fanout_demux_rollover::1411:8<-packet_sock_flag()
+fanout_demux_rollover::1412:7->packet_rcv_has_room()
+packet_rcv_has_room::1310:8->__packet_rcv_has_room()
+__packet_rcv_has_room::1296:7->__tpacket_has_room()
+__tpacket_has_room::1250:8
+
+Dependency Beginning:	
+packet_rcv_fanout::1461:21
+
+Path to (via files) from annotation: 
+net/packet/af_packet.c::1461:21
+
+Dependnecy Ending:	
+__tpacket_has_room::1250:8
+
+Path to (via files) from annotation: 
+net/packet/af_packet.c::1494:9  net/packet/af_packet.c::1412:7  net/packet/af_packet.c::1310:8  net/packet/af_packet.c::1296:7  net/packet/af_packet.c::1250:8
+
+Broken by breaking the dependency chain
+
+Soure-level dep chains at __packet_rcv_has_room::1250:8
+
+Union of all dependency chains at the ending:
+//===---------------------------------------------------------------------===//
+
+//===--------------------------Broken Dependency--------------------------===//
+Address dependency with ID: 
+packet_rcv_fanout::1461:21
+packet_rcv_fanout::1494:9->fanout_demux_rollover()
+fanout_demux_rollover::1411:8->packet_sock_flag()
+packet_sock_flag::161:9->generic_test_bit()
+generic_test_bit::128:16
+
+Dependency Beginning:	
+packet_rcv_fanout::1461:21
+
+Path to (via files) from annotation: 
+net/packet/af_packet.c::1461:21
+
+Dependnecy Ending:	
+generic_test_bit::128:16
+
+Path to (via files) from annotation: 
+net/packet/af_packet.c::1494:9  net/packet/af_packet.c::1411:8  net/packet/internal.h::161:9  ./include/asm-generic/bitops/generic-non-atomic.h::128:16
+
+Broken by breaking the dependency chain
+
+Soure-level dep chains at fanout_demux_rollover::128:16
+
+Union of all dependency chains at the ending:
+//===---------------------------------------------------------------------===//
+
+//===--------------------------Broken Dependency--------------------------===//
+Address dependency with ID: 
+packet_rcv_fanout::1461:21
+packet_rcv_fanout::1494:9->fanout_demux_rollover()
+fanout_demux_rollover::1411:8->packet_sock_flag()
+fanout_demux_rollover::1411:8<-packet_sock_flag()
+fanout_demux_rollover::1412:7->packet_rcv_has_room()
+packet_rcv_has_room::1310:8->__packet_rcv_has_room()
+__packet_rcv_has_room::1296:7->__tpacket_has_room()
+__tpacket_has_room::1249:8
+
+Dependency Beginning:	
+packet_rcv_fanout::1461:21
+
+Path to (via files) from annotation: 
+net/packet/af_packet.c::1461:21
+
+Dependnecy Ending:	
+__tpacket_has_room::1249:8
+
+Path to (via files) from annotation: 
+net/packet/af_packet.c::1494:9  net/packet/af_packet.c::1412:7  net/packet/af_packet.c::1310:8  net/packet/af_packet.c::1296:7  net/packet/af_packet.c::1249:8
+
+Broken by breaking the dependency chain
+
+Soure-level dep chains at __packet_rcv_has_room::1249:8
+
+Union of all dependency chains at the ending:
+//===---------------------------------------------------------------------===//
+
+//===--------------------------Broken Dependency--------------------------===//
+Address dependency with ID: 
+packet_rcv_fanout::1461:21
+packet_rcv_fanout::1494:9->fanout_demux_rollover()
+fanout_demux_rollover::1411:8->packet_sock_flag()
+fanout_demux_rollover::1411:8<-packet_sock_flag()
+fanout_demux_rollover::1412:7->packet_rcv_has_room()
+packet_rcv_has_room::1310:8->__packet_rcv_has_room()
+__packet_rcv_has_room::1278:16
+
+Dependency Beginning:	
+packet_rcv_fanout::1461:21
+
+Path to (via files) from annotation: 
+net/packet/af_packet.c::1461:21
+
+Dependnecy Ending:	
+__packet_rcv_has_room::1278:16
+
+Path to (via files) from annotation: 
+net/packet/af_packet.c::1494:9  net/packet/af_packet.c::1412:7  net/packet/af_packet.c::1310:8  net/packet/af_packet.c::1278:16
+
+Broken by breaking the dependency chain
+
+Soure-level dep chains at __packet_rcv_has_room::1278:16
+
+Union of all dependency chains at the ending:
+//===---------------------------------------------------------------------===//
+
+//===--------------------------Broken Dependency--------------------------===//
+Address dependency with ID: 
+packet_cached_dev_get::293:8
+tpacket_snd::2751:9<-packet_cached_dev_get()
+tpacket_snd::2843:12->tpacket_fill_skb()
+tpacket_fill_skb::2637:10->pgv_to_page()
+tpacket_fill_skb::2637:10<-pgv_to_page()
+tpacket_fill_skb::2640:3->get_page()
+get_page::1402:12->_compound_head()
+_compound_head::245:23
+
+Dependency Beginning:	
+packet_sendmsg::3111:10  tpacket_snd::2751:9  packet_cached_dev_get::293:8
+
+Path to (via files) from annotation: 
+net/packet/af_packet.c::3111:10  net/packet/af_packet.c::2751:9  net/packet/af_packet.c::293:8
+
+Dependnecy Ending:	
+_compound_head::245:23
+
+Path to (via files) from annotation: 
+net/packet/af_packet.c::3111:10  net/packet/af_packet.c::2843:12  net/packet/af_packet.c::2640:3  ./include/linux/mm.h::1402:12  ./include/linux/page-flags.h::245:23
+
+Broken by breaking the dependency chain
+
+Soure-level dep chains at packet_sendmsg::245:23
+
+Union of all dependency chains at the ending:
+//===---------------------------------------------------------------------===//
+
+//===--------------------------Broken Dependency--------------------------===//
+Address dependency with ID: 
+_compound_head::245:23
+do_swap_page::3860:11<-_compound_head()
+do_swap_page::3869:8->folio_test_ksm()
+do_swap_page::3869:8<-folio_test_ksm()
+do_swap_page::3869:34->folio_test_lru()
+folio_test_lru::473:1->folio_flags()
+folio_test_lru::473:1<-folio_flags()
+folio_test_lru::473:1->generic_test_bit()
+generic_test_bit::128:16
+
+Dependency Beginning:	
+do_swap_page::3860:11  _compound_head::245:23
+
+Path to (via files) from annotation: 
+mm/memory.c::3860:11  ./include/linux/page-flags.h::245:23
+
+Dependnecy Ending:	
+generic_test_bit::128:16
+
+Path to (via files) from annotation: 
+mm/memory.c::3869:34  ./include/linux/page-flags.h::473:1  ./include/asm-generic/bitops/generic-non-atomic.h::128:16
+
+Broken by breaking the dependency chain
+
+Soure-level dep chains at do_swap_page::128:16
+
+Union of all dependency chains at the ending:
+//===---------------------------------------------------------------------===//
+
+//===--------------------------Broken Dependency--------------------------===//
+Address dependency with ID: 
+__rhashtable_remove_fast::1086:8
+__rhashtable_remove_fast::1093:16->__rhashtable_remove_fast_one()
+__rhashtable_remove_fast_one::1007:9->rht_head_hashfn()
+__rhashtable_remove_fast_one::1007:9<-rht_head_hashfn()
+__rhashtable_remove_fast_one::1008:8->rht_bucket_var()
+__rhashtable_remove_fast_one::1008:8<-rht_bucket_var()
+__rhashtable_remove_fast_one::1014:2->rht_ptr()
+__rhashtable_remove_fast_one::1014:2<-rht_ptr()
+__rhashtable_remove_fast_one::1014:2->rht_is_a_nulls()
+__rhashtable_remove_fast_one::1014:2<-rht_is_a_nulls()
+__rhashtable_remove_fast_one::1048:5
+
+Dependency Beginning:	
+rhltable_remove::1144:9  __rhashtable_remove_fast::1086:8
+
+Path to (via files) from annotation: 
+./include/linux/rhashtable.h::1144:9  ./include/linux/rhashtable.h::1086:8
+
+Dependnecy Ending:	
+__rhashtable_remove_fast_one::1048:5
+
+Path to (via files) from annotation: 
+./include/linux/rhashtable.h::1144:9  ./include/linux/rhashtable.h::1093:16  ./include/linux/rhashtable.h::1048:5
+
+Broken by breaking the dependency chain
+
+Soure-level dep chains at rhltable_remove::1048:5
+
+Union of all dependency chains at the ending:
+//===---------------------------------------------------------------------===//
+
+clang: /scratch/paul/src/llvm-project/llvm/lib/Transforms/Utils/LKMMDependenceAnalysis.cpp:1855: void llvm::BFSCtx::handleCall(llvm::CallBase &): Assertion `ADBs.find(ID) != ADBs.end() && "Overwritten ADB not present in calling function!"' failed.
+PLEASE submit a bug report to https://github.com/llvm/llvm-project/issues/ and include the crash backtrace, preprocessed source, and associated run script.
+Stack dump:
+0.	Program arguments: /scratch/paul/src/llvm-project/build/bin/clang -Wp,-MMD,fs/fuse/.dev.o.d -nostdinc -I./arch/arm64/include -I./arch/arm64/include/generated -I./include -I./arch/arm64/include/uapi -I./arch/arm64/include/generated/uapi -I./include/uapi -I./include/generated/uapi -include ./include/linux/compiler-version.h -include ./include/linux/kconfig.h -include ./include/linux/compiler_types.h -D__KERNEL__ -mlittle-endian -DKASAN_SHADOW_SCALE_SHIFT= -fmacro-prefix-map=./= -Wall -Wundef -Werror=strict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -fshort-wchar -fno-PIE -Werror=implicit-function-declaration -Werror=implicit-int -Werror=return-type -Wno-format-security -funsigned-char -std=gnu11 --target=aarch64-linux-gnu -fintegrated-as -Werror=unknown-warning-option -Werror=ignored-optimization-argument -Werror=option-ignored -Werror=unused-command-line-argument -mgeneral-regs-only -DCONFIG_CC_HAS_K_CONSTRAINT=1 -Wno-psabi -fno-asynchronous-unwind-tables -fno-unwind-tables -mbranch-protection=pac-ret+bti -Wa,-march=armv8.5-a -DARM64_ASM_ARCH=\"armv8.5-a\" -DKASAN_SHADOW_SCALE_SHIFT= -fno-delete-null-pointer-checks -Wno-frame-address -Wno-address-of-packed-member -O2 -Wframe-larger-than=2048 -fstack-protector-strong -Wno-gnu -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-omit-frame-pointer -fno-optimize-sibling-calls -ftrivial-auto-var-init=zero -falign-functions=4 -Wdeclaration-after-statement -Wvla -Wno-pointer-sign -Wcast-function-type -Wimplicit-fallthrough -fno-strict-overflow -fno-stack-check -Werror=date-time -Werror=incompatible-pointer-types -Wno-void-ptr-dereference -Wno-initializer-overrides -Wno-sign-compare -Wno-pointer-to-enum-cast -Wno-tautological-constant-out-of-range-compare -Wno-unaligned-access -Wno-cast-function-type-strict -g -mstack-protector-guard=sysreg -mstack-protector-guard-reg=sp_el0 -mstack-protector-guard-offset=1144 -fsanitize=lkmm-dep-checker -DMODULE -DKBUILD_BASENAME=\"dev\" -DKBUILD_MODNAME=\"fuse\" -D__KBUILD_MODNAME=kmod_fuse -c -o fs/fuse/dev.o fs/fuse/dev.c
+1.	<eof> parser at end of file
+2.	Optimizer
+ #0 0x00000000045e10a7 llvm::sys::PrintStackTrace(llvm::raw_ostream&, int) /scratch/paul/src/llvm-project/llvm/lib/Support/Unix/Signals.inc:602:13
+ #1 0x00000000045df330 llvm::sys::RunSignalHandlers() /scratch/paul/src/llvm-project/llvm/lib/Support/Signals.cpp:105:18
+ #2 0x0000000004560f28 (anonymous namespace)::CrashRecoveryContextImpl::HandleCrash(int, unsigned long) /scratch/paul/src/llvm-project/llvm/lib/Support/CrashRecoveryContext.cpp:73:5
+ #3 0x0000000004560f28 CrashRecoverySignalHandler(int) /scratch/paul/src/llvm-project/llvm/lib/Support/CrashRecoveryContext.cpp:390:51
+ #4 0x00007f4125f69bf0 __restore_rt (/nix/store/bzd91shky9j9d43girrrj6vmqlw7x9m8-glibc-2.35-163/lib/libc.so.6+0x3dbf0)
+ #5 0x00007f4125fb6bc7 __pthread_kill_implementation (/nix/store/bzd91shky9j9d43girrrj6vmqlw7x9m8-glibc-2.35-163/lib/libc.so.6+0x8abc7)
+ #6 0x00007f4125f69b46 gsignal (/nix/store/bzd91shky9j9d43girrrj6vmqlw7x9m8-glibc-2.35-163/lib/libc.so.6+0x3db46)
+ #7 0x00007f4125f544b5 abort (/nix/store/bzd91shky9j9d43girrrj6vmqlw7x9m8-glibc-2.35-163/lib/libc.so.6+0x284b5)
+ #8 0x00007f4125f543d9 _nl_load_domain.cold.0 (/nix/store/bzd91shky9j9d43girrrj6vmqlw7x9m8-glibc-2.35-163/lib/libc.so.6+0x283d9)
+ #9 0x00007f4125f627b6 (/nix/store/bzd91shky9j9d43girrrj6vmqlw7x9m8-glibc-2.35-163/lib/libc.so.6+0x367b6)
+#10 0x0000000004d5b191 llvm::BFSCtx::handleCall(llvm::CallBase&) /scratch/paul/src/llvm-project/llvm/lib/Transforms/Utils/LKMMDependenceAnalysis.cpp:1876:9
+#11 0x0000000004d56829 void llvm::InstVisitor<llvm::BFSCtx, void>::visit<llvm::ilist_iterator<llvm::ilist_detail::node_options<llvm::Instruction, true, false, void>, false, false>>(llvm::ilist_iterator<llvm::ilist_detail::node_options<llvm::Instruction, true, false, void>, false, false>, llvm::ilist_iterator<llvm::ilist_detail::node_options<llvm::Instruction, true, false, void>, false, false>) /scratch/paul/src/llvm-project/llvm/include/llvm/IR/InstVisitor.h:0:37
+#12 0x0000000004d56829 llvm::InstVisitor<llvm::BFSCtx, void>::visit(llvm::BasicBlock&) /scratch/paul/src/llvm-project/llvm/include/llvm/IR/InstVisitor.h:104:5
+#13 0x0000000004d56829 llvm::InstVisitor<llvm::BFSCtx, void>::visit(llvm::BasicBlock*) /scratch/paul/src/llvm-project/llvm/include/llvm/IR/InstVisitor.h:110:34
+#14 0x0000000004d56829 llvm::BFSCtx::runBFS() /scratch/paul/src/llvm-project/llvm/lib/Transforms/Utils/LKMMDependenceAnalysis.cpp:1560:5
+#15 0x0000000004d58772 llvm::BFSCtx::runInterprocBFS[abi:cxx11](llvm::BasicBlock*, llvm::CallBase*) /scratch/paul/src/llvm-project/llvm/lib/Transforms/Utils/LKMMDependenceAnalysis.cpp:1666:51
+#16 0x0000000004d5a750 std::__cxx11::_List_base<std::shared_ptr<llvm::InterprocRetAddrDep>, std::allocator<std::shared_ptr<llvm::InterprocRetAddrDep>>>::_M_clear() /nix/store/l4dvshb0bw0ipyx17f6rknzk83mdx81y-gcc-11.3.0/include/c++/11.3.0/bits/list.tcc:70:58
+#17 0x0000000004d5a750 std::__cxx11::list<std::shared_ptr<llvm::InterprocRetAddrDep>, std::allocator<std::shared_ptr<llvm::InterprocRetAddrDep>>>::clear() /nix/store/l4dvshb0bw0ipyx17f6rknzk83mdx81y-gcc-11.3.0/include/c++/11.3.0/bits/stl_list.h:1500:9
+#18 0x0000000004d5a750 std::__cxx11::list<std::shared_ptr<llvm::InterprocRetAddrDep>, std::allocator<std::shared_ptr<llvm::InterprocRetAddrDep>>>::_M_move_assign(std::__cxx11::list<std::shared_ptr<llvm::InterprocRetAddrDep>, std::allocator<std::shared_ptr<llvm::InterprocRetAddrDep>>>&&, std::integral_constant<bool, true>) /nix/store/l4dvshb0bw0ipyx17f6rknzk83mdx81y-gcc-11.3.0/include/c++/11.3.0/bits/stl_list.h:1950:8
+#19 0x0000000004d5a750 std::__cxx11::list<std::shared_ptr<llvm::InterprocRetAddrDep>, std::allocator<std::shared_ptr<llvm::InterprocRetAddrDep>>>::operator=(std::__cxx11::list<std::shared_ptr<llvm::InterprocRetAddrDep>, std::allocator<std::shared_ptr<llvm::InterprocRetAddrDep>>>&&) /nix/store/l4dvshb0bw0ipyx17f6rknzk83mdx81y-gcc-11.3.0/include/c++/11.3.0/bits/stl_list.h:859:2
+#20 0x0000000004d5a750 llvm::BFSCtx::handleCall(llvm::CallBase&) /scratch/paul/src/llvm-project/llvm/lib/Transforms/Utils/LKMMDependenceAnalysis.cpp:1836:9
+#21 0x0000000004d56829 void llvm::InstVisitor<llvm::BFSCtx, void>::visit<llvm::ilist_iterator<llvm::ilist_detail::node_options<llvm::Instruction, true, false, void>, false, false>>(llvm::ilist_iterator<llvm::ilist_detail::node_options<llvm::Instruction, true, false, void>, false, false>, llvm::ilist_iterator<llvm::ilist_detail::node_options<llvm::Instruction, true, false, void>, false, false>) /scratch/paul/src/llvm-project/llvm/include/llvm/IR/InstVisitor.h:0:37
+#22 0x0000000004d56829 llvm::InstVisitor<llvm::BFSCtx, void>::visit(llvm::BasicBlock&) /scratch/paul/src/llvm-project/llvm/include/llvm/IR/InstVisitor.h:104:5
+#23 0x0000000004d56829 llvm::InstVisitor<llvm::BFSCtx, void>::visit(llvm::BasicBlock*) /scratch/paul/src/llvm-project/llvm/include/llvm/IR/InstVisitor.h:110:34
+#24 0x0000000004d56829 llvm::BFSCtx::runBFS() /scratch/paul/src/llvm-project/llvm/lib/Transforms/Utils/LKMMDependenceAnalysis.cpp:1560:5
+#25 0x0000000004d61ab8 llvm::LKMMVerifier::run(llvm::Module&, llvm::AnalysisManager<llvm::Module>&) /scratch/paul/src/llvm-project/llvm/lib/Transforms/Utils/LKMMDependenceAnalysis.cpp:2514:3
+#26 0x0000000004d63b6d llvm::LKMMVerifyDepsPass::run(llvm::Module&, llvm::AnalysisManager<llvm::Module>&) /scratch/paul/src/llvm-project/llvm/lib/Transforms/Utils/LKMMDependenceAnalysis.cpp:2657:1
+#27 0x0000000004d10cfd llvm::detail::PassModel<llvm::Module, llvm::LKMMVerifyDepsPass, llvm::PreservedAnalyses, llvm::AnalysisManager<llvm::Module>>::run(llvm::Module&, llvm::AnalysisManager<llvm::Module>&) /scratch/paul/src/llvm-project/llvm/include/llvm/IR/PassManagerInternal.h:89:5
+#28 0x0000000004151129 llvm::PassManager<llvm::Module, llvm::AnalysisManager<llvm::Module>>::run(llvm::Module&, llvm::AnalysisManager<llvm::Module>&) /scratch/paul/src/llvm-project/llvm/include/llvm/IR/PassManager.h:521:10
+#29 0x0000000004d0c85c llvm::SmallPtrSetImplBase::isSmall() const /scratch/paul/src/llvm-project/llvm/include/llvm/ADT/SmallPtrSet.h:195:33
+#30 0x0000000004d0c85c llvm::SmallPtrSetImplBase::~SmallPtrSetImplBase() /scratch/paul/src/llvm-project/llvm/include/llvm/ADT/SmallPtrSet.h:83:10
+#31 0x0000000004d0c85c llvm::PreservedAnalyses::~PreservedAnalyses() /scratch/paul/src/llvm-project/llvm/include/llvm/IR/PassManager.h:152:7
+#32 0x0000000004d0c85c (anonymous namespace)::EmitAssemblyHelper::RunOptimizationPipeline(clang::BackendAction, std::unique_ptr<llvm::raw_pwrite_stream, std::default_delete<llvm::raw_pwrite_stream>>&, std::unique_ptr<llvm::ToolOutputFile, std::default_delete<llvm::ToolOutputFile>>&) /scratch/paul/src/llvm-project/clang/lib/CodeGen/BackendUtil.cpp:1098:5
+#33 0x0000000004d05624 (anonymous namespace)::EmitAssemblyHelper::EmitAssembly(clang::BackendAction, std::unique_ptr<llvm::raw_pwrite_stream, std::default_delete<llvm::raw_pwrite_stream>>) /scratch/paul/src/llvm-project/clang/lib/CodeGen/BackendUtil.cpp:0:3
+#34 0x0000000004d05624 clang::EmitBackendOutput(clang::DiagnosticsEngine&, clang::HeaderSearchOptions const&, clang::CodeGenOptions const&, clang::TargetOptions const&, clang::LangOptions const&, llvm::StringRef, llvm::Module*, clang::BackendAction, llvm::IntrusiveRefCntPtr<llvm::vfs::FileSystem>, std::unique_ptr<llvm::raw_pwrite_stream, std::default_delete<llvm::raw_pwrite_stream>>) /scratch/paul/src/llvm-project/clang/lib/CodeGen/BackendUtil.cpp:1318:13
+#35 0x000000000519d674 std::unique_ptr<llvm::raw_pwrite_stream, std::default_delete<llvm::raw_pwrite_stream>>::~unique_ptr() /nix/store/l4dvshb0bw0ipyx17f6rknzk83mdx81y-gcc-11.3.0/include/c++/11.3.0/bits/unique_ptr.h:360:6
+#36 0x000000000519d674 clang::BackendConsumer::HandleTranslationUnit(clang::ASTContext&) /scratch/paul/src/llvm-project/clang/lib/CodeGen/CodeGenAction.cpp:386:7
+#37 0x00000000067d25d4 __gnu_cxx::__normal_iterator<std::unique_ptr<clang::TemplateInstantiationCallback, std::default_delete<clang::TemplateInstantiationCallback>>*, std::vector<std::unique_ptr<clang::TemplateInstantiationCallback, std::default_delete<clang::TemplateInstantiationCallback>>, std::allocator<std::unique_ptr<clang::TemplateInstantiationCallback, std::default_delete<clang::TemplateInstantiationCallback>>>>>::__normal_iterator(std::unique_ptr<clang::TemplateInstantiationCallback, std::default_delete<clang::TemplateInstantiationCallback>>* const&) /nix/store/l4dvshb0bw0ipyx17f6rknzk83mdx81y-gcc-11.3.0/include/c++/11.3.0/bits/stl_iterator.h:1011:20
+#38 0x00000000067d25d4 std::vector<std::unique_ptr<clang::TemplateInstantiationCallback, std::default_delete<clang::TemplateInstantiationCallback>>, std::allocator<std::unique_ptr<clang::TemplateInstantiationCallback, std::default_delete<clang::TemplateInstantiationCallback>>>>::begin() /nix/store/l4dvshb0bw0ipyx17f6rknzk83mdx81y-gcc-11.3.0/include/c++/11.3.0/bits/stl_vector.h:812:16
+#39 0x00000000067d25d4 void clang::finalize<std::vector<std::unique_ptr<clang::TemplateInstantiationCallback, std::default_delete<clang::TemplateInstantiationCallback>>, std::allocator<std::unique_ptr<clang::TemplateInstantiationCallback, std::default_delete<clang::TemplateInstantiationCallback>>>>>(std::vector<std::unique_ptr<clang::TemplateInstantiationCallback, std::default_delete<clang::TemplateInstantiationCallback>>, std::allocator<std::unique_ptr<clang::TemplateInstantiationCallback, std::default_delete<clang::TemplateInstantiationCallback>>>>&, clang::Sema const&) /scratch/paul/src/llvm-project/clang/include/clang/Sema/TemplateInstCallback.h:54:16
+#40 0x00000000067d25d4 clang::ParseAST(clang::Sema&, bool, bool) /scratch/paul/src/llvm-project/clang/lib/Parse/ParseAST.cpp:183:3
+#41 0x00000000050bdd91 clang::FrontendAction::Execute() /scratch/paul/src/llvm-project/clang/lib/Frontend/FrontendAction.cpp:1062:10
+#42 0x0000000005035e3f llvm::Error::getPtr() const /scratch/paul/src/llvm-project/llvm/include/llvm/Support/Error.h:270:42
+#43 0x0000000005035e3f llvm::Error::operator bool() /scratch/paul/src/llvm-project/llvm/include/llvm/Support/Error.h:233:16
+#44 0x0000000005035e3f clang::CompilerInstance::ExecuteAction(clang::FrontendAction&) /scratch/paul/src/llvm-project/clang/lib/Frontend/CompilerInstance.cpp:1053:23
+#45 0x0000000005196082 clang::ExecuteCompilerInvocation(clang::CompilerInstance*) /scratch/paul/src/llvm-project/clang/lib/FrontendTool/ExecuteCompilerInvocation.cpp:272:25
+#46 0x0000000003067a91 cc1_main(llvm::ArrayRef<char const*>, char const*, void*) /scratch/paul/src/llvm-project/clang/tools/driver/cc1_main.cpp:249:15
+#47 0x0000000003064dea ExecuteCC1Tool(llvm::SmallVectorImpl<char const*>&, llvm::ToolContext const&) /scratch/paul/src/llvm-project/clang/tools/driver/driver.cpp:366:12
+#48 0x0000000004ed6d49 clang::driver::CC1Command::Execute(llvm::ArrayRef<std::optional<llvm::StringRef>>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>*, bool*) const::$_1::operator()() const /scratch/paul/src/llvm-project/clang/lib/Driver/Job.cpp:440:30
+#49 0x0000000004ed6d49 void llvm::function_ref<void ()>::callback_fn<clang::driver::CC1Command::Execute(llvm::ArrayRef<std::optional<llvm::StringRef>>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>*, bool*) const::$_1>(long) /scratch/paul/src/llvm-project/llvm/include/llvm/ADT/STLFunctionalExtras.h:45:12
+#50 0x0000000004560c6b llvm::function_ref<void ()>::operator()() const /scratch/paul/src/llvm-project/llvm/include/llvm/ADT/STLFunctionalExtras.h:0:12
+#51 0x0000000004560c6b llvm::CrashRecoveryContext::RunSafely(llvm::function_ref<void ()>) /scratch/paul/src/llvm-project/llvm/lib/Support/CrashRecoveryContext.cpp:426:3
+#52 0x0000000004ed65c0 clang::driver::CC1Command::Execute(llvm::ArrayRef<std::optional<llvm::StringRef>>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>*, bool*) const /scratch/paul/src/llvm-project/clang/lib/Driver/Job.cpp:440:7
+#53 0x0000000004e9bb6f clang::driver::Compilation::ExecuteCommand(clang::driver::Command const&, clang::driver::Command const*&, bool) const /scratch/paul/src/llvm-project/clang/lib/Driver/Compilation.cpp:199:15
+#54 0x0000000004e9be47 clang::driver::Compilation::ExecuteJobs(clang::driver::JobList const&, llvm::SmallVectorImpl<std::pair<int, clang::driver::Command const*>>&, bool) const /scratch/paul/src/llvm-project/clang/lib/Driver/Compilation.cpp:253:13
+#55 0x0000000004eb6628 llvm::SmallVectorBase<unsigned int>::empty() const /scratch/paul/src/llvm-project/llvm/include/llvm/ADT/SmallVector.h:94:46
+#56 0x0000000004eb6628 clang::driver::Driver::ExecuteCompilation(clang::driver::Compilation&, llvm::SmallVectorImpl<std::pair<int, clang::driver::Command const*>>&) /scratch/paul/src/llvm-project/clang/lib/Driver/Driver.cpp:1906:23
+#57 0x00000000030643e4 clang_main(int, char**, llvm::ToolContext const&) /scratch/paul/src/llvm-project/clang/tools/driver/driver.cpp:542:21
+#58 0x0000000003072f41 main /scratch/paul/src/llvm-project/build/tools/clang/tools/driver/clang-driver.cpp:15:3
+#59 0x00007f4125f5524e __libc_start_call_main (/nix/store/bzd91shky9j9d43girrrj6vmqlw7x9m8-glibc-2.35-163/lib/libc.so.6+0x2924e)
+#60 0x00007f4125f55309 __libc_start_main@GLIBC_2.2.5 (/nix/store/bzd91shky9j9d43girrrj6vmqlw7x9m8-glibc-2.35-163/lib/libc.so.6+0x29309)
+#61 0x00000000030612e5 _start (/scratch/paul/src/llvm-project/build/bin/clang+0x30612e5)
+clang: error: clang frontend command failed with exit code 134 (use -v to see invocation)
+clang version 17.0.0 (git@github.com:PBHDK/llvm-project.git 1fe841051df84d0d7c3e1406e9889f60654173c5)
+Target: aarch64-unknown-linux-gnu
+Thread model: posix
+InstalledDir: /scratch/paul/src/llvm-project/build/bin
+clang: note: diagnostic msg: 
+********************
+
+PLEASE ATTACH THE FOLLOWING FILES TO THE BUG REPORT:
+Preprocessed source(s) and associated run script(s) are located at:
+clang: note: diagnostic msg: /tmp/dev-59283b.c
+clang: note: diagnostic msg: /tmp/dev-59283b.sh
+clang: note: diagnostic msg: 
+
+********************
+make[3]: *** [scripts/Makefile.build:252: fs/fuse/dev.o] Error 1
+make[3]: *** Waiting for unfinished jobs....
+make[2]: *** [scripts/Makefile.build:494: fs/fuse] Error 2
+make[2]: *** Waiting for unfinished jobs....
+clang: /scratch/paul/src/llvm-project/llvm/lib/Transforms/Utils/LKMMDependenceAnalysis.cpp:1855: void llvm::BFSCtx::handleCall(llvm::CallBase &): Assertion `ADBs.find(ID) != ADBs.end() && "Overwritten ADB not present in calling function!"' failed.
+PLEASE submit a bug report to https://github.com/llvm/llvm-project/issues/ and include the crash backtrace, preprocessed source, and associated run script.
+Stack dump:
+0.	Program arguments: /scratch/paul/src/llvm-project/build/bin/clang -Wp,-MMD,mm/.swapfile.o.d -nostdinc -I./arch/arm64/include -I./arch/arm64/include/generated -I./include -I./arch/arm64/include/uapi -I./arch/arm64/include/generated/uapi -I./include/uapi -I./include/generated/uapi -include ./include/linux/compiler-version.h -include ./include/linux/kconfig.h -include ./include/linux/compiler_types.h -D__KERNEL__ -mlittle-endian -DKASAN_SHADOW_SCALE_SHIFT= -fmacro-prefix-map=./= -Wall -Wundef -Werror=strict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -fshort-wchar -fno-PIE -Werror=implicit-function-declaration -Werror=implicit-int -Werror=return-type -Wno-format-security -funsigned-char -std=gnu11 --target=aarch64-linux-gnu -fintegrated-as -Werror=unknown-warning-option -Werror=ignored-optimization-argument -Werror=option-ignored -Werror=unused-command-line-argument -mgeneral-regs-only -DCONFIG_CC_HAS_K_CONSTRAINT=1 -Wno-psabi -fno-asynchronous-unwind-tables -fno-unwind-tables -mbranch-protection=pac-ret+bti -Wa,-march=armv8.5-a -DARM64_ASM_ARCH=\"armv8.5-a\" -DKASAN_SHADOW_SCALE_SHIFT= -fno-delete-null-pointer-checks -Wno-frame-address -Wno-address-of-packed-member -O2 -Wframe-larger-than=2048 -fstack-protector-strong -Wno-gnu -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-omit-frame-pointer -fno-optimize-sibling-calls -ftrivial-auto-var-init=zero -falign-functions=4 -Wdeclaration-after-statement -Wvla -Wno-pointer-sign -Wcast-function-type -Wimplicit-fallthrough -fno-strict-overflow -fno-stack-check -Werror=date-time -Werror=incompatible-pointer-types -Wno-void-ptr-dereference -Wno-initializer-overrides -Wno-sign-compare -Wno-pointer-to-enum-cast -Wno-tautological-constant-out-of-range-compare -Wno-unaligned-access -Wno-cast-function-type-strict -g -mstack-protector-guard=sysreg -mstack-protector-guard-reg=sp_el0 -mstack-protector-guard-offset=1144 -fsanitize=lkmm-dep-checker -DKBUILD_MODFILE=\"mm/swapfile\" -DKBUILD_BASENAME=\"swapfile\" -DKBUILD_MODNAME=\"swapfile\" -D__KBUILD_MODNAME=kmod_swapfile -c -o mm/swapfile.o mm/swapfile.c
+1.	<eof> parser at end of file
+2.	Optimizer
+ #0 0x00000000045e10a7 llvm::sys::PrintStackTrace(llvm::raw_ostream&, int) /scratch/paul/src/llvm-project/llvm/lib/Support/Unix/Signals.inc:602:13
+ #1 0x00000000045df330 llvm::sys::RunSignalHandlers() /scratch/paul/src/llvm-project/llvm/lib/Support/Signals.cpp:105:18
+ #2 0x0000000004560f28 (anonymous namespace)::CrashRecoveryContextImpl::HandleCrash(int, unsigned long) /scratch/paul/src/llvm-project/llvm/lib/Support/CrashRecoveryContext.cpp:73:5
+ #3 0x0000000004560f28 CrashRecoverySignalHandler(int) /scratch/paul/src/llvm-project/llvm/lib/Support/CrashRecoveryContext.cpp:390:51
+ #4 0x00007fa3d53a5bf0 __restore_rt (/nix/store/bzd91shky9j9d43girrrj6vmqlw7x9m8-glibc-2.35-163/lib/libc.so.6+0x3dbf0)
+ #5 0x00007fa3d53f2bc7 __pthread_kill_implementation (/nix/store/bzd91shky9j9d43girrrj6vmqlw7x9m8-glibc-2.35-163/lib/libc.so.6+0x8abc7)
+ #6 0x00007fa3d53a5b46 gsignal (/nix/store/bzd91shky9j9d43girrrj6vmqlw7x9m8-glibc-2.35-163/lib/libc.so.6+0x3db46)
+ #7 0x00007fa3d53904b5 abort (/nix/store/bzd91shky9j9d43girrrj6vmqlw7x9m8-glibc-2.35-163/lib/libc.so.6+0x284b5)
+ #8 0x00007fa3d53903d9 _nl_load_domain.cold.0 (/nix/store/bzd91shky9j9d43girrrj6vmqlw7x9m8-glibc-2.35-163/lib/libc.so.6+0x283d9)
+ #9 0x00007fa3d539e7b6 (/nix/store/bzd91shky9j9d43girrrj6vmqlw7x9m8-glibc-2.35-163/lib/libc.so.6+0x367b6)
+#10 0x0000000004d5b191 llvm::BFSCtx::handleCall(llvm::CallBase&) /scratch/paul/src/llvm-project/llvm/lib/Transforms/Utils/LKMMDependenceAnalysis.cpp:1876:9
+#11 0x0000000004d56829 void llvm::InstVisitor<llvm::BFSCtx, void>::visit<llvm::ilist_iterator<llvm::ilist_detail::node_options<llvm::Instruction, true, false, void>, false, false>>(llvm::ilist_iterator<llvm::ilist_detail::node_options<llvm::Instruction, true, false, void>, false, false>, llvm::ilist_iterator<llvm::ilist_detail::node_options<llvm::Instruction, true, false, void>, false, false>) /scratch/paul/src/llvm-project/llvm/include/llvm/IR/InstVisitor.h:0:37
+#12 0x0000000004d56829 llvm::InstVisitor<llvm::BFSCtx, void>::visit(llvm::BasicBlock&) /scratch/paul/src/llvm-project/llvm/include/llvm/IR/InstVisitor.h:104:5
+#13 0x0000000004d56829 llvm::InstVisitor<llvm::BFSCtx, void>::visit(llvm::BasicBlock*) /scratch/paul/src/llvm-project/llvm/include/llvm/IR/InstVisitor.h:110:34
+#14 0x0000000004d56829 llvm::BFSCtx::runBFS() /scratch/paul/src/llvm-project/llvm/lib/Transforms/Utils/LKMMDependenceAnalysis.cpp:1560:5
+#15 0x0000000004d61ab8 llvm::LKMMVerifier::run(llvm::Module&, llvm::AnalysisManager<llvm::Module>&) /scratch/paul/src/llvm-project/llvm/lib/Transforms/Utils/LKMMDependenceAnalysis.cpp:2514:3
+#16 0x0000000004d63b6d llvm::LKMMVerifyDepsPass::run(llvm::Module&, llvm::AnalysisManager<llvm::Module>&) /scratch/paul/src/llvm-project/llvm/lib/Transforms/Utils/LKMMDependenceAnalysis.cpp:2657:1
+#17 0x0000000004d10cfd llvm::detail::PassModel<llvm::Module, llvm::LKMMVerifyDepsPass, llvm::PreservedAnalyses, llvm::AnalysisManager<llvm::Module>>::run(llvm::Module&, llvm::AnalysisManager<llvm::Module>&) /scratch/paul/src/llvm-project/llvm/include/llvm/IR/PassManagerInternal.h:89:5
+#18 0x0000000004151129 llvm::PassManager<llvm::Module, llvm::AnalysisManager<llvm::Module>>::run(llvm::Module&, llvm::AnalysisManager<llvm::Module>&) /scratch/paul/src/llvm-project/llvm/include/llvm/IR/PassManager.h:521:10
+#19 0x0000000004d0c85c llvm::SmallPtrSetImplBase::isSmall() const /scratch/paul/src/llvm-project/llvm/include/llvm/ADT/SmallPtrSet.h:195:33
+#20 0x0000000004d0c85c llvm::SmallPtrSetImplBase::~SmallPtrSetImplBase() /scratch/paul/src/llvm-project/llvm/include/llvm/ADT/SmallPtrSet.h:83:10
+#21 0x0000000004d0c85c llvm::PreservedAnalyses::~PreservedAnalyses() /scratch/paul/src/llvm-project/llvm/include/llvm/IR/PassManager.h:152:7
+#22 0x0000000004d0c85c (anonymous namespace)::EmitAssemblyHelper::RunOptimizationPipeline(clang::BackendAction, std::unique_ptr<llvm::raw_pwrite_stream, std::default_delete<llvm::raw_pwrite_stream>>&, std::unique_ptr<llvm::ToolOutputFile, std::default_delete<llvm::ToolOutputFile>>&) /scratch/paul/src/llvm-project/clang/lib/CodeGen/BackendUtil.cpp:1098:5
+#23 0x0000000004d05624 (anonymous namespace)::EmitAssemblyHelper::EmitAssembly(clang::BackendAction, std::unique_ptr<llvm::raw_pwrite_stream, std::default_delete<llvm::raw_pwrite_stream>>) /scratch/paul/src/llvm-project/clang/lib/CodeGen/BackendUtil.cpp:0:3
+#24 0x0000000004d05624 clang::EmitBackendOutput(clang::DiagnosticsEngine&, clang::HeaderSearchOptions const&, clang::CodeGenOptions const&, clang::TargetOptions const&, clang::LangOptions const&, llvm::StringRef, llvm::Module*, clang::BackendAction, llvm::IntrusiveRefCntPtr<llvm::vfs::FileSystem>, std::unique_ptr<llvm::raw_pwrite_stream, std::default_delete<llvm::raw_pwrite_stream>>) /scratch/paul/src/llvm-project/clang/lib/CodeGen/BackendUtil.cpp:1318:13
+#25 0x000000000519d674 std::unique_ptr<llvm::raw_pwrite_stream, std::default_delete<llvm::raw_pwrite_stream>>::~unique_ptr() /nix/store/l4dvshb0bw0ipyx17f6rknzk83mdx81y-gcc-11.3.0/include/c++/11.3.0/bits/unique_ptr.h:360:6
+#26 0x000000000519d674 clang::BackendConsumer::HandleTranslationUnit(clang::ASTContext&) /scratch/paul/src/llvm-project/clang/lib/CodeGen/CodeGenAction.cpp:386:7
+#27 0x00000000067d25d4 __gnu_cxx::__normal_iterator<std::unique_ptr<clang::TemplateInstantiationCallback, std::default_delete<clang::TemplateInstantiationCallback>>*, std::vector<std::unique_ptr<clang::TemplateInstantiationCallback, std::default_delete<clang::TemplateInstantiationCallback>>, std::allocator<std::unique_ptr<clang::TemplateInstantiationCallback, std::default_delete<clang::TemplateInstantiationCallback>>>>>::__normal_iterator(std::unique_ptr<clang::TemplateInstantiationCallback, std::default_delete<clang::TemplateInstantiationCallback>>* const&) /nix/store/l4dvshb0bw0ipyx17f6rknzk83mdx81y-gcc-11.3.0/include/c++/11.3.0/bits/stl_iterator.h:1011:20
+#28 0x00000000067d25d4 std::vector<std::unique_ptr<clang::TemplateInstantiationCallback, std::default_delete<clang::TemplateInstantiationCallback>>, std::allocator<std::unique_ptr<clang::TemplateInstantiationCallback, std::default_delete<clang::TemplateInstantiationCallback>>>>::begin() /nix/store/l4dvshb0bw0ipyx17f6rknzk83mdx81y-gcc-11.3.0/include/c++/11.3.0/bits/stl_vector.h:812:16
+#29 0x00000000067d25d4 void clang::finalize<std::vector<std::unique_ptr<clang::TemplateInstantiationCallback, std::default_delete<clang::TemplateInstantiationCallback>>, std::allocator<std::unique_ptr<clang::TemplateInstantiationCallback, std::default_delete<clang::TemplateInstantiationCallback>>>>>(std::vector<std::unique_ptr<clang::TemplateInstantiationCallback, std::default_delete<clang::TemplateInstantiationCallback>>, std::allocator<std::unique_ptr<clang::TemplateInstantiationCallback, std::default_delete<clang::TemplateInstantiationCallback>>>>&, clang::Sema const&) /scratch/paul/src/llvm-project/clang/include/clang/Sema/TemplateInstCallback.h:54:16
+#30 0x00000000067d25d4 clang::ParseAST(clang::Sema&, bool, bool) /scratch/paul/src/llvm-project/clang/lib/Parse/ParseAST.cpp:183:3
+#31 0x00000000050bdd91 clang::FrontendAction::Execute() /scratch/paul/src/llvm-project/clang/lib/Frontend/FrontendAction.cpp:1062:10
+#32 0x0000000005035e3f llvm::Error::getPtr() const /scratch/paul/src/llvm-project/llvm/include/llvm/Support/Error.h:270:42
+#33 0x0000000005035e3f llvm::Error::operator bool() /scratch/paul/src/llvm-project/llvm/include/llvm/Support/Error.h:233:16
+#34 0x0000000005035e3f clang::CompilerInstance::ExecuteAction(clang::FrontendAction&) /scratch/paul/src/llvm-project/clang/lib/Frontend/CompilerInstance.cpp:1053:23
+#35 0x0000000005196082 clang::ExecuteCompilerInvocation(clang::CompilerInstance*) /scratch/paul/src/llvm-project/clang/lib/FrontendTool/ExecuteCompilerInvocation.cpp:272:25
+#36 0x0000000003067a91 cc1_main(llvm::ArrayRef<char const*>, char const*, void*) /scratch/paul/src/llvm-project/clang/tools/driver/cc1_main.cpp:249:15
+#37 0x0000000003064dea ExecuteCC1Tool(llvm::SmallVectorImpl<char const*>&, llvm::ToolContext const&) /scratch/paul/src/llvm-project/clang/tools/driver/driver.cpp:366:12
+#38 0x0000000004ed6d49 clang::driver::CC1Command::Execute(llvm::ArrayRef<std::optional<llvm::StringRef>>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>*, bool*) const::$_1::operator()() const /scratch/paul/src/llvm-project/clang/lib/Driver/Job.cpp:440:30
+#39 0x0000000004ed6d49 void llvm::function_ref<void ()>::callback_fn<clang::driver::CC1Command::Execute(llvm::ArrayRef<std::optional<llvm::StringRef>>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>*, bool*) const::$_1>(long) /scratch/paul/src/llvm-project/llvm/include/llvm/ADT/STLFunctionalExtras.h:45:12
+#40 0x0000000004560c6b llvm::function_ref<void ()>::operator()() const /scratch/paul/src/llvm-project/llvm/include/llvm/ADT/STLFunctionalExtras.h:0:12
+#41 0x0000000004560c6b llvm::CrashRecoveryContext::RunSafely(llvm::function_ref<void ()>) /scratch/paul/src/llvm-project/llvm/lib/Support/CrashRecoveryContext.cpp:426:3
+#42 0x0000000004ed65c0 clang::driver::CC1Command::Execute(llvm::ArrayRef<std::optional<llvm::StringRef>>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>*, bool*) const /scratch/paul/src/llvm-project/clang/lib/Driver/Job.cpp:440:7
+#43 0x0000000004e9bb6f clang::driver::Compilation::ExecuteCommand(clang::driver::Command const&, clang::driver::Command const*&, bool) const /scratch/paul/src/llvm-project/clang/lib/Driver/Compilation.cpp:199:15
+#44 0x0000000004e9be47 clang::driver::Compilation::ExecuteJobs(clang::driver::JobList const&, llvm::SmallVectorImpl<std::pair<int, clang::driver::Command const*>>&, bool) const /scratch/paul/src/llvm-project/clang/lib/Driver/Compilation.cpp:253:13
+#45 0x0000000004eb6628 llvm::SmallVectorBase<unsigned int>::empty() const /scratch/paul/src/llvm-project/llvm/include/llvm/ADT/SmallVector.h:94:46
+#46 0x0000000004eb6628 clang::driver::Driver::ExecuteCompilation(clang::driver::Compilation&, llvm::SmallVectorImpl<std::pair<int, clang::driver::Command const*>>&) /scratch/paul/src/llvm-project/clang/lib/Driver/Driver.cpp:1906:23
+#47 0x00000000030643e4 clang_main(int, char**, llvm::ToolContext const&) /scratch/paul/src/llvm-project/clang/tools/driver/driver.cpp:542:21
+#48 0x0000000003072f41 main /scratch/paul/src/llvm-project/build/tools/clang/tools/driver/clang-driver.cpp:15:3
+#49 0x00007fa3d539124e __libc_start_call_main (/nix/store/bzd91shky9j9d43girrrj6vmqlw7x9m8-glibc-2.35-163/lib/libc.so.6+0x2924e)
+#50 0x00007fa3d5391309 __libc_start_main@GLIBC_2.2.5 (/nix/store/bzd91shky9j9d43girrrj6vmqlw7x9m8-glibc-2.35-163/lib/libc.so.6+0x29309)
+#51 0x00000000030612e5 _start (/scratch/paul/src/llvm-project/build/bin/clang+0x30612e5)
+clang: error: clang frontend command failed with exit code 134 (use -v to see invocation)
+clang version 17.0.0 (git@github.com:PBHDK/llvm-project.git 1fe841051df84d0d7c3e1406e9889f60654173c5)
+Target: aarch64-unknown-linux-gnu
+Thread model: posix
+InstalledDir: /scratch/paul/src/llvm-project/build/bin
+clang: note: diagnostic msg: 
+********************
+
+PLEASE ATTACH THE FOLLOWING FILES TO THE BUG REPORT:
+Preprocessed source(s) and associated run script(s) are located at:
+clang: note: diagnostic msg: /tmp/swapfile-3e7f69.c
+clang: note: diagnostic msg: /tmp/swapfile-3e7f69.sh
+clang: note: diagnostic msg: 
+
+********************
+make[2]: *** [scripts/Makefile.build:252: mm/swapfile.o] Error 1
+make[2]: *** Waiting for unfinished jobs....
+//===--------------------------Broken Dependency--------------------------===//
+Address dependency with ID: 
+_compound_head::245:23
+virt_to_head_page::1173:9<-_compound_head()
+receive_mergeable::1365:10<-virt_to_head_page()
+receive_mergeable::1397:18->lowmem_page_address()
+receive_mergeable::1397:18<-lowmem_page_address()
+receive_mergeable::1398:7->skb_can_coalesce()
+receive_mergeable::1398:7<-skb_can_coalesce()
+receive_mergeable::1415:2->put_page()
+put_page::1491:24->_compound_head()
+_compound_head::245:23
+
+Dependency Beginning:	
+virtnet_receive::1779:4  receive_buf::1481:9  receive_mergeable::1365:10  virt_to_head_page::1173:9  _compound_head::245:23
+
+Path to (via files) from annotation: 
+drivers/net/virtio_net.c::1779:4  drivers/net/virtio_net.c::1481:9  drivers/net/virtio_net.c::1365:10  ./include/linux/mm.h::1173:9  ./include/linux/page-flags.h::245:23
+
+Dependnecy Ending:	
+_compound_head::245:23
+
+Path to (via files) from annotation: 
+drivers/net/virtio_net.c::1785:4  drivers/net/virtio_net.c::1481:9  drivers/net/virtio_net.c::1415:2  ./include/linux/mm.h::1491:24  ./include/linux/page-flags.h::245:23
+
+Broken by breaking the dependency chain
+
+Soure-level dep chains at put_page::245:23
+
+Union of all dependency chains at the ending:
+//===---------------------------------------------------------------------===//
+
+make[1]: *** [scripts/Makefile.build:494: fs] Error 2
+make[1]: *** Waiting for unfinished jobs....
+make[1]: *** [scripts/Makefile.build:494: mm] Error 2
+//===--------------------------Broken Dependency--------------------------===//
+Address dependency with ID: 
+__stm_source_link_drop::1071:9
+__stm_source_link_drop::1085:2->pm_runtime_mark_last_busy()
+pm_runtime_mark_last_busy::233:2
+
+Dependency Beginning:	
+stm_source_link_drop::1138:9  __stm_source_link_drop::1071:9
+
+Path to (via files) from annotation: 
+drivers/hwtracing/stm/core.c::1138:9  drivers/hwtracing/stm/core.c::1071:9
+
+Dependnecy Ending:	
+pm_runtime_mark_last_busy::233:2
+
+Path to (via files) from annotation: 
+drivers/hwtracing/stm/core.c::939:9  drivers/hwtracing/stm/core.c::1085:2  ./include/linux/pm_runtime.h::233:2
+
+Broken by breaking the dependency chain
+
+Soure-level dep chains at __stm_source_link_drop::233:2
+
+Union of all dependency chains at the ending:
+//===---------------------------------------------------------------------===//
+
+//===--------------------------Broken Dependency--------------------------===//
+Address dependency with ID: 
+__sbitmap_queue_get_batch::493:10
+__sbitmap_queue_get_batch::494:9->update_alloc_hint_before_get()
+__sbitmap_queue_get_batch::494:9<-update_alloc_hint_before_get()
+__sbitmap_queue_get_batch::501:28->__map_depth()
+__sbitmap_queue_get_batch::501:28<-__map_depth()
+__sbitmap_queue_get_batch::507:8->find_first_zero_bit()
+__sbitmap_queue_get_batch::507:8<-find_first_zero_bit()
+__sbitmap_queue_get_batch::513:10
+
+Dependency Beginning:	
+__sbitmap_queue_get_batch::493:10
+
+Path to (via files) from annotation: 
+lib/sbitmap.c::493:10
+
+Dependnecy Ending:	
+__sbitmap_queue_get_batch::513:10
+
+Path to (via files) from annotation: 
+lib/sbitmap.c::513:10
+
+Broken by breaking the dependency chain
+
+Soure-level dep chains at __sbitmap_queue_get_batch::513:10
+
+Union of all dependency chains at the ending:
+//===---------------------------------------------------------------------===//
+
+//===--------------------------Broken Dependency--------------------------===//
+Address dependency with ID: 
+__sbitmap_queue_get_batch::493:10
+__sbitmap_queue_get_batch::494:9->update_alloc_hint_before_get()
+__sbitmap_queue_get_batch::494:9<-update_alloc_hint_before_get()
+__sbitmap_queue_get_batch::501:28->__map_depth()
+__sbitmap_queue_get_batch::501:28<-__map_depth()
+__sbitmap_queue_get_batch::503:3->sbitmap_deferred_clear()
+sbitmap_deferred_clear::67:7
+
+Dependency Beginning:	
+__sbitmap_queue_get_batch::493:10
+
+Path to (via files) from annotation: 
+lib/sbitmap.c::493:10
+
+Dependnecy Ending:	
+sbitmap_deferred_clear::67:7
+
+Path to (via files) from annotation: 
+lib/sbitmap.c::503:3  lib/sbitmap.c::67:7
+
+Broken by breaking the dependency chain
+
+Soure-level dep chains at __sbitmap_queue_get_batch::67:7
+
+Union of all dependency chains at the ending:
+//===---------------------------------------------------------------------===//
+
+//===--------------------------Broken Dependency--------------------------===//
+Address dependency with ID: 
+__rhashtable_remove_fast::1086:8
+__rhashtable_remove_fast::1093:16->__rhashtable_remove_fast_one()
+__rhashtable_remove_fast_one::1007:9->rht_head_hashfn()
+__rhashtable_remove_fast_one::1007:9<-rht_head_hashfn()
+__rhashtable_remove_fast_one::1008:8->rht_bucket_var()
+__rhashtable_remove_fast_one::1008:8<-rht_bucket_var()
+__rhashtable_remove_fast_one::1014:2->rht_ptr()
+__rhashtable_remove_fast_one::1014:2<-rht_ptr()
+__rhashtable_remove_fast_one::1014:2->rht_is_a_nulls()
+__rhashtable_remove_fast_one::1014:2<-rht_is_a_nulls()
+__rhashtable_remove_fast_one::1048:5
+
+Dependency Beginning:	
+rhashtable_remove_fast::1122:9  __rhashtable_remove_fast::1086:8
+
+Path to (via files) from annotation: 
+./include/linux/rhashtable.h::1122:9  ./include/linux/rhashtable.h::1086:8
+
+Dependnecy Ending:	
+__rhashtable_remove_fast_one::1048:5
+
+Path to (via files) from annotation: 
+./include/linux/rhashtable.h::1144:9  ./include/linux/rhashtable.h::1093:16  ./include/linux/rhashtable.h::1048:5
+
+Broken by breaking the dependency chain
+
+Soure-level dep chains at __rhashtable_remove_fast::1048:5
+
+Union of all dependency chains at the ending:
+//===---------------------------------------------------------------------===//
+
+make: *** [Makefile:2027: .] Error 2

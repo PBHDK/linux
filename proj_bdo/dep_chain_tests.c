@@ -1,3 +1,4 @@
+#include "linux/printk.h"
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -20,6 +21,7 @@ static int test_arr[10] = { 0x42424241, 0x42424242, 0x42424243, 0x42424244,
 static int *test_arr_ptrs[10];
 static int **x = &test_arr_ptrs[0];
 static int y;
+extern volatile int c;
 
 /**
  * Naming scheme: proj_bdo_(rr|rw)_(addr|ctrl)_(begin|end)_${test_name}
@@ -247,6 +249,45 @@ static noinline int proj_bdo_rr_addr_dep_end_cond_dep_chain_full(void)
 	if (get_random_u8())
 		r2 = &r1[5];
 	else
+		r2 = &r1[8];
+
+	r3 = READ_ONCE(*r2);
+
+	return 0;
+}
+
+static noinline int proj_bdo_rr_addr_dep_begin_cond_dep_chain_dep_cond(void)
+{
+	int *r1;
+	int *r2;
+	int r3;
+
+	r1 = READ_ONCE(*x);
+
+	if (r1 == (int *)0x424242) {
+		r2 = &r1[5];
+		printk("hello");
+	} else
+		r2 = &r1[8];
+
+	r3 = READ_ONCE(*r2);
+
+	return 0;
+}
+
+/* BUGs: 1 */
+static noinline int proj_bdo_rr_addr_dep_end_cond_dep_chain_dep_cond(void)
+{
+	int *r1;
+	int *r2;
+	int r3;
+
+	r1 = READ_ONCE(*x);
+
+	if (r1 == (int *)0x424242) {
+		r2 = &r1[5];
+		printk("hello");
+	} else
 		r2 = &r1[8];
 
 	r3 = READ_ONCE(*r2);
@@ -1332,6 +1373,11 @@ static noinline int doitlk_ctrl_dep_begin_15(void)
 	return 0;
 }
 
+static noinline void ctrl_dep_end_15_helper(int *r1)
+{
+	WRITE_ONCE(*r1, y);
+}
+
 static noinline int doitlk_ctrl_dep_end_15(void)
 {
 	int *r1;
@@ -1339,14 +1385,9 @@ static noinline int doitlk_ctrl_dep_end_15(void)
 	r1 = READ_ONCE(*x);
 
 	if (r1)
-		ctrl_dep_begin_15_helper(r1);
+		ctrl_dep_end_15_helper(r1);
 
 	return 0;
-}
-
-static noinline void ctrl_dep_end_15_helper(int *r1)
-{
-	WRITE_ONCE(*r1, y);
 }
 
 static noinline int doitlk_ctrl_dep_begin_16(void)
@@ -1466,6 +1507,9 @@ int proj_bdo_run_tests(void)
 
 	proj_bdo_rr_addr_dep_begin_cond_dep_chain_full();
 	proj_bdo_rr_addr_dep_end_cond_dep_chain_full();
+
+	proj_bdo_rr_addr_dep_begin_cond_dep_chain_dep_cond();
+	proj_bdo_rr_addr_dep_end_cond_dep_chain_dep_cond();
 
 	proj_bdo_rr_addr_dep_begin_cond_dep_chain_partial();
 	proj_bdo_rr_addr_dep_end_cond_dep_chain_partial();
