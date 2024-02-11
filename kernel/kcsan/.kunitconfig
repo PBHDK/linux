@@ -7,6 +7,7 @@
 CONFIG_KUNIT=y
 
 CONFIG_DEBUG_KERNEL=y
+CONFIG_STACK_TRACER=y
 
 # Need some level of concurrency to test a concurrency sanitizer.
 CONFIG_SMP=y
