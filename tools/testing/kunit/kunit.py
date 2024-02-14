@@ -81,6 +81,15 @@ def config_tests(linux: kunit_kernel.LinuxSourceTree,
 	config_start = time.time()
 	success = linux.build_reconfig(request.build_dir, request.make_options)
 	config_end = time.time()
+	
+	config = kunit_kernel.kunit_config.parse_file(kunit_kernel.get_kconfig_path(request.build_dir))
+	config_mte = kunit_kernel.kunit_config.Kconfig()
+	config_mte.add_entry("ARM64_MTE", "y")
+	if config_mte.is_subset_of(config):
+		if isinstance(linux._ops, kunit_kernel.LinuxSourceTreeOperationsQemu):
+			if ",mte=on" not in linux._ops._extra_qemu_params:
+				linux._ops._extra_qemu_params.append(",mte=on")
+	
 	status = KunitStatus.SUCCESS if success else KunitStatus.CONFIG_FAILURE
 	return KunitResult(status, config_end - config_start)
 
