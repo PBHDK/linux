@@ -327,25 +327,6 @@ static inline void _capability_unsafe_alias(void **p) { }
 #define __release(x)		__release_cap(x)
 
 /**
- * __cond_lock() - function that conditionally acquires a capability
- *                 exclusively
- * @x: capability instance pinter
- * @c: boolean expression
- *
- * Return: result of @c
- *
- * No-op function that conditionally acquires capability instance @x
- * exclusively, if the boolean expression @c is true. The result of @c is the
- * return value, to be able to create a capability-enabled interface; for
- * example:
- *
- * .. code-block:: c
- *
- *	#define spin_trylock(l) __cond_lock(&lock, _spin_trylock(&lock))
- */
-#define __cond_lock(x, c)	__try_acquire_cap(x, c)
-
-/**
  * __must_hold_shared() - function attribute, caller must hold shared capability
  *
  * Function attribute declaring that the caller must hold the given capability
@@ -400,20 +381,6 @@ static inline void _capability_unsafe_alias(void **p) { }
  * access.
  */
 #define __release_shared(x)	__release_shared_cap(x)
-
-/**
- * __cond_lock_shared() - function that conditionally acquires a capability
- *                        shared
- * @x: capability instance pinter
- * @c: boolean expression
- *
- * Return: result of @c
- *
- * No-op function that conditionally acquires capability instance @x with shared
- * access, if the boolean expression @c is true. The result of @c is the return
- * value, to be able to create a capability-enabled interface.
- */
-#define __cond_lock_shared(x, c) __try_acquire_shared_cap(x, c)
 
 /**
  * __acquire_ret() - helper to acquire capability of return value
