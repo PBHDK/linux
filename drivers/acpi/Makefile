@@ -3,6 +3,8 @@
 # Makefile for the Linux ACPI interpreter
 #
 
+CAPABILITY_ANALYSIS := y
+
 ccflags-$(CONFIG_ACPI_DEBUG)	+= -DACPI_DEBUG_OUTPUT
 
 ifdef CONFIG_TRACE_BRANCH_PROFILING
